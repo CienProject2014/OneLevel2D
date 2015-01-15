@@ -40,7 +40,6 @@ namespace OneLevelJson
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.assetsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.importToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.packTextToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.assetList = new System.Windows.Forms.ListView();
             this.assetImageList = new System.Windows.Forms.ImageList(this.components);
@@ -56,6 +55,7 @@ namespace OneLevelJson
             this.imageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openProjectDialog = new System.Windows.Forms.OpenFileDialog();
             this.blackboard = new OneLevelJson.Blackboard();
+            this.exportFolderBrowser = new System.Windows.Forms.FolderBrowserDialog();
             this.menuStrip1.SuspendLayout();
             this.componentMenuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picBox)).BeginInit();
@@ -123,8 +123,7 @@ namespace OneLevelJson
             // assetsToolStripMenuItem
             // 
             this.assetsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.importToolStripMenuItem,
-            this.packTextToolStripMenuItem});
+            this.importToolStripMenuItem});
             this.assetsToolStripMenuItem.Name = "assetsToolStripMenuItem";
             this.assetsToolStripMenuItem.Size = new System.Drawing.Size(52, 20);
             this.assetsToolStripMenuItem.Text = "Assets";
@@ -132,16 +131,9 @@ namespace OneLevelJson
             // importToolStripMenuItem
             // 
             this.importToolStripMenuItem.Name = "importToolStripMenuItem";
-            this.importToolStripMenuItem.Size = new System.Drawing.Size(125, 22);
+            this.importToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.importToolStripMenuItem.Text = "Import";
             this.importToolStripMenuItem.Click += new System.EventHandler(this.importToolStripMenuItem_Click);
-            // 
-            // packTextToolStripMenuItem
-            // 
-            this.packTextToolStripMenuItem.Name = "packTextToolStripMenuItem";
-            this.packTextToolStripMenuItem.Size = new System.Drawing.Size(125, 22);
-            this.packTextToolStripMenuItem.Text = "Pack Text";
-            this.packTextToolStripMenuItem.Click += new System.EventHandler(this.packTextToolStripMenuItem_Click);
             // 
             // helpToolStripMenuItem
             // 
@@ -298,7 +290,7 @@ namespace OneLevelJson
         private ContextMenuStrip blackboardMenuStrip;
         private ToolStripMenuItem imageToolStripMenuItem;
         private OpenFileDialog openProjectDialog;
-        private ToolStripMenuItem packTextToolStripMenuItem;
+        private FolderBrowserDialog exportFolderBrowser;
     }
 }
 

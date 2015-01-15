@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using Newtonsoft.Json;
-using System.IO;
-using System.Net.Sockets;
-using System.Security.AccessControl;
 
 namespace OneLevelJson
 {
@@ -33,7 +31,7 @@ namespace OneLevelJson
             blackboard.Invalidate();
 
             // TODO 분리해주어야 좋을 Directory 설정. 이 부분을 어디서 사용할지 모르니까 쉽사리 분리를 하지 못하겠다.
-            string projectPath = Document.Directory ?? Application.StartupPath;
+            string projectPath = Document.SaveDirectory ?? Application.StartupPath;
             MakeDirectory(projectPath + AssetDirectory);
             MakeDirectory(projectPath + ImageDataDirectory);
         }
@@ -69,7 +67,7 @@ namespace OneLevelJson
         private void SaveDocument(string filename)
         {
             string docjson = JsonConvert.SerializeObject(_document);
-            File.WriteAllText(Document.Directory + @"\" + filename, docjson);
+            File.WriteAllText(Document.SaveDirectory + @"\" + filename, docjson);
             // _document를 json으로 serialize해서 파일에 쓰기.
         }
 
@@ -86,7 +84,7 @@ namespace OneLevelJson
 
             foreach (var file in files)
             {
-                string projectDirectory = Document.Directory ?? Application.StartupPath;
+                string projectDirectory = Document.SaveDirectory ?? Application.StartupPath;
                 try
                 {
                     File.Copy(file, projectDirectory + ImageDataDirectory + @"\" + file.Split('\\').Last());
@@ -184,7 +182,7 @@ namespace OneLevelJson
 
         private Image MakeImageFrom(string file)
         {
-            string projectDirectory = Document.Directory ?? Application.StartupPath;
+            string projectDirectory = Document.SaveDirectory ?? Application.StartupPath;
             return Image.FromFile(projectDirectory + ImageDataDirectory + @"\" + file);
         }
 
@@ -336,6 +334,104 @@ namespace OneLevelJson
             }
         }
 
+        private void newToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MenuNewForm newForm = new MenuNewForm();
+            if (newForm.ShowDialog() == DialogResult.OK)
+            {
+                string name = newForm.Name;
+                int width = newForm.Width;
+                int height = newForm.Height;
+                NewDocument(name, width, height);
+            }
+        }
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            switch (saveFolderBrowserDialog.ShowDialog())
+            {
+                case DialogResult.OK:
+                    if (Document.SaveDirectory == null)
+                    {
+                        string newDir = saveFolderBrowserDialog.SelectedPath + @"\" + _document.Name;
+                        MakeDirectory(newDir);
+                        Document.SaveDirectory = newDir;
+                        Directory.Move(Application.StartupPath + AssetDirectory, Document.SaveDirectory + AssetDirectory);
+                        InitDocument();
+                    }
+
+                    SaveDocument(_document.Name + "." + ProjectExtension);
+
+                    break;
+            }
+
+        }
+
+        private void jsonExportToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // TODO Model로 Export하는거 만들어야지.
+            switch (exportFolderBrowser.ShowDialog())
+            {
+                case DialogResult.OK:
+                    if (Document.ExportDirectory == null)
+                    {
+                        string exportDir = exportFolderBrowser.SelectedPath;
+                        Document.ExportDirectory = exportDir;
+                    }
+
+                    Export(Document.ExportDirectory);
+
+                    break;
+            }
+        }
+
+        private void Export(string exportDir)
+        {
+            string imagePackDir = exportDir + @"\assets\orig";
+            MakeDirectory(imagePackDir);
+
+            texturePacker = new TexturePacker.Packer();
+            texturePacker.LoadAssets(_document.Assets);
+            texturePacker.RunPacking();
+            texturePacker.MakePackImage(imagePackDir);
+            texturePacker.MakeAtlas(imagePackDir);
+
+            #region 모델 관련 작업
+            /*            /***********************************************************************#1#
+            /* Project Model														#1#
+            /***********************************************************************#1#
+            ProjectModel project = new ProjectModel();
+            project.scenes = new List<ProjectModel.Scene>();
+
+            ProjectModel.Scene scene = new ProjectModel.Scene()
+            {
+                ambientColor = { 0.5f, 0.5f, 0.5f, 1 },
+                sceneName = _document.Name
+            };
+            ProjectModel.Resolution orig = new ProjectModel.Resolution()
+            {
+                width = _document.Width,
+                height = _document.Height,
+                name = "orig"
+            };
+            project.scenes.Add(scene);
+            project.originalResolution = orig;
+
+            /***********************************************************************#1#
+            /* Scene Model														    #1#
+            /***********************************************************************#1#
+            SceneModel sceneModel = new SceneModel();
+            sceneModel.composite = new Composite1();
+            sceneModel.ambientColor = new List<float>();
+            sceneModel.sceneName = _document.Name;
+
+            sceneModel.composite.layers = new List<Layer>();
+            sceneModel.composite.sComposites = new sComposite();
+
+            sceneModel.composite.sComposites.layerName = "";*/
+            #endregion
+        }
+
         /************************************************************************/
         /* Component List Menu Strip											*/
         /************************************************************************/
@@ -369,112 +465,17 @@ namespace OneLevelJson
         }
 
         /************************************************************************/
-        /* MainForm Menu Strip													*/
-        /************************************************************************/
-        private void newToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            MenuNewForm newForm = new MenuNewForm();
-            if (newForm.ShowDialog() == DialogResult.OK)
-            {
-                string name = newForm.Name;
-                int width = newForm.Width;
-                int height = newForm.Height;
-                NewDocument(name, width, height);
-            }
-        }
-
-        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (Document.Directory == null)
-            {
-                switch (saveFolderBrowserDialog.ShowDialog())
-                {
-                    case DialogResult.OK:
-                        string newDir = saveFolderBrowserDialog.SelectedPath + @"\" + _document.Name;
-                        MakeDirectory(newDir);
-                        Document.Directory = newDir;
-                        MessageBox.Show(Application.StartupPath + AssetDirectory + " To");
-                        MessageBox.Show(Document.Directory + AssetDirectory + " Here");
-                        Directory.Move(Application.StartupPath + AssetDirectory, Document.Directory + AssetDirectory);
-                        /*try
-                        {
-                            
-                        }
-                        catch (IOException exception)
-                        {
-                            Console.WriteLine("그곳에 폴더를 만들 수 없습니다"+exception);
-                        }*/
-                        InitDocument();
-                  
-                        SaveDocument(_document.Name + "." + ProjectExtension);
-                        break;
-                }
-            }
-            else
-            {
-                SaveDocument(_document.Name + "." + ProjectExtension);
-            }
-
-        }
-
-        private void jsonExportToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            // TODO Model로 Export하는거 만들어야지.
-        }
-
-        private void Export()
-        {
-            /************************************************************************/
-            /* Project Model														*/
-            /************************************************************************/
-            ProjectModel project = new ProjectModel();
-            project.scenes = new List<ProjectModel.Scene>();
-
-            ProjectModel.Scene scene = new ProjectModel.Scene()
-            {
-                ambientColor = { 0.5f, 0.5f, 0.5f, 1 },
-                sceneName = _document.Name
-            };
-            ProjectModel.Resolution orig = new ProjectModel.Resolution()
-            {
-                width = _document.Width,
-                height = _document.Height,
-                name = "orig"
-            };
-            project.scenes.Add(scene);
-            project.originalResolution = orig;
-
-            /************************************************************************/
-            /* Scene Model														    */
-            /************************************************************************/
-            SceneModel sceneModel = new SceneModel();
-            sceneModel.composite = new Composite1();
-            sceneModel.ambientColor = new List<float>();
-            sceneModel.sceneName = _document.Name;
-
-            sceneModel.composite.layers = new List<Layer>();
-            sceneModel.composite.sComposites = new sComposite();
-
-            sceneModel.composite.sComposites.layerName = "";
-        }
-
-        /************************************************************************/
         /* DEBUG																*/
         /************************************************************************/
-        private void packTextToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            texturePacker = new TexturePacker();
-            texturePacker.LoadAssets(_document.Assets);
-            texturePacker.Sort();
 
-        }
-
+        /************************************************************************/
+        /* Variables															*/
+        /************************************************************************/
         private readonly Log _log = new Log();
         private Document _document;
-        private TexturePacker texturePacker;
+        private TexturePacker.Packer texturePacker;
         private const string ProjectExtension = "dt";
-        public static string AssetDirectory = @"\assets";
-        public static string ImageDataDirectory = @"\assets\image";
-
+        public static readonly string AssetDirectory = @"\assets";
+        public static readonly string ImageDataDirectory = @"\assets\image";
     }
 }

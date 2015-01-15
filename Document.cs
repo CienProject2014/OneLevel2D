@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace OneLevelJson
 {
@@ -44,8 +45,11 @@ namespace OneLevelJson
             Component comp = Components.Find(x => x.Id == id);
             if (comp != null) comp.SetId(newId);
         }
-        // TODO Save할때 static 변수도 나가는지 확인
-        public static string Directory { get; set; }
+
+        [JsonProperty]  // static 변수는 자동으로 제외하기 때문에 이 attribute를 추가해줘야 한다.
+        public static string SaveDirectory { get; set; }
+        [JsonProperty]
+        public static string ExportDirectory { get; set; }
         public string Name { get; private set; }
         public int Width { get; private set; }
         public int Height { get; private set; }

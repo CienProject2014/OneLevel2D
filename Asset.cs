@@ -19,7 +19,7 @@ namespace OneLevelJson
             Name = name;
             Number = Number + 1;
 
-            string projectDirectory = Document.Directory ?? Application.StartupPath;
+            string projectDirectory = Document.SaveDirectory ?? Application.StartupPath;
 
             switch (Type)
             {
