@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 
-namespace OneLevelJson
+namespace OneLevelJson.ExportModel
 {
     public class ProjectModel
     {
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public List<Resolution> resolutions { get; set; }
         public List<Scene> scenes { get; set; }
         public Resolution originalResolution { get; set; }

@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
+using System.Windows.Documents.DocumentStructures;
 using Newtonsoft.Json;
 
-namespace OneLevelJson
+namespace OneLevelJson.Model
 {
     public class Document
     {
@@ -15,6 +15,7 @@ namespace OneLevelJson
             Components = new List<Component>();
             Width = width;
             Height = height;
+            Layers = new List<Layer>(1){new Layer(DefaultLayerName)};
         }
 
         public void AddAsset(Asset asset)
@@ -55,5 +56,11 @@ namespace OneLevelJson
         public int Height { get; private set; }
         public List<Asset> Assets { get; private set; }
         public List<Component> Components { get; private set; }
+        [JsonIgnore]
+        public List<Layer> Layers;
+
+        [JsonIgnore]
+        public const string DefaultLayerName = "Default";
+
     }
 }

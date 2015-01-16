@@ -1,19 +1,12 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using OneLevelJson.Model;
 
 namespace OneLevelJson
 {
     public partial class Blackboard : UserControl
     {
-        private Log log = new Log();
-        public Document PresentDocument { get; set; }
-        public Point ClickedPoint { get; private set; }
-        public Point MovingPoint { get; private set; }
-        public Component SelectedComponent { get; private set; }
-
-        private const int borderOffset = 0;
-
         public Blackboard()
         {
             InitializeComponent();
@@ -51,11 +44,11 @@ namespace OneLevelJson
         {
             Point[] points =
                 {
-                    new Point(component.Position.X-borderOffset, component.Position.Y-borderOffset),
-                    new Point(component.Position.X+component.GetSize().Width+borderOffset, component.Position.Y-borderOffset),
-                    new Point(component.Position.X+borderOffset+component.GetSize().Width, component.Position.Y+component.GetSize().Height+borderOffset),
-                    new Point(component.Position.X-borderOffset, component.Position.Y+component.GetSize().Height+borderOffset),
-                    new Point(component.Position.X-borderOffset, component.Position.Y-borderOffset)
+                    new Point(component.Position.X-BorderOffset, component.Position.Y-BorderOffset),
+                    new Point(component.Position.X+component.GetSize().Width+BorderOffset, component.Position.Y-BorderOffset),
+                    new Point(component.Position.X+BorderOffset+component.GetSize().Width, component.Position.Y+component.GetSize().Height+BorderOffset),
+                    new Point(component.Position.X-BorderOffset, component.Position.Y+component.GetSize().Height+BorderOffset),
+                    new Point(component.Position.X-BorderOffset, component.Position.Y-BorderOffset)
                 };
 
             using (Pen pen = new Pen(Color.Black))
@@ -63,7 +56,7 @@ namespace OneLevelJson
                 e.Graphics.DrawLines(pen, points);
             }
 
-            log.Write("size is : " + component.GetSize().ToString());
+            State.log.Write("size is : " + component.GetSize().ToString());
         }
 
         public void RemoveSelected()
@@ -76,7 +69,7 @@ namespace OneLevelJson
         /************************************************************************/
         protected override void OnPaint(PaintEventArgs e)
         {
-            log.Write("OnPaint is called");
+            State.log.Write("OnPaint is called");
             if (PresentDocument == null) return;
 
 
@@ -87,7 +80,7 @@ namespace OneLevelJson
                 switch (component.ParentAsset.Type)
                 {
                     case AssetType.Image:
-                        Image img = data as Image;
+                        Image img = (Image) data;
                         e.Graphics.DrawImage(img, new Rectangle(pos, new Size(img.Width, img.Height)));
                         break;
                 }
@@ -128,7 +121,7 @@ namespace OneLevelJson
                     Point offset = CalcOffset(MovingPoint, e.Location);
                     SelectedComponent.Move(offset);
                     MovingPoint = new Point((Size) e.Location);
-                    log.Write(offset.ToString());
+                    State.log.Write(offset.ToString());
                     break;
             }
             Invalidate();
@@ -139,5 +132,12 @@ namespace OneLevelJson
         {
             Invalidate();
         }
+
+        public Document PresentDocument { get; set; }
+        public Point ClickedPoint { get; private set; }
+        public Point MovingPoint { get; private set; }
+        public Component SelectedComponent { get; private set; }
+
+        private const int BorderOffset = 0;
     }
 }

@@ -41,6 +41,7 @@ namespace OneLevelJson
             this.assetsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.importToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tESTToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.assetList = new System.Windows.Forms.ListView();
             this.assetImageList = new System.Windows.Forms.ImageList(this.components);
             this.componentImageList = new System.Windows.Forms.ImageList(this.components);
@@ -56,6 +57,7 @@ namespace OneLevelJson
             this.openProjectDialog = new System.Windows.Forms.OpenFileDialog();
             this.blackboard = new OneLevelJson.Blackboard();
             this.exportFolderBrowser = new System.Windows.Forms.FolderBrowserDialog();
+            this.layerList = new System.Windows.Forms.ListView();
             this.menuStrip1.SuspendLayout();
             this.componentMenuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picBox)).BeginInit();
@@ -131,22 +133,31 @@ namespace OneLevelJson
             // importToolStripMenuItem
             // 
             this.importToolStripMenuItem.Name = "importToolStripMenuItem";
-            this.importToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.importToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
             this.importToolStripMenuItem.Text = "Import";
             this.importToolStripMenuItem.Click += new System.EventHandler(this.importToolStripMenuItem_Click);
             // 
             // helpToolStripMenuItem
             // 
+            this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tESTToolStripMenuItem});
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.helpToolStripMenuItem.Text = "Help";
             // 
+            // tESTToolStripMenuItem
+            // 
+            this.tESTToolStripMenuItem.Name = "tESTToolStripMenuItem";
+            this.tESTToolStripMenuItem.Size = new System.Drawing.Size(99, 22);
+            this.tESTToolStripMenuItem.Text = "TEST";
+            this.tESTToolStripMenuItem.Click += new System.EventHandler(this.tESTToolStripMenuItem_Click);
+            // 
             // assetList
             // 
             this.assetList.AllowDrop = true;
-            this.assetList.Location = new System.Drawing.Point(594, 351);
+            this.assetList.Location = new System.Drawing.Point(594, 259);
             this.assetList.Name = "assetList";
-            this.assetList.Size = new System.Drawing.Size(146, 193);
+            this.assetList.Size = new System.Drawing.Size(146, 130);
             this.assetList.SmallImageList = this.assetImageList;
             this.assetList.TabIndex = 2;
             this.assetList.UseCompatibleStateImageBehavior = false;
@@ -174,7 +185,7 @@ namespace OneLevelJson
             this.componentList.LabelEdit = true;
             this.componentList.Location = new System.Drawing.Point(594, 141);
             this.componentList.Name = "componentList";
-            this.componentList.Size = new System.Drawing.Size(146, 204);
+            this.componentList.Size = new System.Drawing.Size(146, 112);
             this.componentList.SmallImageList = this.componentImageList;
             this.componentList.TabIndex = 3;
             this.componentList.UseCompatibleStateImageBehavior = false;
@@ -241,11 +252,21 @@ namespace OneLevelJson
             this.blackboard.Size = new System.Drawing.Size(575, 516);
             this.blackboard.TabIndex = 5;
             // 
+            // layerList
+            // 
+            this.layerList.Location = new System.Drawing.Point(595, 396);
+            this.layerList.Name = "layerList";
+            this.layerList.Size = new System.Drawing.Size(145, 148);
+            this.layerList.TabIndex = 6;
+            this.layerList.UseCompatibleStateImageBehavior = false;
+            this.layerList.View = System.Windows.Forms.View.SmallIcon;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(752, 587);
+            this.Controls.Add(this.layerList);
             this.Controls.Add(this.blackboard);
             this.Controls.Add(this.picBox);
             this.Controls.Add(this.componentList);
@@ -291,6 +312,8 @@ namespace OneLevelJson
         private ToolStripMenuItem imageToolStripMenuItem;
         private OpenFileDialog openProjectDialog;
         private FolderBrowserDialog exportFolderBrowser;
+        private ToolStripMenuItem tESTToolStripMenuItem;
+        private ListView layerList;
     }
 }
 

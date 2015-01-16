@@ -3,7 +3,7 @@ using System.Windows.Forms;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace OneLevelJson
+namespace OneLevelJson.Model
 {
     public enum AssetType
     {
@@ -12,7 +12,7 @@ namespace OneLevelJson
 
     public class Asset
     {
-        [JsonConstructorAttribute]
+        [JsonConstructor]
         public Asset(AssetType type, string name)
         {
             Type = type;
@@ -36,8 +36,9 @@ namespace OneLevelJson
         [JsonConverter(typeof (StringEnumConverter))]
         public AssetType Type { get; set; }
         public string Name { get; set; }
+        public Size ImageSize;
+
         [JsonIgnore]
         public readonly object Data;
-        public Size ImageSize;
     }
 }

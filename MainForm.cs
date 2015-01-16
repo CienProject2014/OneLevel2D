@@ -1,10 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using Newtonsoft.Json;
+using OneLevelJson.Export;
+using OneLevelJson.Model;
+using OneLevelJson.TexturePacker;
 
 namespace OneLevelJson
 {
@@ -32,8 +34,8 @@ namespace OneLevelJson
 
             // TODO 분리해주어야 좋을 Directory 설정. 이 부분을 어디서 사용할지 모르니까 쉽사리 분리를 하지 못하겠다.
             string projectPath = Document.SaveDirectory ?? Application.StartupPath;
-            MakeDirectory(projectPath + AssetDirectory);
-            MakeDirectory(projectPath + ImageDataDirectory);
+            MakeDirectory(projectPath + @"\" + _document.Name + @"\" + AssetDirectory);
+            MakeDirectory(projectPath + @"\" + _document.Name + @"\" + ImageDataDirectory);
         }
 
         private void NewDocument(string name, int width, int height)
@@ -87,7 +89,7 @@ namespace OneLevelJson
                 string projectDirectory = Document.SaveDirectory ?? Application.StartupPath;
                 try
                 {
-                    File.Copy(file, projectDirectory + ImageDataDirectory + @"\" + file.Split('\\').Last());
+                    File.Copy(file, projectDirectory + @"\" + _document.Name + @"\" + ImageDataDirectory + @"\" + file.Split('\\').Last());
                 }
                 catch (Exception e)
                 {
@@ -100,6 +102,22 @@ namespace OneLevelJson
 
             // 3. 현재 AssetList를 다시 로드한다.
             ReloadAssetList();
+        }
+
+        private void Export(string exportDir)
+        {
+            string imagePackDir = exportDir + @"\orig";
+            MakeDirectory(imagePackDir);
+
+            // 1. TexturePacker로 기본적인 이미지를 만든다.
+            TexturePacker.LoadAssets(_document.Assets);
+            TexturePacker.RunPacking();
+            TexturePacker.MakePackImage(imagePackDir);
+            TexturePacker.MakeAtlas(imagePackDir);
+
+            // 2. project.dt, scene.dt를 만든다.
+            ModelMaker.Extract(_document);
+            ModelMaker.Make();
         }
 
         private Asset MakeAssetFrom(string file)
@@ -148,18 +166,6 @@ namespace OneLevelJson
             assetList.EndUpdate();
         }
 
-        private void AddComponent(ListView.SelectedListViewItemCollection items, Point location)
-        {
-            for (int i = 0; i < items.Count; i++)
-            {
-                string name = items[i].Text;
-                Size offset = new Size(15 * i, 15 * i);
-                _document.AddComponent(name, location + offset);
-            }
-
-            ReloadComponentList();
-        }
-
         private void ReloadComponentList()
         {
             componentList.BeginUpdate();
@@ -180,10 +186,28 @@ namespace OneLevelJson
             componentList.EndUpdate();
         }
 
+        private void ReloadLayerList()
+        {
+            layerList.BeginUpdate();
+            
+        }
+
+        private void AddComponent(ListView.SelectedListViewItemCollection items, Point location)
+        {
+            for (int i = 0; i < items.Count; i++)
+            {
+                string name = items[i].Text;
+                Size offset = new Size(15 * i, 15 * i);
+                _document.AddComponent(name, location + offset);
+            }
+
+            ReloadComponentList();
+        }
+
         private Image MakeImageFrom(string file)
         {
             string projectDirectory = Document.SaveDirectory ?? Application.StartupPath;
-            return Image.FromFile(projectDirectory + ImageDataDirectory + @"\" + file);
+            return Image.FromFile(projectDirectory + @"\" + _document.Name + @"\" + ImageDataDirectory + @"\" + file);
         }
 
         public void MakeDirectory(string dir)
@@ -221,23 +245,23 @@ namespace OneLevelJson
 
         private void assetList_ItemDrag(object sender, ItemDragEventArgs e)
         {
-            _log.Write("DRAG START");
+            State.log.Write("DRAG START");
             //            assetList.DoDragDrop(e.Item, DragDropEffects.Move); // start dragging
             assetList.DoDragDrop(assetList.SelectedItems, DragDropEffects.Move); // start dragging
 
             // the code below will run after the end of dragging
-            _log.Write("DRAG END");
+            State.log.Write("DRAG END");
         }
 
         private void assetList_DragEnter(object sender, DragEventArgs e)
         {
-            _log.Write("DRAG ENTER");
+            State.log.Write("DRAG ENTER");
             e.Effect = e.AllowedEffect;
         }
 
-        private void assetList_DragOver(object sender, DragEventArgs e)
+        private void assetList_DragOver(object sender, DragEventArgs e) 
         {
-            _log.Write(e.X + " " + e.Y);
+            State.log.Write(e.X + " " + e.Y);
         }
 
         /************************************************************************/
@@ -348,88 +372,29 @@ namespace OneLevelJson
 
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            switch (saveFolderBrowserDialog.ShowDialog())
+            // TODO 일단 프로젝트 저장(Save)은 프로그램이 있는 위치에 하도록 하자.
+            /*if (Document.SaveDirectory == null && saveFolderBrowserDialog.ShowDialog() == DialogResult.OK)
             {
-                case DialogResult.OK:
-                    if (Document.SaveDirectory == null)
-                    {
-                        string newDir = saveFolderBrowserDialog.SelectedPath + @"\" + _document.Name;
-                        MakeDirectory(newDir);
-                        Document.SaveDirectory = newDir;
-                        Directory.Move(Application.StartupPath + AssetDirectory, Document.SaveDirectory + AssetDirectory);
-                        InitDocument();
-                    }
+                string newDir = selectedPath + @"\" + _document.Name;
+                MakeDirectory(newDir);
+                Document.SaveDirectory = newDir;
+                Directory.Move(Application.StartupPath + AssetDirectory, Document.SaveDirectory + AssetDirectory);
+            }*/
 
-                    SaveDocument(_document.Name + "." + ProjectExtension);
+            Document.SaveDirectory = Application.StartupPath;
+            InitDocument();
+            SaveDocument(_document.Name + "." + ProjectExtension);
 
-                    break;
-            }
-
+            MessageBox.Show(_document.Name + @" 프로젝트가 저장되었습니다.");
         }
 
         private void jsonExportToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // TODO Model로 Export하는거 만들어야지.
-            switch (exportFolderBrowser.ShowDialog())
+            if (Document.ExportDirectory == null && exportFolderBrowser.ShowDialog() == DialogResult.OK)
             {
-                case DialogResult.OK:
-                    if (Document.ExportDirectory == null)
-                    {
-                        string exportDir = exportFolderBrowser.SelectedPath;
-                        Document.ExportDirectory = exportDir;
-                    }
-
-                    Export(Document.ExportDirectory);
-
-                    break;
+                Document.ExportDirectory = exportFolderBrowser.SelectedPath;
+                Export(Document.ExportDirectory);
             }
-        }
-
-        private void Export(string exportDir)
-        {
-            string imagePackDir = exportDir + @"\assets\orig";
-            MakeDirectory(imagePackDir);
-
-            texturePacker = new TexturePacker.Packer();
-            texturePacker.LoadAssets(_document.Assets);
-            texturePacker.RunPacking();
-            texturePacker.MakePackImage(imagePackDir);
-            texturePacker.MakeAtlas(imagePackDir);
-
-            #region 모델 관련 작업
-            /*            /***********************************************************************#1#
-            /* Project Model														#1#
-            /***********************************************************************#1#
-            ProjectModel project = new ProjectModel();
-            project.scenes = new List<ProjectModel.Scene>();
-
-            ProjectModel.Scene scene = new ProjectModel.Scene()
-            {
-                ambientColor = { 0.5f, 0.5f, 0.5f, 1 },
-                sceneName = _document.Name
-            };
-            ProjectModel.Resolution orig = new ProjectModel.Resolution()
-            {
-                width = _document.Width,
-                height = _document.Height,
-                name = "orig"
-            };
-            project.scenes.Add(scene);
-            project.originalResolution = orig;
-
-            /***********************************************************************#1#
-            /* Scene Model														    #1#
-            /***********************************************************************#1#
-            SceneModel sceneModel = new SceneModel();
-            sceneModel.composite = new Composite1();
-            sceneModel.ambientColor = new List<float>();
-            sceneModel.sceneName = _document.Name;
-
-            sceneModel.composite.layers = new List<Layer>();
-            sceneModel.composite.sComposites = new sComposite();
-
-            sceneModel.composite.sComposites.layerName = "";*/
-            #endregion
         }
 
         /************************************************************************/
@@ -471,11 +436,19 @@ namespace OneLevelJson
         /************************************************************************/
         /* Variables															*/
         /************************************************************************/
-        private readonly Log _log = new Log();
         private Document _document;
-        private TexturePacker.Packer texturePacker;
+        public readonly Packer TexturePacker = new Packer();
+        public readonly Maker ModelMaker = new Maker();
         private const string ProjectExtension = "dt";
         public static readonly string AssetDirectory = @"\assets";
         public static readonly string ImageDataDirectory = @"\assets\image";
+
+        private void tESTToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //string src = @"C:\Users\HAJIN\Documents\Visual Studio 2013\Projects\OneLevelJson\bin\Debug\assets";
+            //string dst = @"C:\Users\HAJIN\Desktop" + @"\" + _document.Name + AssetDirectory;
+            //MakeDirectory(@"C:\Users\HAJIN\Desktop\noname");
+            //Directory.Move(src, dst);
+        }
     }
 }

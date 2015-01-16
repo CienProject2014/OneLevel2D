@@ -1,20 +1,17 @@
 ﻿using System.Drawing;
-using System.Windows.Forms;
-using System.Xml.Serialization.Configuration;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
-namespace OneLevelJson
+namespace OneLevelJson.Model
 {
     public class Component
     {
-        [JsonConstructorAttribute]
+        [JsonConstructor]
         public Component(Asset asset, string id, Point position)
         {
             ParentAsset = asset;
             Id = id;
             Position = position;
-
+            LayerName = Document.DefaultLayerName;
         }
 
         public override string ToString()
@@ -37,9 +34,18 @@ namespace OneLevelJson
             return ParentAsset.ImageSize;
         }
 
+        public void ConvertToButton()
+        {
+            isButton = true;
+        }
+
         // public for Json Deserialization????? 잘모르겠다.
         public Asset ParentAsset { get; set; }
         public string Id { get; private set; }
         public Point Position { get; private set; }
+        public string LayerName;
+
+        [JsonIgnore] 
+        private bool isButton = false;
     }
 }

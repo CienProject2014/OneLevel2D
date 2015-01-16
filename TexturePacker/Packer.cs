@@ -47,10 +47,12 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Windows.Forms;
+using OneLevelJson.Model;
 
 namespace OneLevelJson.TexturePacker
 {
-    class Packer
+    public class Packer
     {
         public Packer()
         {
@@ -62,6 +64,12 @@ namespace OneLevelJson.TexturePacker
         /************************************************************************/
         public void LoadAssets(List<Asset> assets)
         {
+            if (assets == null || assets.Count == 0)
+            {
+                MessageBox.Show(@"Asset이 비어있습니다.");
+                return;
+            }
+
             Assets = assets;
             if(InputRects == null)
                 InputRects = new List<Rect>(assets.Count);
@@ -105,6 +113,8 @@ namespace OneLevelJson.TexturePacker
 
         public void MakePackImage(string dir)
         {
+            if (OutputRects == null || OutputRects.Count == 0) return;
+
             Bitmap pack = new Bitmap(RealMaxWidth, RealMaxHeight);
             using (Graphics gfx = Graphics.FromImage(pack))
             {
@@ -114,17 +124,17 @@ namespace OneLevelJson.TexturePacker
                     gfx.DrawImage((Image)match.Data, new Rectangle(outputRect.Position, new Size(outputRect.Width, outputRect.Height)));
                 }
             }
-            pack.Save(dir + @"\"+Filename, ImageFormat.Png);
+            pack.Save(dir + @"\"+PackImageName, ImageFormat.Png);
         }
 
         public void MakeAtlas(string dir)
         {
-            if (OutputRects == null) return;
+            if (OutputRects == null || OutputRects.Count == 0) return;
 
             string text = "";
 
             text = text
-                   + Filename + "\n"
+                   + PackImageName + "\n"
                    + "size: " + RealMaxWidth + "," + RealMaxHeight + "\n"
                    + "format: " + FileFormat + "\n"
                    + "filter: " + Filter + "\n"
@@ -142,7 +152,7 @@ namespace OneLevelJson.TexturePacker
                        + "  " + "index: " + -1 + "\n";
             }
 
-            File.WriteAllText(dir, text);
+            File.WriteAllText(dir + @"\" + AtlasName, text);
         }
 
         /************************************************************************/
@@ -150,6 +160,11 @@ namespace OneLevelJson.TexturePacker
         /************************************************************************/
         public void MyAlogorithm()
         {
+            if (InputRects == null || InputRects.Count == 0)
+            {
+                MessageBox.Show(@"Texture Packing할 Rectangle이 없습니다.");
+                return;
+            }
             if (OutputRects == null)
                 OutputRects = new List<Rect>(InputRects.Count);
 
@@ -368,7 +383,8 @@ namespace OneLevelJson.TexturePacker
         public int RealMaxWidth { get; private set; }
         public int RealMaxHeight { get; private set; }
 
-        private const string Filename = "pack.png";
+        private const string PackImageName = "pack.png";
+        private const string AtlasName = "pack.atlas";
         private const string FileFormat = "RGBA8888";
         private const string Filter = "Linear,Linear";
 
