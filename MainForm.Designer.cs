@@ -55,13 +55,18 @@ namespace OneLevelJson
             this.blackboardMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.imageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openProjectDialog = new System.Windows.Forms.OpenFileDialog();
-            this.blackboard = new OneLevelJson.Blackboard();
             this.exportFolderBrowser = new System.Windows.Forms.FolderBrowserDialog();
             this.layerList = new System.Windows.Forms.ListView();
+            this.addLayer = new System.Windows.Forms.Button();
+            this.deleteLayer = new System.Windows.Forms.Button();
+            this.layerMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.renameToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.blackboard = new OneLevelJson.Blackboard();
             this.menuStrip1.SuspendLayout();
             this.componentMenuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picBox)).BeginInit();
             this.blackboardMenuStrip.SuspendLayout();
+            this.layerMenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -155,9 +160,9 @@ namespace OneLevelJson
             // assetList
             // 
             this.assetList.AllowDrop = true;
-            this.assetList.Location = new System.Drawing.Point(594, 259);
+            this.assetList.Location = new System.Drawing.Point(594, 304);
             this.assetList.Name = "assetList";
-            this.assetList.Size = new System.Drawing.Size(146, 130);
+            this.assetList.Size = new System.Drawing.Size(146, 142);
             this.assetList.SmallImageList = this.assetImageList;
             this.assetList.TabIndex = 2;
             this.assetList.UseCompatibleStateImageBehavior = false;
@@ -185,7 +190,7 @@ namespace OneLevelJson
             this.componentList.LabelEdit = true;
             this.componentList.Location = new System.Drawing.Point(594, 141);
             this.componentList.Name = "componentList";
-            this.componentList.Size = new System.Drawing.Size(146, 112);
+            this.componentList.Size = new System.Drawing.Size(146, 157);
             this.componentList.SmallImageList = this.componentImageList;
             this.componentList.TabIndex = 3;
             this.componentList.UseCompatibleStateImageBehavior = false;
@@ -204,14 +209,14 @@ namespace OneLevelJson
             this.renameToolStripMenuItem.Name = "renameToolStripMenuItem";
             this.renameToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
             this.renameToolStripMenuItem.Text = "rename";
-            this.renameToolStripMenuItem.Click += new System.EventHandler(this.renameToolStripMenuItem_Click);
+            this.renameToolStripMenuItem.Click += new System.EventHandler(this.componentRenameToolStripMenuItem_Click);
             // 
             // removeToolStripMenuItem
             // 
             this.removeToolStripMenuItem.Name = "removeToolStripMenuItem";
             this.removeToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
             this.removeToolStripMenuItem.Text = "remove";
-            this.removeToolStripMenuItem.Click += new System.EventHandler(this.removeToolStripMenuItem_Click);
+            this.removeToolStripMenuItem.Click += new System.EventHandler(this.conponentRemoveToolStripMenuItem_Click);
             // 
             // picBox
             // 
@@ -241,6 +246,49 @@ namespace OneLevelJson
             // 
             this.openProjectDialog.Filter = "Proejct File(.dt)|*.dt";
             // 
+            // layerList
+            // 
+            this.layerList.Location = new System.Drawing.Point(595, 452);
+            this.layerList.Name = "layerList";
+            this.layerList.Size = new System.Drawing.Size(145, 92);
+            this.layerList.TabIndex = 6;
+            this.layerList.UseCompatibleStateImageBehavior = false;
+            this.layerList.View = System.Windows.Forms.View.SmallIcon;
+            // 
+            // addLayer
+            // 
+            this.addLayer.Location = new System.Drawing.Point(688, 550);
+            this.addLayer.Name = "addLayer";
+            this.addLayer.Size = new System.Drawing.Size(23, 23);
+            this.addLayer.TabIndex = 7;
+            this.addLayer.Text = "+";
+            this.addLayer.UseVisualStyleBackColor = true;
+            this.addLayer.Click += new System.EventHandler(this.addLayer_Click);
+            // 
+            // deleteLayer
+            // 
+            this.deleteLayer.Location = new System.Drawing.Point(717, 550);
+            this.deleteLayer.Name = "deleteLayer";
+            this.deleteLayer.Size = new System.Drawing.Size(23, 23);
+            this.deleteLayer.TabIndex = 8;
+            this.deleteLayer.Text = "-";
+            this.deleteLayer.UseVisualStyleBackColor = true;
+            this.deleteLayer.Click += new System.EventHandler(this.deleteLayer_Click);
+            // 
+            // layerMenuStrip
+            // 
+            this.layerMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.renameToolStripMenuItem1});
+            this.layerMenuStrip.Name = "layerMenuStrip";
+            this.layerMenuStrip.Size = new System.Drawing.Size(153, 48);
+            // 
+            // renameToolStripMenuItem1
+            // 
+            this.renameToolStripMenuItem1.Name = "renameToolStripMenuItem1";
+            this.renameToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+            this.renameToolStripMenuItem1.Text = "rename";
+            this.renameToolStripMenuItem1.Click += new System.EventHandler(this.layerRenameToolStripMenuItem_Click);
+            // 
             // blackboard
             // 
             this.blackboard.AllowDrop = true;
@@ -252,20 +300,13 @@ namespace OneLevelJson
             this.blackboard.Size = new System.Drawing.Size(575, 516);
             this.blackboard.TabIndex = 5;
             // 
-            // layerList
-            // 
-            this.layerList.Location = new System.Drawing.Point(595, 396);
-            this.layerList.Name = "layerList";
-            this.layerList.Size = new System.Drawing.Size(145, 148);
-            this.layerList.TabIndex = 6;
-            this.layerList.UseCompatibleStateImageBehavior = false;
-            this.layerList.View = System.Windows.Forms.View.SmallIcon;
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(752, 587);
+            this.Controls.Add(this.deleteLayer);
+            this.Controls.Add(this.addLayer);
             this.Controls.Add(this.layerList);
             this.Controls.Add(this.blackboard);
             this.Controls.Add(this.picBox);
@@ -280,6 +321,7 @@ namespace OneLevelJson
             this.componentMenuStrip.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.picBox)).EndInit();
             this.blackboardMenuStrip.ResumeLayout(false);
+            this.layerMenuStrip.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -314,6 +356,10 @@ namespace OneLevelJson
         private FolderBrowserDialog exportFolderBrowser;
         private ToolStripMenuItem tESTToolStripMenuItem;
         private ListView layerList;
+        private Button addLayer;
+        private Button deleteLayer;
+        private ContextMenuStrip layerMenuStrip;
+        private ToolStripMenuItem renameToolStripMenuItem1;
     }
 }
 

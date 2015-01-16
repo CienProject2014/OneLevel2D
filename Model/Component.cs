@@ -1,23 +1,25 @@
-﻿using System.Drawing;
+﻿using System.Collections.Generic;
+using System.Drawing;
 using Newtonsoft.Json;
 
 namespace OneLevelJson.Model
 {
-    public class Component
+    abstract public class Component
     {
-        [JsonConstructor]
-        public Component(Asset asset, string id, Point position)
+        /*[JsonConstructor]
+        protected Component(string id, Point position) 
+            :this(id, position, Document.DefaultLayerName)
         {
-            ParentAsset = asset;
-            Id = id;
-            Position = position;
-            LayerName = Document.DefaultLayerName;
         }
 
-        public override string ToString()
+        protected Component(string id, Point position, string layerName)
         {
-            return Id + ": " + ParentAsset.Name;
-        }
+            Id = id;
+            Position = position;
+            ZIndex = Number++;
+            LayerName = layerName;
+        }*/
+
 
         public void Move(Point offset)
         {
@@ -29,23 +31,21 @@ namespace OneLevelJson.Model
             Id = id;
         }
 
-        public Size GetSize()
-        {
-            return ParentAsset.ImageSize;
-        }
+        abstract public override string ToString();
+        abstract public Size GetSize();
+        public abstract Image GetImage();
 
-        public void ConvertToButton()
-        {
-            isButton = true;
-        }
+        public static int Number = 1;
 
         // public for Json Deserialization????? 잘모르겠다.
-        public Asset ParentAsset { get; set; }
-        public string Id { get; private set; }
-        public Point Position { get; private set; }
-        public string LayerName;
-
-        [JsonIgnore] 
-        private bool isButton = false;
+        //public Asset ParentAsset { get; set; }
+        
+        /* Variables ************************************************************/
+        public string Id { get; protected set; }
+        public Point Position { get; protected set; }
+        public int ZIndex { get; protected set; }
+        public List<int> Tint { get; protected set; }
+        public string LayerName { get; protected set; }
+        /************************************************************************/
     }
 }

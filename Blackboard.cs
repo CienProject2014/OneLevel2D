@@ -75,14 +75,10 @@ namespace OneLevelJson
 
             foreach (var component in PresentDocument.Components)
             {
-                Object data = component.ParentAsset.Data;
-                Point pos = component.Position;
-                switch (component.ParentAsset.Type)
+                using (Image img = component.GetImage())
                 {
-                    case AssetType.Image:
-                        Image img = (Image) data;
-                        e.Graphics.DrawImage(img, new Rectangle(pos, new Size(img.Width, img.Height)));
-                        break;
+                    e.Graphics.DrawImage(img, new Rectangle(component.Position, 
+                        new Size(img.Width, img.Height)));
                 }
             }
 

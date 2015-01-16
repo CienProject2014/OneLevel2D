@@ -10,11 +10,11 @@ using System.Windows.Forms;
 
 namespace OneLevelJson
 {
-    public partial class ContextMenuRenameForm : Form
+    public partial class ContextRenameForm : Form
     {
         public string Result { get; private set; }
 
-        public ContextMenuRenameForm()
+        public ContextRenameForm()
         {
             InitializeComponent();
         }

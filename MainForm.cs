@@ -18,6 +18,9 @@ namespace OneLevelJson
 
             _document = new Document();
 
+            // TODO 임시로 처리 해둔것. save를 구현하면 수정해야함.
+            Document.ProjectDirectory = Application.StartupPath;
+
             InitDocument();
 
             AddEvent();
@@ -25,17 +28,17 @@ namespace OneLevelJson
 
         private void InitDocument()
         {
-            // TODO blackboard가 사용하는 document를 설정해주고 blackboard를 Refresh 해줘야 한다.
-
             blackboard.PresentDocument = _document;
             ReloadAssetList();
             ReloadComponentList();
+            ReloadLayerList();
             blackboard.Invalidate();
 
             // TODO 분리해주어야 좋을 Directory 설정. 이 부분을 어디서 사용할지 모르니까 쉽사리 분리를 하지 못하겠다.
-            string projectPath = Document.SaveDirectory ?? Application.StartupPath;
-            MakeDirectory(projectPath + @"\" + _document.Name + @"\" + AssetDirectory);
-            MakeDirectory(projectPath + @"\" + _document.Name + @"\" + ImageDataDirectory);
+            string projectPath = Document.ProjectDirectory ?? Application.StartupPath;
+            MakeDirectory(projectPath + @"\" + Document.Name);
+            MakeDirectory(projectPath + @"\" + Document.Name + @"\" + AssetDirectory);
+            MakeDirectory(projectPath + @"\" + Document.Name + @"\" + ImageDataDirectory);
         }
 
         private void NewDocument(string name, int width, int height)
@@ -59,17 +62,10 @@ namespace OneLevelJson
             InitDocument();
         }
 
-        /*private void SaveDocument(string dir)
-        {
-            string docjson = JsonConvert.SerializeObject(_document);
-            File.WriteAllText(dir, docjson);
-            // _document를 json으로 serialize해서 파일에 쓰기.
-        }*/
-
         private void SaveDocument(string filename)
         {
             string docjson = JsonConvert.SerializeObject(_document);
-            File.WriteAllText(Document.SaveDirectory + @"\" + filename, docjson);
+            File.WriteAllText(Document.ProjectDirectory + @"\" + filename, docjson);
             // _document를 json으로 serialize해서 파일에 쓰기.
         }
 
@@ -79,17 +75,17 @@ namespace OneLevelJson
             _document = JsonConvert.DeserializeObject<Document>(docstring);
         }
 
-
         private void ImportAsset(string[] files)
         {
             // 1. 이미지들을 실행파일이 있는 프로젝트로 복사한 후,
-
             foreach (var file in files)
             {
-                string projectDirectory = Document.SaveDirectory ?? Application.StartupPath;
+                string projectDirectory = Document.ProjectDirectory ?? Application.StartupPath;
+
                 try
                 {
-                    File.Copy(file, projectDirectory + @"\" + _document.Name + @"\" + ImageDataDirectory + @"\" + file.Split('\\').Last());
+                    File.Copy(file, projectDirectory + @"\" + Document.Name + @"\"
+                                    + ImageDataDirectory + @"\" + file.Split('\\').Last());
                 }
                 catch (Exception e)
                 {
@@ -153,12 +149,12 @@ namespace OneLevelJson
             foreach (var asset in _document.Assets)
             {
                 // 2-1. ListViewItem을 만든다.
-                ListViewItem lvi = new ListViewItem(asset.Name)
+                ListViewItem lvi = new ListViewItem(asset.GetName())
                 {
                     ImageIndex = listCounter++
                 };
                 // 2-2. 이미지를 ImageList에 추가한다.
-                assetImageList.Images.Add(MakeImageFrom(asset.Name));
+                assetImageList.Images.Add(MakeImageFrom(asset.GetNameWithExt()));
 
                 // 2-3. ListView에 추가한다.
                 assetList.Items.Add(lvi);
@@ -170,26 +166,26 @@ namespace OneLevelJson
         {
             componentList.BeginUpdate();
             componentList.Clear();
-            componentImageList.Images.Clear();
 
-            int listCounter = 0;
             foreach (var component in _document.Components)
             {
-                ListViewItem lvi = new ListViewItem(component.Id)
-                {
-                    ImageIndex = listCounter++
-                };
-                componentImageList.Images.Add(MakeImageFrom(component.ParentAsset.Name));
-
-                componentList.Items.Add(lvi);
+                componentList.Items.Add(new ListViewItem(component.Id));
             }
+
             componentList.EndUpdate();
         }
 
         private void ReloadLayerList()
         {
             layerList.BeginUpdate();
-            
+            layerList.Clear();
+
+            foreach (var layer in _document.Layers)
+            {
+                layerList.Items.Add(new ListViewItem(layer.Name));
+            }
+
+            layerList.EndUpdate();
         }
 
         private void AddComponent(ListView.SelectedListViewItemCollection items, Point location)
@@ -197,17 +193,26 @@ namespace OneLevelJson
             for (int i = 0; i < items.Count; i++)
             {
                 string name = items[i].Text;
-                Size offset = new Size(15 * i, 15 * i);
+                Size offset = new Size(15*i, 15*i);
                 _document.AddComponent(name, location + offset);
             }
 
             ReloadComponentList();
         }
 
-        private Image MakeImageFrom(string file)
+        private Image MakeImageFrom(string imageName)
         {
-            string projectDirectory = Document.SaveDirectory ?? Application.StartupPath;
-            return Image.FromFile(projectDirectory + @"\" + _document.Name + @"\" + ImageDataDirectory + @"\" + file);
+            string projectDirectory = Document.ProjectDirectory ?? Application.StartupPath;
+            string newImagename = imageName;
+
+            if (!CheckExt(imageName))
+            {
+                Asset asset = _document.Assets.Find(x => x.GetName() == imageName);
+                newImagename = asset.GetNameWithExt();
+            }
+
+            return Image.FromFile(projectDirectory + @"\" + Document.Name + @"\"
+                                  + ImageDataDirectory + @"\" + newImagename);
         }
 
         public void MakeDirectory(string dir)
@@ -216,28 +221,47 @@ namespace OneLevelJson
             if (!dirInfo.Exists) Directory.CreateDirectory(dir);
         }
 
+        public bool CheckExt(string name)
+        {
+            return name.Split('.').Length > 1;
+        }
+
         /************************************************************************/
         /* Event Callback                                                       */
         /************************************************************************/
+
         private void AddEvent()
         {
+            assetList.SelectedIndexChanged += assetList_SelectedIndexChanged;
             assetList.ItemActivate += assetList_ItemActivate;
             assetList.ItemDrag += assetList_ItemDrag;
             assetList.DragOver += assetList_DragOver;
             assetList.DragEnter += assetList_DragEnter;
 
-            componentList.SelectedIndexChanged += componentList_SelectedIndexChanged;
             componentList.MouseDown += componentList_MouseDown;
+
+            layerList.SelectedIndexChanged += layerList_SelectedIndexChanged;
+            layerList.MouseDown += layerList_MouseDown;
 
             blackboard.DragEnter += blackboard_DragEnter;
             blackboard.DragDrop += blackboard_DragDrop;
             blackboard.KeyDown += blackboard_KeyDown;
         }
 
-
         /************************************************************************/
         /* Asset List															*/
         /************************************************************************/
+
+        private void assetList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (componentList.SelectedItems.Count != 0)
+            {
+                string selectedId = assetList.SelectedItems[0].Text;
+                Asset selectedComponent = _document.Assets.Find(x => x.GetName() == selectedId);
+                picBox.Image = MakeImageFrom(selectedComponent.GetNameWithExt());
+            }
+        }
+
         private void assetList_ItemActivate(object sender, EventArgs e)
         {
             MessageBox.Show(@"File Information");
@@ -259,7 +283,7 @@ namespace OneLevelJson
             e.Effect = e.AllowedEffect;
         }
 
-        private void assetList_DragOver(object sender, DragEventArgs e) 
+        private void assetList_DragOver(object sender, DragEventArgs e)
         {
             State.log.Write(e.X + " " + e.Y);
         }
@@ -267,15 +291,6 @@ namespace OneLevelJson
         /************************************************************************/
         /* Component List														*/
         /************************************************************************/
-        private void componentList_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (componentList.SelectedItems.Count != 0)
-            {
-                string selectedId = componentList.SelectedItems[0].Text;
-                Component selectedComponent = _document.Components.Find(x => x.Id == selectedId);
-                picBox.Image = MakeImageFrom(selectedComponent.ParentAsset.Name);
-            }
-        }
 
         private void componentList_MouseDown(object sender, MouseEventArgs e)
         {
@@ -288,16 +303,108 @@ namespace OneLevelJson
                 {
                     componentMenuStrip.Items[0].Enabled = false;
                 }
-                componentMenuStrip.Show(this, componentList.Location + (Size)e.Location);
+                componentMenuStrip.Show(this, componentList.Location + (Size) e.Location);
             }
+        }
+
+        private void componentRenameToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ContextRenameForm renameForm = new ContextRenameForm();
+            if (renameForm.ShowDialog() == DialogResult.OK)
+            {
+                foreach (ListViewItem selectedItem in componentList.SelectedItems)
+                {
+                    string selectedId = selectedItem.Text;
+                    string newId = renameForm.Result;
+                    _document.RenameComponent(selectedId, newId);
+                }
+            }
+            ReloadComponentList();
+        }
+
+        private void conponentRemoveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (componentList.SelectedItems.Count > 0)
+            {
+                for (int i = componentList.SelectedItems.Count - 1; i >= 0; i--)
+                {
+                    ListViewItem item = componentList.SelectedItems[i];
+                    componentList.Items[item.Index].Remove();
+                    _document.RemoveComponent(item.SubItems[0].Text);
+                }
+            }
+            blackboard.Invalidate();
+        }
+
+        /************************************************************************/
+        /* Layer List															*/
+        /************************************************************************/
+
+        private void addLayer_Click(object sender, EventArgs e)
+        {
+            _document.Layers.Add(new Model.Layer("layer" + _document.Layers.Count, false));
+            ReloadLayerList();
+        }
+
+        private void deleteLayer_Click(object sender, EventArgs e)
+        {
+            var items = layerList.SelectedItems;
+            if (items.Count == 0) return;
+
+            for (int i = 0; i < items.Count; i++)
+            {
+                Model.Layer selectedLayer = _document.Layers.Find(x => x.Name == items[i].Text);
+                _document.Layers.Remove(selectedLayer);
+            }
+
+            ReloadLayerList();
+        }
+
+        private void layerList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (layerList.SelectedItems.Count == 0)
+            {
+                State.SelectedLayer = null;
+            }
+            else if (layerList.SelectedItems.Count == 1)
+            {
+                State.SelectedLayer = _document.Layers.Find(x => x.Name == layerList.SelectedItems[0].Text);
+            }
+        }
+
+        private void layerList_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                ListViewHitTestInfo hitTestInfo = layerList.HitTest(e.X, e.Y);
+                if (hitTestInfo.Item == null) return;
+
+                layerMenuStrip.Show(this, layerList.Location + (Size) e.Location);
+            }
+        }
+
+        private void layerRenameToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ContextRenameForm renameForm = new ContextRenameForm();
+            if (renameForm.ShowDialog() == DialogResult.OK)
+            {
+                foreach (ListViewItem selectedItem in layerList.SelectedItems)
+                {
+                    string selectedId = selectedItem.Text;
+                    string newId = renameForm.Result;
+                    _document.RenameLayer(selectedId, newId);
+                }
+            }
+            ReloadLayerList();
         }
 
         /************************************************************************/
         /* Blackboard															*/
         /************************************************************************/
+
         private void blackboard_DragEnter(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(typeof(ListView.SelectedListViewItemCollection)))
+            if (e.Data.GetDataPresent(typeof (ListView.SelectedListViewItemCollection)))
             {
                 e.Effect = DragDropEffects.Move;
             }
@@ -305,10 +412,10 @@ namespace OneLevelJson
 
         private void blackboard_DragDrop(object sender, DragEventArgs e)
         {
-            if (!e.Data.GetDataPresent(typeof(ListView.SelectedListViewItemCollection))) return;
+            if (!e.Data.GetDataPresent(typeof (ListView.SelectedListViewItemCollection))) return;
 
             var items =
-                e.Data.GetData(typeof(ListView.SelectedListViewItemCollection)) as
+                e.Data.GetData(typeof (ListView.SelectedListViewItemCollection)) as
                     ListView.SelectedListViewItemCollection;
 
             if (items == null) return;
@@ -338,6 +445,7 @@ namespace OneLevelJson
         /************************************************************************/
         /* Menu Strip															*/
         /************************************************************************/
+
         private void importToolStripMenuItem_Click(object sender, EventArgs e)
         {
             switch (imageImportDialog.ShowDialog())
@@ -360,7 +468,7 @@ namespace OneLevelJson
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MenuNewForm newForm = new MenuNewForm();
+            NewForm newForm = new NewForm();
             if (newForm.ShowDialog() == DialogResult.OK)
             {
                 string name = newForm.Name;
@@ -375,17 +483,17 @@ namespace OneLevelJson
             // TODO 일단 프로젝트 저장(Save)은 프로그램이 있는 위치에 하도록 하자.
             /*if (Document.SaveDirectory == null && saveFolderBrowserDialog.ShowDialog() == DialogResult.OK)
             {
-                string newDir = selectedPath + @"\" + _document.Name;
+                string newDir = selectedPath + @"\" + Document.Name;
                 MakeDirectory(newDir);
                 Document.SaveDirectory = newDir;
                 Directory.Move(Application.StartupPath + AssetDirectory, Document.SaveDirectory + AssetDirectory);
             }*/
 
-            Document.SaveDirectory = Application.StartupPath;
+            Document.ProjectDirectory = Application.StartupPath;
             InitDocument();
-            SaveDocument(_document.Name + "." + ProjectExtension);
+            SaveDocument(Document.Name + "." + ProjectExtension);
 
-            MessageBox.Show(_document.Name + @" 프로젝트가 저장되었습니다.");
+            MessageBox.Show(Document.Name + @" 프로젝트가 저장되었습니다.");
         }
 
         private void jsonExportToolStripMenuItem_Click(object sender, EventArgs e)
@@ -393,40 +501,9 @@ namespace OneLevelJson
             if (Document.ExportDirectory == null && exportFolderBrowser.ShowDialog() == DialogResult.OK)
             {
                 Document.ExportDirectory = exportFolderBrowser.SelectedPath;
+                MakeDirectory(Document.ExportDirectory + @"\scenes");
                 Export(Document.ExportDirectory);
             }
-        }
-
-        /************************************************************************/
-        /* Component List Menu Strip											*/
-        /************************************************************************/
-        private void renameToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ContextMenuRenameForm renameForm = new ContextMenuRenameForm();
-            if (renameForm.ShowDialog() == DialogResult.OK)
-            {
-                foreach (ListViewItem selectedItem in componentList.SelectedItems)
-                {
-                    string selectedId = selectedItem.Text;
-                    string newId = renameForm.Result;
-                    _document.ReNameComponent(selectedId, newId);
-                }
-            }
-            ReloadComponentList();
-        }
-
-        private void removeToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (componentList.SelectedItems.Count > 0)
-            {
-                for (int i = componentList.SelectedItems.Count - 1; i >= 0; i--)
-                {
-                    ListViewItem item = componentList.SelectedItems[i];
-                    componentList.Items[item.Index].Remove();
-                    _document.RemoveComponent(item.SubItems[0].Text);
-                }
-            }
-            blackboard.Invalidate();
         }
 
         /************************************************************************/
@@ -440,13 +517,13 @@ namespace OneLevelJson
         public readonly Packer TexturePacker = new Packer();
         public readonly Maker ModelMaker = new Maker();
         private const string ProjectExtension = "dt";
-        public static readonly string AssetDirectory = @"\assets";
-        public static readonly string ImageDataDirectory = @"\assets\image";
+        public const string AssetDirectory = @"\assets";
+        public const string ImageDataDirectory = @"\assets\image";
 
         private void tESTToolStripMenuItem_Click(object sender, EventArgs e)
         {
             //string src = @"C:\Users\HAJIN\Documents\Visual Studio 2013\Projects\OneLevelJson\bin\Debug\assets";
-            //string dst = @"C:\Users\HAJIN\Desktop" + @"\" + _document.Name + AssetDirectory;
+            //string dst = @"C:\Users\HAJIN\Desktop" + @"\" + Document.Name + AssetDirectory;
             //MakeDirectory(@"C:\Users\HAJIN\Desktop\noname");
             //Directory.Move(src, dst);
         }

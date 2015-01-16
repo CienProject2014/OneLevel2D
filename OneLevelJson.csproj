@@ -21,7 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <UseVSHostingProcess>true</UseVSHostingProcess>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -59,6 +59,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Composite.cs" />
     <Compile Include="Model\Asset.cs" />
     <Compile Include="Blackboard.cs">
       <SubType>UserControl</SubType>
@@ -66,21 +67,23 @@
     <Compile Include="Blackboard.Designer.cs">
       <DependentUpon>Blackboard.cs</DependentUpon>
     </Compile>
+    <Compile Include="Model\CienComposite.cs" />
+    <Compile Include="Model\CienImage.cs" />
     <Compile Include="Model\Component.cs" />
     <Compile Include="Model\Document.cs" />
     <Compile Include="Export\Maker.cs" />
     <Compile Include="Export\ProjectModel.cs" />
-    <Compile Include="MenuNewForm.cs">
+    <Compile Include="NewForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MenuNewForm.Designer.cs">
-      <DependentUpon>MenuNewForm.cs</DependentUpon>
+    <Compile Include="NewForm.Designer.cs">
+      <DependentUpon>NewForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="ContextMenuRenameForm.cs">
+    <Compile Include="ContextRenameForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ContextMenuRenameForm.Designer.cs">
-      <DependentUpon>ContextMenuRenameForm.cs</DependentUpon>
+    <Compile Include="ContextRenameForm.Designer.cs">
+      <DependentUpon>ContextRenameForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Log.cs" />
     <Compile Include="MainForm.cs">
@@ -95,14 +98,14 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Export\SceneModel.cs" />
-    <EmbeddedResource Include="ContextMenuRenameForm.resx">
-      <DependentUpon>ContextMenuRenameForm.cs</DependentUpon>
+    <EmbeddedResource Include="ContextRenameForm.resx">
+      <DependentUpon>ContextRenameForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MenuNewForm.resx">
-      <DependentUpon>MenuNewForm.cs</DependentUpon>
+    <EmbeddedResource Include="NewForm.resx">
+      <DependentUpon>NewForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace OneLevelJson.ExportModel
+namespace OneLevelJson.Export
 {
     public class ProjectModel
     {

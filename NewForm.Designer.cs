@@ -1,6 +1,6 @@
 ﻿namespace OneLevelJson
 {
-    partial class MenuNewForm
+    partial class NewForm
     {
         /// <summary>
         /// Required designer variable.

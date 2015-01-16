@@ -3,13 +3,13 @@ using System.Windows.Forms;
 
 namespace OneLevelJson
 {
-    public partial class MenuNewForm : Form
+    public partial class NewForm : Form
     {
         public new string Name { get; private set; }
         public new int Width { get; private set; }
         public new int Height { get; private set; }
 
-        public MenuNewForm()
+        public NewForm()
         {
             InitializeComponent();
 
