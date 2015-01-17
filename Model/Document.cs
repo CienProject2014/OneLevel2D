@@ -19,6 +19,7 @@ namespace OneLevelJson.Model
             Layers = new List<Layer>(1){new Layer(DefaultLayerName)};
         }
 
+        #region Asset: Get, Add, Remove
         public Asset GetAsest(string assetName)
         {
             return Assets.Find(x => x.GetName() == assetName);
@@ -34,12 +35,14 @@ namespace OneLevelJson.Model
         {
             Assets.Remove(asset);
         }
+        #endregion
 
+        #region Component: Add, Remove, Rename
         public void AddComponent(string name, Point location)
         {
             Asset asset = Assets.Find(x => x.GetName() == name);
             string id = "image" + Components.Count;
-            Components.Add(new CienImage(asset.GetNameWithExt(), id, location));
+            Components.Add(new CienImage(asset.GetNameWithExt(), id, location, Component.Number++));
         }
 
         public void RemoveComponent(string id)
@@ -52,7 +55,9 @@ namespace OneLevelJson.Model
             Component component = Components.Find(x => x.Id == id);
             component.SetId(newId);
         }
+        #endregion
 
+        #region RenameLayer, ConvertToComposite
         public void RenameLayer(string name, string newName)
         {
             Layer layer = Layers.Find(x => x.Name == name);
@@ -70,9 +75,10 @@ namespace OneLevelJson.Model
             CienImage img = comp as CienImage;
             if (img == null) return;
 
-            CienComposite newComp = new CienComposite(img.ImageName, img.Id, img.Position);
+            CienComposite newComp = new CienComposite(img.ImageName, img.Id, img.Location);
             Components.Add(newComp);
         }
+        #endregion
 
 
         // static 변수는 자동으로 제외하기 때문에 이 attribute를 추가해줘야 한다.

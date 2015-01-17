@@ -14,7 +14,7 @@ namespace OneLevelJson.Model
         public CienComposite(string imageName, string id, Point position, string layerName)
         {
             Id = id;
-            Position = position;
+            Location = position;
             Tint = new List<int>(4) { 1, 1, 1, 1 };
             LayerName = layerName;
 

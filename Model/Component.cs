@@ -23,12 +23,27 @@ namespace OneLevelJson.Model
 
         public void Move(Point offset)
         {
-            Position = Position + (Size)offset;
+            Location = Location + (Size)offset;
+        }
+
+        public void Move(int dx, int dy)
+        {
+            Location = Location + new Size(dx, dy);
         }
 
         public void SetId(string id)
         {
             Id = id;
+        }
+
+        public void MoveUp()
+        {
+            ZIndex++;
+        }
+
+        public void MoveDown()
+        {
+            ZIndex--;
         }
 
         abstract public override string ToString();
@@ -42,7 +57,7 @@ namespace OneLevelJson.Model
         
         /* Variables ************************************************************/
         public string Id { get; protected set; }
-        public Point Position { get; protected set; }
+        public Point Location { get; protected set; }
         public int ZIndex { get; protected set; }
         public List<int> Tint { get; protected set; }
         public string LayerName { get; protected set; }
