@@ -254,11 +254,11 @@ namespace OneLevelJson
 
         private void assetList_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (componentList.SelectedItems.Count != 0)
+            if (assetList.SelectedItems.Count != 0)
             {
                 string selectedId = assetList.SelectedItems[0].Text;
-                Asset selectedComponent = _document.Assets.Find(x => x.GetName() == selectedId);
-                picBox.Image = MakeImageFrom(selectedComponent.GetNameWithExt());
+                Asset selectedAsset = _document.Assets.Find(x => x.GetName() == selectedId);
+                picBox.Image = MakeImageFrom(selectedAsset.GetNameWithExt());
             }
         }
 
