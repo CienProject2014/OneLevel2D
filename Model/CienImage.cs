@@ -5,17 +5,18 @@ namespace OneLevelJson.Model
 {
     public class CienImage : Component
     {
-        public CienImage(string imageName, string id, Point position)
-            : this(imageName, id, position, Document.DefaultLayerName)
+        public CienImage(string imageName, string id, Point position, int zIndex)
+            : this(imageName, id, position, zIndex, Document.DefaultLayerName)
         {
         }
 
-        public CienImage(string imageName, string id, Point position, string layerName)
+        public CienImage(string imageName, string id, Point position, int zIndex, string layerName)
         {
             ImageName = imageName;
             Id = id;
-            Position = position;
+            Location = position;
             Tint = new List<int>(4) {1, 1, 1, 1};
+            ZIndex = zIndex;
             LayerName = layerName;
         }
 

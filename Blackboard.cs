@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 using OneLevelJson.Model;
 
@@ -10,24 +13,30 @@ namespace OneLevelJson
         public Blackboard()
         {
             InitializeComponent();
+            OriginPoint = new Point(this.Size.Width, Size.Height);
 
-            
             /* Commands for Flicker *************************************************/
             SetStyle(ControlStyles.UserPaint, true);
             SetStyle(
                 ControlStyles.OptimizedDoubleBuffer |
                 ControlStyles.AllPaintingInWmPaint, true);
             /************************************************************************/
-            
+
+            AddEvent();
+        }
+
+        private void AddEvent()
+        {
+            blackboardContextMenu.ItemClicked += blackboardContextMenu_ItemClicked;
         }
 
         private bool IsInside(Component component, Point clicked)
         {
             // if clicked is inside the component, then return true
-            if (clicked.X > component.Position.X &&
-                clicked.X < component.Position.X + component.GetSize().Width &&
-                clicked.Y > component.Position.Y &&
-                clicked.Y < component.Position.Y + component.GetSize().Height)
+            if (clicked.X > component.Location.X &&
+                clicked.X < component.Location.X + component.GetSize().Width &&
+                clicked.Y > component.Location.Y &&
+                clicked.Y < component.Location.Y + component.GetSize().Height)
             {
                 return true;
             }
@@ -35,20 +44,40 @@ namespace OneLevelJson
             return false;
         }
 
-        private Point CalcOffset(Point p1, Point p2)
+        public void RemoveSelected()
         {
-            return p2 - (Size)p1;
+            State.SelectedComponent = null;
         }
 
-        private void DrawBorder(PaintEventArgs e, Component component)
+        private void DrawComponent(PaintEventArgs e, Component component)
         {
+            using (Image img = component.GetImage())
+            {
+                e.Graphics.DrawImage(img, new Rectangle(component.Location,
+                    new Size(img.Width, img.Height)));
+            }
+        }
+
+        private void DrawComponentList(PaintEventArgs e)
+        {
+            foreach (var component in PresentDocument.Components)
+            {
+                DrawComponent(e, component);
+            }
+        }
+
+        private void DrawSelectedComponentBorder(PaintEventArgs e)
+        {
+            var component = State.SelectedComponent;
+            if (component == null) return;
+
             Point[] points =
                 {
-                    new Point(component.Position.X-BorderOffset, component.Position.Y-BorderOffset),
-                    new Point(component.Position.X+component.GetSize().Width+BorderOffset, component.Position.Y-BorderOffset),
-                    new Point(component.Position.X+BorderOffset+component.GetSize().Width, component.Position.Y+component.GetSize().Height+BorderOffset),
-                    new Point(component.Position.X-BorderOffset, component.Position.Y+component.GetSize().Height+BorderOffset),
-                    new Point(component.Position.X-BorderOffset, component.Position.Y-BorderOffset)
+                    new Point(component.Location.X-BorderOffset, component.Location.Y-BorderOffset),
+                    new Point(component.Location.X+component.GetSize().Width+BorderOffset, component.Location.Y-BorderOffset),
+                    new Point(component.Location.X+BorderOffset+component.GetSize().Width, component.Location.Y+component.GetSize().Height+BorderOffset),
+                    new Point(component.Location.X-BorderOffset, component.Location.Y+component.GetSize().Height+BorderOffset),
+                    new Point(component.Location.X-BorderOffset, component.Location.Y-BorderOffset)
                 };
 
             using (Pen pen = new Pen(Color.Black))
@@ -56,52 +85,77 @@ namespace OneLevelJson
                 e.Graphics.DrawLines(pen, points);
             }
 
-            State.log.Write("size is : " + component.GetSize().ToString());
         }
 
-        public void RemoveSelected()
+        private void DrawBoundary(PaintEventArgs e)
         {
-            SelectedComponent = null;
+            using (Pen pen = new Pen(Color.Black))
+            {
+            }
         }
+
+        private void UpdateBlackboardContextMenu(List<Component> componentList)
+        {
+            blackboardContextMenu.Items.Clear();
+            foreach (var component in componentList)
+            {
+                blackboardContextMenu.Items.Add(component.Id);
+            }
+        }
+
+
+        /************************************************************************/
+        /* Delegate Event Handler												*/
+        /************************************************************************/
+        #region Delegate Method
+        void blackboardContextMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            State.SelectedComponent = PresentDocument.Components.Find(x => x.Id == e.ClickedItem.Text);
+            Invalidate();
+        }
+        #endregion
 
         /************************************************************************/
         /* Override 															*/
         /************************************************************************/
+        #region Override Method
         protected override void OnPaint(PaintEventArgs e)
         {
             State.log.Write("OnPaint is called");
             if (PresentDocument == null) return;
 
+            DrawComponentList(e);
+            DrawSelectedComponentBorder(e);
 
-            foreach (var component in PresentDocument.Components)
-            {
-                using (Image img = component.GetImage())
-                {
-                    e.Graphics.DrawImage(img, new Rectangle(component.Position, 
-                        new Size(img.Width, img.Height)));
-                }
-            }
-
-            if (SelectedComponent != null)
-            {
-                DrawBorder(e, SelectedComponent);
-            }
-
+            DrawBoundary(e);
             base.OnPaint(e);
+        }
+
+        protected override void OnSizeChanged(EventArgs e)
+        {
+            Point leftTop = new Point(0, 0);
+
+            OriginPoint = leftTop + OriginOffset;
         }
 
         protected override void OnMouseDown(MouseEventArgs e)
         {
+            if (PresentDocument == null) return;
+
             ClickedPoint = new Point((Size)e.Location);
             MovingPoint = new Point((Size)ClickedPoint);
+
             switch (e.Button)
             {
                 case MouseButtons.Left:
-                    if (PresentDocument != null)
-                        SelectedComponent = PresentDocument.Components.Find(x => IsInside(x, ClickedPoint));
+                    // 선택된 List중에서 ZIndex가 가장 큰 Component를 선택한다.
+                    var selectedList = PresentDocument.Components.FindAll(x => IsInside(x, ClickedPoint));
+                    State.SelectedComponent = selectedList.Find(x => x.ZIndex == selectedList.Max(y => y.ZIndex));
                     break;
                 case MouseButtons.Right:
-
+                    var componentList = PresentDocument.Components.FindAll(x => IsInside(x, ClickedPoint));
+                    UpdateBlackboardContextMenu(componentList);
+                    blackboardContextMenu.Show(PointToScreen(e.Location));
                     break;
             }
             base.OnMouseDown(e);
@@ -109,13 +163,13 @@ namespace OneLevelJson
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
-            if (SelectedComponent == null) return;
+            if (State.SelectedComponent == null) return;
 
             switch (e.Button)
             {
                 case MouseButtons.Left:
-                    Point offset = CalcOffset(MovingPoint, e.Location);
-                    SelectedComponent.Move(offset);
+                    Point offset = e.Location - (Size)MovingPoint;
+                    State.SelectedComponent.Move(offset);
                     MovingPoint = new Point((Size) e.Location);
                     State.log.Write(offset.ToString());
                     break;
@@ -129,10 +183,64 @@ namespace OneLevelJson
             Invalidate();
         }
 
+        protected override bool IsInputKey(Keys keyData)
+        {
+            switch (keyData)
+            {
+                case Keys.Up:
+                case Keys.Right:
+                case Keys.Down:
+                case Keys.Left:
+                    return true;
+                case Keys.Shift | Keys.Right:
+                case Keys.Shift | Keys.Left:
+                case Keys.Shift | Keys.Up:
+                case Keys.Shift | Keys.Down:
+                    return true;
+            }
+            return base.IsInputKey(keyData);
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            base.OnKeyDown(e);
+            int dx = 0, dy=0;
+            switch (e.KeyCode)
+            {
+                case Keys.Left:
+                    dx -= 1;
+                    break;
+                case Keys.Right:
+                    dx += 1;
+                    break;
+                case Keys.Up:
+                    dy -= 1;
+                    break;
+                case Keys.Down:
+                    dy += 1;
+                    break;
+            }
+            if (e.Shift) 
+            {
+                dx *= 10;
+                dy *= 10;
+            }
+            if (State.SelectedComponent != null) State.SelectedComponent.Move(dx, dy);
+
+            Invalidate();
+        }
+        #endregion
+
+        /************************************************************************/
+        /* Variables															*/
+        /************************************************************************/
         public Document PresentDocument { get; set; }
         public Point ClickedPoint { get; private set; }
         public Point MovingPoint { get; private set; }
-        public Component SelectedComponent { get; private set; }
+
+        public Point OriginPoint;
+        private readonly Size OriginOffset = new Size(50, 50);
+
 
         private const int BorderOffset = 0;
     }

@@ -84,8 +84,8 @@ namespace OneLevelJson.Export
                         itemIdentifier = cienImage.Id,
                         imageName = cienImage.ImageName.Split('.')[0],
                         zIndex = cienImage.ZIndex,
-                        x = cienImage.Position.X,
-                        y = cienImage.Position.Y,
+                        x = cienImage.Location.X,
+                        y = cienImage.Location.Y,
                         tint = cienImage.Tint
                     });
                      
@@ -104,8 +104,8 @@ namespace OneLevelJson.Export
                             sImages = new List<sImage2>(cienComposite.composite.Images.Count),
                         },
                         zIndex = cienComposite.ZIndex,
-                        x = cienComposite.Position.X,
-                        y = cienComposite.Position.Y,
+                        x = cienComposite.Location.X,
+                        y = cienComposite.Location.Y,
                         tint = cienComposite.Tint
                     });
 

@@ -1,4 +1,6 @@
-﻿namespace OneLevelJson
+﻿using System.Windows.Forms;
+
+namespace OneLevelJson
 {
     partial class Blackboard
     {
@@ -28,7 +30,14 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
+            this.blackboardContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.SuspendLayout();
+            // 
+            // blackboardContextMenu
+            // 
+            this.blackboardContextMenu.Name = "blackboardContextMenu";
+            this.blackboardContextMenu.Size = new System.Drawing.Size(61, 4);
             // 
             // Blackboard
             // 
@@ -39,7 +48,9 @@
             this.ResumeLayout(false);
 
         }
-
+        
         #endregion
+
+        private ContextMenuStrip blackboardContextMenu;
     }
 }
