@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
-using System.Windows.Documents.DocumentStructures;
 using Newtonsoft.Json;
 
 namespace OneLevelJson.Model
@@ -12,10 +11,17 @@ namespace OneLevelJson.Model
         {
             Name = name;
             Assets = new List<Asset>();
+            /*Images = new List<CienImage>();
+            Composites = new List<CienComposite>();*/
             Components = new List<Component>();
             Width = width;
             Height = height;
             Layers = new List<Layer>(1){new Layer(DefaultLayerName)};
+        }
+
+        public Asset GetAsest(string assetName)
+        {
+            return Assets.Find(x => x.GetName() == assetName);
         }
 
         public void AddAsset(Asset asset)
@@ -31,9 +37,9 @@ namespace OneLevelJson.Model
 
         public void AddComponent(string name, Point location)
         {
-            Asset asset = Assets.Find(x => x.Name == name);
-            string id = "component" + Components.Count;
-            Components.Add(new Component(asset, id, location));
+            Asset asset = Assets.Find(x => x.GetName() == name);
+            string id = "image" + Components.Count;
+            Components.Add(new CienImage(asset.GetNameWithExt(), id, location));
         }
 
         public void RemoveComponent(string id)
@@ -41,26 +47,60 @@ namespace OneLevelJson.Model
             Components.Remove(Components.Find(x => x.Id == id));
         }
 
-        public void ReNameComponent(string id, string newId)
+        public void RenameComponent(string id, string newId)
         {
-            Component comp = Components.Find(x => x.Id == id);
-            if (comp != null) comp.SetId(newId);
+            Component component = Components.Find(x => x.Id == id);
+            component.SetId(newId);
         }
 
-        [JsonProperty]  // static 변수는 자동으로 제외하기 때문에 이 attribute를 추가해줘야 한다.
-        public static string SaveDirectory { get; set; }
+        public void RenameLayer(string name, string newName)
+        {
+            Layer layer = Layers.Find(x => x.Name == name);
+            if(layer != null) layer.SetName(newName);
+        }
+
+        /*
+         * Convert CienImage instance to CienComposite
+         */
+        public void ConvertToComposite(string id)
+        {
+            Component comp = Components.Find(x => x.Id == id);
+            if (comp is CienComposite) return;
+
+            CienImage img = comp as CienImage;
+            if (img == null) return;
+
+            CienComposite newComp = new CienComposite(img.ImageName, img.Id, img.Position);
+            Components.Add(newComp);
+        }
+
+
+        // static 변수는 자동으로 제외하기 때문에 이 attribute를 추가해줘야 한다.
+        [JsonProperty]
+        public static string ProjectDirectory { get; set; }
+
         [JsonProperty]
         public static string ExportDirectory { get; set; }
-        public string Name { get; private set; }
+
+        [JsonProperty]  // static을 이렇게 남발해도 되는가? 필요하긴 한데, 필요를 없애는게 맞진 않은가?
+        public static string Name { get; private set; }
+
         public int Width { get; private set; }
         public int Height { get; private set; }
         public List<Asset> Assets { get; private set; }
         public List<Component> Components { get; private set; }
+        /*public List<CienImage> Images { get; private set; }
+        public List<CienComposite> Composites { get; private set; }*/
+
         [JsonIgnore]
         public List<Layer> Layers;
 
         [JsonIgnore]
         public const string DefaultLayerName = "Default";
+        [JsonIgnore]
+        public const string PressedLayerName = "pressed";
+        [JsonIgnore]
+        public const string NomalLayerName = "normal";
 
     }
 }

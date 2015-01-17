@@ -1,6 +1,6 @@
 ﻿namespace OneLevelJson
 {
-    partial class ContextMenuRenameForm
+    partial class ContextRenameForm
     {
         /// <summary>
         /// Required designer variable.

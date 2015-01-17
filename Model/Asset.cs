@@ -19,23 +19,34 @@ namespace OneLevelJson.Model
             Name = name;
             Number = Number + 1;
 
-            string projectDirectory = Document.SaveDirectory ?? Application.StartupPath;
+            string projectDirectory = Document.ProjectDirectory ?? Application.StartupPath;
 
             switch (Type)
             {
                 case AssetType.Image:
-                    Image img = Image.FromFile(projectDirectory + MainForm.ImageDataDirectory+@"\"+Name);
+                    Image img = Image.FromFile(projectDirectory + @"\" + Document.Name
+                        + MainForm.ImageDataDirectory+@"\"+Name);
                     Data = img;
                     ImageSize = img.Size;
                     break;
             }
         }
 
+        public string GetName()
+        {
+            return Name.Split('.')[0];
+        }
+
+        public string GetNameWithExt()
+        {
+            return Name;
+        }
+
         public static int Number { get; set; }
 
         [JsonConverter(typeof (StringEnumConverter))]
         public AssetType Type { get; set; }
-        public string Name { get; set; }
+        private string Name { get; set; }    // 확장자 포함
         public Size ImageSize;
 
         [JsonIgnore]

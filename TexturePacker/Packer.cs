@@ -80,7 +80,7 @@ namespace OneLevelJson.TexturePacker
                 {
                     Width = asset.ImageSize.Width,
                     Height = asset.ImageSize.Height,
-                    Name = asset.Name
+                    Name = asset.GetNameWithExt()
                 });
             }
         }
@@ -120,7 +120,7 @@ namespace OneLevelJson.TexturePacker
             {
                 foreach (var outputRect in OutputRects)
                 {
-                    Asset match = Assets.Find(t => t.Name == outputRect.Name);
+                    Asset match = Assets.Find(t => t.GetNameWithExt() == outputRect.Name);
                     gfx.DrawImage((Image)match.Data, new Rectangle(outputRect.Position, new Size(outputRect.Width, outputRect.Height)));
                 }
             }
