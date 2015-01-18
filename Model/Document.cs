@@ -42,7 +42,8 @@ namespace OneLevelJson.Model
         {
             Asset asset = Assets.Find(x => x.GetName() == name);
             string id = "image" + Components.Count;
-            Components.Add(new CienImage(asset.GetNameWithExt(), id, location, Component.Number++));
+            if(State.SelectedLayer != null)
+                Components.Add(new CienImage(asset.GetNameWithExt(), id, location, Component.Number++, State.SelectedLayer.Name));
         }
 
         public void RemoveComponent(string id)

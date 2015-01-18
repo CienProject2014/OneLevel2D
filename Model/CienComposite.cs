@@ -69,12 +69,21 @@ namespace OneLevelJson.Model
 
             public class Layer
             {
-                public Layer(string name)
+                public Layer(string name) : this(name, true, false)
                 {
                     Name = name;
                 }
 
+                public Layer(string name, bool isVisible, bool isLocked)
+                {
+                    Name = name;
+                    IsVisible = isVisible;
+                    IsLocked = isLocked;
+                }
+
                 public string Name { get; set; }
+                public bool IsVisible { get; set; }
+                public bool IsLocked { get; set; }
             }
 
             public class Image

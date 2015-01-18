@@ -72,7 +72,8 @@ namespace OneLevelJson
         {
             foreach (var component in PresentDocument.Components)
             {
-                DrawComponent(e, component);
+                if(PresentDocument.Layers.Find(x => x.Name == component.LayerName).IsVisible)
+                    DrawComponent(e, component);
             }
         }
 
@@ -157,6 +158,12 @@ namespace OneLevelJson
             return points[0];
         }
 
+        private bool IsSelectable(Component component)
+        {
+            var layer = PresentDocument.Layers.Find(x => x.Name == component.LayerName);
+            return layer.IsVisible && !layer.IsLocked;
+        }
+
         /************************************************************************/
         /* Delegate Event Handler												*/
         /************************************************************************/
@@ -205,8 +212,14 @@ namespace OneLevelJson
             {
                 case MouseButtons.Left:
                     // 선택된 List중에서 ZIndex가 가장 큰 Component를 선택한다.
-                    var selectedList = PresentDocument.Components.FindAll(x => IsInside(x, ClickedPoint));
-                    State.SelectedComponent = selectedList.Find(x => x.ZIndex == selectedList.Max(y => y.ZIndex));
+                    var selectables = PresentDocument.Components.FindAll(x => IsInside(x, ClickedPoint) && IsSelectable(x));
+
+                    if (selectables.Count == 0)
+                        State.SelectedComponent = null;
+
+                    var candidate = selectables.Find(x => x.ZIndex ==selectables.Max(y => y.ZIndex));
+                    State.SelectedComponent = candidate;
+
                     break;
                 case MouseButtons.Right:
                     var componentList = PresentDocument.Components.FindAll(x => IsInside(x, ClickedPoint));

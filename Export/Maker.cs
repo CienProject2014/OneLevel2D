@@ -69,7 +69,9 @@ namespace OneLevelJson.Export
             {
                 scene.composite.layers.Add(new Layer()
                 {
-                    layerName = layer.Name
+                    layerName = layer.Name,
+                    isVisible = layer.IsVisible,
+                    isLocked = layer.IsLocked
                 });
             }
 
@@ -117,7 +119,9 @@ namespace OneLevelJson.Export
                     {
                         scene.composite.sComposites.Last().composite.layers.Add(new Layer()
                         {
-                            layerName =  layer.Name
+                            layerName =  layer.Name,
+                            isVisible = layer.IsVisible,
+                            isLocked = layer.IsLocked
                         });
                     }
 

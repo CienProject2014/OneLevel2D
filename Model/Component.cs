@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
+using System.Security.Policy;
 using Newtonsoft.Json;
 
 namespace OneLevelJson.Model
@@ -48,7 +49,7 @@ namespace OneLevelJson.Model
 
         abstract public override string ToString();
         abstract public Size GetSize();
-        public abstract Image GetImage();
+        abstract public Image GetImage();
 
         public static int Number = 1;
 

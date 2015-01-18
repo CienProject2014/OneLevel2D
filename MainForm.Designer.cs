@@ -294,6 +294,7 @@ namespace OneLevelJson
             // 
             // layerList
             // 
+            this.layerList.CheckBoxes = true;
             this.layerList.Dock = System.Windows.Forms.DockStyle.Fill;
             this.layerList.Location = new System.Drawing.Point(0, 0);
             this.layerList.MultiSelect = false;

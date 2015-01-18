@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using OneLevelJson.Export;
 using OneLevelJson.Model;
 using OneLevelJson.TexturePacker;
+using Layer = OneLevelJson.Model.Layer;
 
 namespace OneLevelJson
 {
@@ -52,10 +53,23 @@ namespace OneLevelJson
 
             layerList.SelectedIndexChanged += layerList_SelectedIndexChanged;
             layerList.MouseDown += layerList_MouseDown;
+            layerList.ItemChecked += layerList_ItemChecked;
 
             blackboard.DragEnter += blackboard_DragEnter;
             blackboard.DragDrop += blackboard_DragDrop;
             blackboard.KeyDown += blackboard_KeyDown;
+        }
+
+        void layerList_ItemChecked(object sender, ItemCheckedEventArgs e)
+        {
+            //MessageBox.Show(e.Item.Checked.ToString());
+
+            if (_document == null) return;
+
+            Layer selectedLayer = _document.Layers.Find(x => x.Name == e.Item.Text);
+            if (selectedLayer != null) selectedLayer.SetVisible(e.Item.Checked);
+
+            blackboard.Invalidate();
         }
 
         #region New, Load, Save, Import
@@ -168,10 +182,17 @@ namespace OneLevelJson
                 Size offset = new Size(15*i, 15*i);
                 Point transformedLocation = blackboard.PointTransform(location);
                 _document.AddComponent(name, transformedLocation + offset);
-                componentList.Items.Add(new ListViewItem(_document.Components.Last().Id)
+                try
                 {
-                    SubItems = { _document.Components.Last().ZIndex.ToString() }
-                });
+                    componentList.Items.Add(new ListViewItem(_document.Components.Last().Id)
+                    {
+                        SubItems = { _document.Components.Last().ZIndex.ToString() }
+                    });
+                }
+                catch (InvalidOperationException e)
+                {
+                    MessageBox.Show("선택된 Layer가 없습니다.");
+                }
             }
 
             ReloadComponentList();
@@ -282,7 +303,7 @@ namespace OneLevelJson
                 var component = _document.Components[i];
                 componentList.Items.Add(new ListViewItem(component.Id)
                 {
-                    SubItems = {component.ZIndex.ToString()}
+                    SubItems = {component.ZIndex.ToString()},
                 });
             }
 
@@ -298,7 +319,10 @@ namespace OneLevelJson
 
             foreach (var layer in _document.Layers)
             {
-                ListViewItem lvi = new ListViewItem(layer.Name);
+                ListViewItem lvi = new ListViewItem(layer.Name)
+                {
+                    Checked = layer.IsVisible
+                };
 
                 layerList.Items.Add(lvi);
             }
@@ -446,7 +470,7 @@ namespace OneLevelJson
         #region Layer List
         private void addLayer_Click(object sender, EventArgs e)
         {
-            _document.Layers.Add(new Model.Layer("layer" + _document.Layers.Count, false));
+            _document.Layers.Add(new Model.Layer("layer" + _document.Layers.Count, true, false));
             ReloadLayerList();
         }
 

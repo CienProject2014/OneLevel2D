@@ -24,6 +24,8 @@ namespace OneLevelJson.Export
     public class Layer
     {
         public string layerName { get; set; }
+        public bool isVisible { get; set; }
+        public bool isLocked { get; set; }
     }
 
     public class sImage
