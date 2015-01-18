@@ -166,7 +166,8 @@ namespace OneLevelJson
             {
                 string name = items[i].Text;
                 Size offset = new Size(15*i, 15*i);
-                _document.AddComponent(name, location + offset);
+                Point transformedLocation = blackboard.PointTransform(location);
+                _document.AddComponent(name, transformedLocation + offset);
                 componentList.Items.Add(new ListViewItem(_document.Components.Last().Id)
                 {
                     SubItems = { _document.Components.Last().ZIndex.ToString() }

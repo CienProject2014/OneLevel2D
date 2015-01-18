@@ -112,28 +112,28 @@ namespace OneLevelJson
             // newToolStripMenuItem
             // 
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.newToolStripMenuItem.Text = "New";
             this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
             // 
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.openToolStripMenuItem.Text = "Open";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.saveToolStripMenuItem.Text = "Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
             // jsonExportToolStripMenuItem
             // 
             this.jsonExportToolStripMenuItem.Name = "jsonExportToolStripMenuItem";
-            this.jsonExportToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.jsonExportToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.jsonExportToolStripMenuItem.Text = "Json Export";
             this.jsonExportToolStripMenuItem.Click += new System.EventHandler(this.jsonExportToolStripMenuItem_Click);
             // 
@@ -154,7 +154,7 @@ namespace OneLevelJson
             // importToolStripMenuItem
             // 
             this.importToolStripMenuItem.Name = "importToolStripMenuItem";
-            this.importToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.importToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
             this.importToolStripMenuItem.Text = "Import";
             this.importToolStripMenuItem.Click += new System.EventHandler(this.importToolStripMenuItem_Click);
             // 
@@ -169,7 +169,7 @@ namespace OneLevelJson
             // tESTToolStripMenuItem
             // 
             this.tESTToolStripMenuItem.Name = "tESTToolStripMenuItem";
-            this.tESTToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.tESTToolStripMenuItem.Size = new System.Drawing.Size(99, 22);
             this.tESTToolStripMenuItem.Text = "TEST";
             this.tESTToolStripMenuItem.Click += new System.EventHandler(this.tESTToolStripMenuItem_Click);
             // 
@@ -394,7 +394,7 @@ namespace OneLevelJson
             this.blackboard.AllowDrop = true;
             this.blackboard.AutoSize = true;
             this.blackboard.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.blackboard.BackColor = System.Drawing.SystemColors.ControlDark;
+            this.blackboard.BackColor = System.Drawing.SystemColors.ControlDarkDark;
             this.blackboard.Dock = System.Windows.Forms.DockStyle.Fill;
             this.blackboard.Location = new System.Drawing.Point(0, 24);
             this.blackboard.Name = "blackboard";
