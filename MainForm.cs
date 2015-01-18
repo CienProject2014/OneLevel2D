@@ -22,15 +22,11 @@ namespace OneLevelJson
             // TODO 임시로 처리 해둔것. save를 구현하면 수정해야함.
             Document.ProjectDirectory = Application.StartupPath;
 
-            InitDocument();
-
             AddEvent();
         }
 
         private void InitDocument()
         {
-            blackboard.PresentDocument = _document;
-
             ReloadAssetList();
             ReloadComponentList();
             ReloadLayerList();
@@ -53,7 +49,6 @@ namespace OneLevelJson
 
             componentList.MouseDown += componentList_MouseDown;
             componentList.SelectedIndexChanged += componentList_SelectedIndexChanged;
-            componentList.TextChanged += componentList_TextChanged;
 
             layerList.SelectedIndexChanged += layerList_SelectedIndexChanged;
             layerList.MouseDown += layerList_MouseDown;
@@ -63,14 +58,12 @@ namespace OneLevelJson
             blackboard.KeyDown += blackboard_KeyDown;
         }
 
-        void componentList_TextChanged(object sender, EventArgs e)
-        {
-        }
-
         #region New, Load, Save, Import
         private void NewDocument(string name, int width, int height)
         {
             _document = new Document(name, width, height);
+            blackboard.SetDocument(_document);
+            blackboard.Invalidate();
             InitDocument();
         }
 
@@ -160,6 +153,7 @@ namespace OneLevelJson
             TexturePacker.MakeAtlas(imagePackDir);
 
             // 2. project.dt, scene.dt를 만든다.
+            ModelMaker.Initiate();
             ModelMaker.Extract(_document);
             ModelMaker.Make();
         }
@@ -419,28 +413,29 @@ namespace OneLevelJson
 
         private void componentUpBtn_Click(object sender, EventArgs e)
         {
-            if (State.SelectedComponent != null)
-            {
-                int newZIndex = State.SelectedComponent.ZIndex + 1;
-                _document.Components.Find(x => x.ZIndex == newZIndex).MoveDown();
-                State.SelectedComponent.MoveUp();
+            if (State.SelectedComponent == null) return;
 
-                ReloadComponentList();
-            }
+            int newZIndex = State.SelectedComponent.ZIndex + 1;
+
+            if (newZIndex > _document.Components.Max(x => x.ZIndex)) return;
+
+            _document.Components.Find(x => x.ZIndex == newZIndex).MoveDown();
+            State.SelectedComponent.MoveUp();
+
+            ReloadComponentList();
         }
 
         private void componentDownBtn_Click(object sender, EventArgs e)
         {
-            if (State.SelectedComponent != null)
-            {
-                int newZIndex = State.SelectedComponent.ZIndex - 1;
-                if (newZIndex < 0) return;
+            if (State.SelectedComponent == null) return;
 
-                _document.Components.Find(x => x.ZIndex == newZIndex).MoveUp();
-                State.SelectedComponent.MoveDown();
+            int newZIndex = State.SelectedComponent.ZIndex - 1;
+            if (newZIndex < 0) return;
 
-                ReloadComponentList();
-            }
+            _document.Components.Find(x => x.ZIndex == newZIndex).MoveUp();
+            State.SelectedComponent.MoveDown();
+
+            ReloadComponentList();
         }
         #endregion
         
@@ -526,7 +521,7 @@ namespace OneLevelJson
             if (items == null) return;
             picBox.Image = MakeImageFrom(items[0].Text); // 미리보기 이미지 설정
 
-            Point location = blackboard.PointToClient(new Point(e.X, e.Y));
+            Point location = PointToClient(new Point(e.X, e.Y) - (Size)blackboard.Location);
 
             AddComponent(items, location);
             blackboard.Invalidate();

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 using OneLevelJson.Model;
 
@@ -13,7 +12,6 @@ namespace OneLevelJson
         public Blackboard()
         {
             InitializeComponent();
-            OriginPoint = new Point(this.Size.Width, Size.Height);
 
             /* Commands for Flicker *************************************************/
             SetStyle(ControlStyles.UserPaint, true);
@@ -23,6 +21,12 @@ namespace OneLevelJson
             /************************************************************************/
 
             AddEvent();
+        }
+
+        public void SetDocument(Document document)
+        {
+            PresentDocument = document;
+            UpdateRectangle();
         }
 
         private void AddEvent()
@@ -89,8 +93,11 @@ namespace OneLevelJson
 
         private void DrawBoundary(PaintEventArgs e)
         {
+            if (Points == null) return;
+
             using (Pen pen = new Pen(Color.Black))
             {
+                e.Graphics.DrawLines(pen, Points);
             }
         }
 
@@ -103,6 +110,22 @@ namespace OneLevelJson
             }
         }
 
+        private void UpdateRectangle()
+        {
+            if (PresentDocument == null) return;
+            Point leftTop = new Point(0, 0);
+
+            LeftTopPoint = leftTop + LeftTopOffset;
+
+            Points = new[]
+            {
+                LeftTopPoint,
+                LeftTopPoint + new Size(PresentDocument.Width, 0),
+                LeftTopPoint + new Size(PresentDocument.Width, PresentDocument.Height),
+                LeftTopPoint + new Size(0, PresentDocument.Height),
+                LeftTopPoint
+            };
+        }
 
         /************************************************************************/
         /* Delegate Event Handler												*/
@@ -126,16 +149,15 @@ namespace OneLevelJson
 
             DrawComponentList(e);
             DrawSelectedComponentBorder(e);
-
             DrawBoundary(e);
+
             base.OnPaint(e);
         }
 
         protected override void OnSizeChanged(EventArgs e)
         {
-            Point leftTop = new Point(0, 0);
-
-            OriginPoint = leftTop + OriginOffset;
+            base.OnSizeChanged(e);
+            UpdateRectangle();
         }
 
         protected override void OnMouseDown(MouseEventArgs e)
@@ -238,9 +260,9 @@ namespace OneLevelJson
         public Point ClickedPoint { get; private set; }
         public Point MovingPoint { get; private set; }
 
-        public Point OriginPoint;
-        private readonly Size OriginOffset = new Size(50, 50);
-
+        public static Point LeftTopPoint;
+        private readonly Size LeftTopOffset = new Size(50, 50);
+        public Point[] Points { get; private set; }
 
         private const int BorderOffset = 0;
     }

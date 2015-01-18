@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
@@ -8,7 +9,7 @@ namespace OneLevelJson.Export
 {
     public class Maker
     {
-        public Maker()
+        public void Initiate()
         {
             project = new ProjectModel();
             scene = new SceneModel();
@@ -74,25 +75,28 @@ namespace OneLevelJson.Export
 
             foreach (var component in document.Components)
             {
+                // sImages
                 if (component is CienImage)
                 {
-                    // sImages
                     CienImage cienImage = (CienImage) component;
+                    Point convertedLocation = ConvertLoation(document, cienImage);
                     scene.composite.sImages.Add(new sImage()
                     {
                         layerName = cienImage.LayerName,
                         itemIdentifier = cienImage.Id,
                         imageName = cienImage.ImageName.Split('.')[0],
                         zIndex = cienImage.ZIndex,
-                        x = cienImage.Location.X,
-                        y = cienImage.Location.Y,
+                        x = convertedLocation.X,
+                        y = convertedLocation.Y,
+                        /*x = cienImage.Location.X,
+                        y = cienImage.Location.Y,*/
                         tint = cienImage.Tint
                     });
                      
                 }
+                // sComposites
                 else if (component is CienComposite)
                 {
-                    // sComposites
                     CienComposite cienComposite = (CienComposite) component;
                     scene.composite.sComposites.Add(new sComposite()
                     {
@@ -139,7 +143,15 @@ namespace OneLevelJson.Export
             scene.sceneName = "MainScene";
         }
 
-        private readonly ProjectModel project;
+        private Point ConvertLoation(Document document, Component component)
+        {
+            Point translated = component.Location - (Size) Blackboard.LeftTopPoint;
+            int newX = translated.X;
+            int newY = document.Height - (translated.Y + component.GetSize().Height);
+            return new Point(newX, newY);
+        }
+
+        private ProjectModel project;
         private SceneModel scene;
         private const string ProjectFileName = "project.dt";
         private const string SceneFileName = "MainScene.dt";
