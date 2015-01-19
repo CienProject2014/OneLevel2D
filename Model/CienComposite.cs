@@ -3,10 +3,10 @@ using System.Drawing;
 
 namespace OneLevelJson.Model
 {
-    public class CienComposite : Component
+    public class CienComposite : CienComponent
     {
         public CienComposite(string imageName, string id, Point position)
-            : this(imageName, id, position, Document.DefaultLayerName)
+            : this(imageName, id, position, CienDocument.DefaultLayerName)
         {
             
         }
@@ -22,21 +22,27 @@ namespace OneLevelJson.Model
             {
                 Layers = new List<Composite.Layer>(3)
                 {
-                    new Composite.Layer(Document.DefaultLayerName),
-                    new Composite.Layer(Document.PressedLayerName),
-                    new Composite.Layer(Document.NomalLayerName)
+                    new Composite.Layer(CienDocument.DefaultLayerName),
+                    new Composite.Layer(CienDocument.PressedLayerName),
+                    new Composite.Layer(CienDocument.NomalLayerName)
                 },
                 Images = new List<Composite.Image>(1)
                 {
                     new Composite.Image()
                     {
                         ImageName = imageName,
-                        LayerName = Document.DefaultLayerName,
+                        LayerName = CienDocument.DefaultLayerName,
                         Tint = new List<float>(4){1, 1, 1, 1}
                     }
                 }
             };
         }
+
+        public void SetComposite(Composite composite)
+        {
+            this.composite = composite;
+        }
+
         public override string ToString()
         {
             return LayerName + " Composite: " + Id;
@@ -52,11 +58,11 @@ namespace OneLevelJson.Model
 
         public override Image GetImage()
         {
-            return Image.FromFile(Document.ProjectDirectory + MainForm.ImageDataDirectory + @"\" + composite.Images[0].ImageName);
+            return Image.FromFile(CienDocument.ProjectDirectory + MainForm.ImageDataDirectory + @"\" + composite.Images[0].ImageName);
         }
 
         /* Variables ************************************************************/
-        public Composite composite { get; set; }
+        public Composite composite { get; private set; }
         /************************************************************************/
 
         /************************************************************************/
@@ -69,12 +75,21 @@ namespace OneLevelJson.Model
 
             public class Layer
             {
-                public Layer(string name)
+                public Layer(string name) : this(name, true, false)
                 {
                     Name = name;
                 }
 
+                public Layer(string name, bool isVisible, bool isLocked)
+                {
+                    Name = name;
+                    IsVisible = isVisible;
+                    IsLocked = isLocked;
+                }
+
                 public string Name { get; set; }
+                public bool IsVisible { get; set; }
+                public bool IsLocked { get; set; }
             }
 
             public class Image

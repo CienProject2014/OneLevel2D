@@ -70,8 +70,8 @@
     </Compile>
     <Compile Include="Model\CienComposite.cs" />
     <Compile Include="Model\CienImage.cs" />
-    <Compile Include="Model\Component.cs" />
-    <Compile Include="Model\Document.cs" />
+    <Compile Include="Model\CienComponent.cs" />
+    <Compile Include="Model\CienDocument.cs" />
     <Compile Include="Export\Maker.cs" />
     <Compile Include="Export\ProjectModel.cs" />
     <Compile Include="NewForm.cs">
@@ -93,7 +93,14 @@
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Model\Layer.cs" />
+    <Compile Include="Model\CienLayer.cs" />
+    <Compile Include="Properties\Annotations.cs" />
+    <Compile Include="SelectedControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="SelectedControl.Designer.cs">
+      <DependentUpon>SelectedControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="State.cs" />
     <Compile Include="TexturePacker\Packer.cs" />
     <Compile Include="Program.cs" />
@@ -120,6 +127,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="SelectedControl.resx">
+      <DependentUpon>SelectedControl.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\app.manifest">
       <SubType>Designer</SubType>
