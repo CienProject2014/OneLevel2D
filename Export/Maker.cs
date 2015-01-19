@@ -15,7 +15,7 @@ namespace OneLevelJson.Export
             scene = new SceneModel();
         }
 
-        public void Extract(Document document)
+        public void Extract(CienDocument document)
         {
             ExtractProjectModel(document);
 
@@ -25,28 +25,28 @@ namespace OneLevelJson.Export
         public void Make()
         {
             string projectString = JsonConvert.SerializeObject(project);
-            File.WriteAllText(Document.ExportDirectory + @"\" + ProjectFileName, projectString);
+            File.WriteAllText(CienDocument.ExportDirectory + @"\" + ProjectFileName, projectString);
 
             string sceneString = JsonConvert.SerializeObject(scene);
-            File.WriteAllText(Document.ExportDirectory + @"\scenes\" + SceneFileName, sceneString);
+            File.WriteAllText(CienDocument.ExportDirectory + @"\scenes\" + SceneFileName, sceneString);
         }
 
-        public void ExtractProjectModel(Document document)
+        public void ExtractProjectModel(CienDocument document)
         {
-            ProjectModel.Scene scene = new ProjectModel.Scene()
+            ProjectModel.ExportScene scene = new ProjectModel.ExportScene()
             {
                 ambientColor = new List<float>()
                 {
                     0.5f, 0.5f, 0.5f, 1
                 },
-                physicsPropertiesV0 = new ProjectModel.Physics(),
+                physicsPropertiesVO = new ProjectModel.ExportPhysics(),
                 sceneName = "MainScene"
             };
 
-            project.scenes = new List<ProjectModel.Scene>();
+            project.scenes = new List<ProjectModel.ExportScene>();
             project.scenes.Add(scene);
 
-            project.originalResolution = new ProjectModel.Resolution()
+            project.originalResolution = new ProjectModel.ExportResolution()
             {
                 width = document.Width,
                 height = document.Height,
@@ -54,20 +54,20 @@ namespace OneLevelJson.Export
             };
         }
 
-        public void ExtractSceneModel(Document document)
+        public void ExtractSceneModel(CienDocument document)
         {
             // composite
-            scene.composite = new Composite1()
+            scene.composite = new ExportComposite1()
             {
-                layers = new List<Layer>(),
-                sImages = new List<sImage>(),
-                sComposites = new List<sComposite>()
+                layers = new List<ExportLayer>(),
+                sImages = new List<ExportsImage>(),
+                sComposites = new List<ExportsComposite>()
             };
 
             // layers
             foreach (var layer in document.Layers)
             {
-                scene.composite.layers.Add(new Layer()
+                scene.composite.layers.Add(new ExportLayer()
                 {
                     layerName = layer.Name,
                     isVisible = layer.IsVisible,
@@ -81,8 +81,8 @@ namespace OneLevelJson.Export
                 if (component is CienImage)
                 {
                     CienImage cienImage = (CienImage) component;
-                    Point convertedLocation = ConvertLoation(document, cienImage);
-                    scene.composite.sImages.Add(new sImage()
+                    Point convertedLocation = ConvertLocation(document, cienImage);
+                    scene.composite.sImages.Add(new ExportsImage()
                     {
                         layerName = cienImage.LayerName,
                         itemIdentifier = cienImage.Id,
@@ -100,14 +100,14 @@ namespace OneLevelJson.Export
                 else if (component is CienComposite)
                 {
                     CienComposite cienComposite = (CienComposite) component;
-                    scene.composite.sComposites.Add(new sComposite()
+                    scene.composite.sComposites.Add(new ExportsComposite()
                     {
                         layerName = cienComposite.LayerName,
                         itemIdentifier = cienComposite.Id,
-                        composite = new Composite2()
+                        composite = new ExportComposite2()
                         {
-                            layers = new List<Layer>(cienComposite.composite.Layers.Count),
-                            sImages = new List<sImage2>(cienComposite.composite.Images.Count),
+                            layers = new List<ExportLayer>(cienComposite.composite.Layers.Count),
+                            sImages = new List<ExportsImage2>(cienComposite.composite.Images.Count),
                         },
                         zIndex = cienComposite.ZIndex,
                         x = cienComposite.Location.X,
@@ -117,7 +117,7 @@ namespace OneLevelJson.Export
 
                     foreach (var layer in cienComposite.composite.Layers)
                     {
-                        scene.composite.sComposites.Last().composite.layers.Add(new Layer()
+                        scene.composite.sComposites.Last().composite.layers.Add(new ExportLayer()
                         {
                             layerName =  layer.Name,
                             isVisible = layer.IsVisible,
@@ -127,7 +127,7 @@ namespace OneLevelJson.Export
 
                     foreach (var image in cienComposite.composite.Images)
                     {
-                        scene.composite.sComposites.Last().composite.sImages.Add(new sImage2()
+                        scene.composite.sComposites.Last().composite.sImages.Add(new ExportsImage2()
                         {
                             layerName = image.LayerName,
                             imageName = image.ImageName.Split('.')[0],
@@ -142,12 +142,12 @@ namespace OneLevelJson.Export
                 0.5f, 0.5f, 0.5f, 1
             };
 
-            scene.physcisPropertiesV0 = new Physics();
+            scene.physicsPropertiesVO = new ExportPhysics();
 
             scene.sceneName = "MainScene";
         }
 
-        private Point ConvertLoation(Document document, Component component)
+        private Point ConvertLocation(CienDocument document, CienComponent component)
         {
             Point translated = component.Location - (Size) Blackboard.LeftTopPoint;
             int newX = translated.X;

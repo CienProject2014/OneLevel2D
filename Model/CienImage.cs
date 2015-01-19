@@ -3,10 +3,10 @@ using System.Drawing;
 
 namespace OneLevelJson.Model
 {
-    public class CienImage : Component
+    public class CienImage : CienComponent
     {
         public CienImage(string imageName, string id, Point position, int zIndex)
-            : this(imageName, id, position, zIndex, Document.DefaultLayerName)
+            : this(imageName, id, position, zIndex, CienDocument.DefaultLayerName)
         {
         }
 
@@ -18,6 +18,11 @@ namespace OneLevelJson.Model
             Tint = new List<int>(4) {1, 1, 1, 1};
             ZIndex = zIndex;
             LayerName = layerName;
+        }
+
+        public void SetImageName(string imagename)
+        {
+            ImageName = imagename;
         }
 
         public override string ToString()
@@ -35,8 +40,8 @@ namespace OneLevelJson.Model
 
         public override Image GetImage()
         {
-            return Image.FromFile(Document.ProjectDirectory + @"\"
-                                  + Document.Name + MainForm.ImageDataDirectory + @"\" + ImageName);
+            return Image.FromFile(CienDocument.ProjectDirectory + @"\"
+                                  + CienDocument.Name + MainForm.ImageDataDirectory + @"\" + ImageName);
         }
 
         /* Variables ************************************************************/

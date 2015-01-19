@@ -1,9 +1,9 @@
 ﻿namespace OneLevelJson.Model
 {
-    public class Layer
+    public class CienLayer
     {
-        public Layer(string name) : this(name, true, false) {}
-        public Layer(string name, bool isVisible, bool isLocked)
+        public CienLayer(string name) : this(name, true, false) {}
+        public CienLayer(string name, bool isVisible, bool isLocked)
         {
             Name = name;
             IsVisible = isVisible;
@@ -23,5 +23,10 @@
         public string Name { get; private set; }
         public bool IsVisible { get; private set; }
         public bool IsLocked { get; private set; }
+
+        public static CienLayer Empty = new CienLayer(EmptyLayerName);
+
+        public const string DefaultLayerName = "Default";
+        private const string EmptyLayerName = "Empty";
     }
 }

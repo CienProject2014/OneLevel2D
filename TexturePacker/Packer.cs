@@ -148,7 +148,7 @@ namespace OneLevelJson.TexturePacker
                        + "  " + "xy: " + outputRect.Position.X + ", " + outputRect.Position.Y + "\n"
                        + "  " + "size: " + outputRect.Width + ", " + outputRect.Height + "\n"
                        + "  " + "orig: " + outputRect.Width + ", " + outputRect.Height + "\n"
-                       + "  " + "offset" + 0 + ", " + 0 + "\n"
+                       + "  " + "offset: " + 0 + ", " + 0 + "\n"
                        + "  " + "index: " + -1 + "\n";
             }
 

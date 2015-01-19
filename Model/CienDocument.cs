@@ -4,19 +4,20 @@ using Newtonsoft.Json;
 
 namespace OneLevelJson.Model
 {
-    public class Document
+    public class CienDocument
     {
-        public Document() : this("noname", 1920, 1080) {}
-        public Document(string name, int width, int height)
+        public CienDocument() : this("noname", 1920, 1080) {}
+        public CienDocument(string name, int width, int height)
         {
             Name = name;
             Assets = new List<Asset>();
             /*Images = new List<CienImage>();
             Composites = new List<CienComposite>();*/
-            Components = new List<Component>();
+            Components = new List<CienComponent>();
             Width = width;
             Height = height;
-            Layers = new List<Layer>(1){new Layer(DefaultLayerName)};
+            State.DocumentSize = new Size(width, height);
+            Layers = new List<CienLayer>(1){new CienLayer(DefaultLayerName)};
         }
 
         #region Asset: Get, Add, Remove
@@ -42,8 +43,8 @@ namespace OneLevelJson.Model
         {
             Asset asset = Assets.Find(x => x.GetName() == name);
             string id = "image" + Components.Count;
-            if(State.SelectedLayer != null)
-                Components.Add(new CienImage(asset.GetNameWithExt(), id, location, Component.Number++, State.SelectedLayer.Name));
+            if(State.IsLayerSelected())
+                Components.Add(new CienImage(asset.GetNameWithExt(), id, location, CienComponent.Number++, State.Selected.Layer.Name));
         }
 
         public void RemoveComponent(string id)
@@ -53,7 +54,7 @@ namespace OneLevelJson.Model
 
         public void RenameComponent(string id, string newId)
         {
-            Component component = Components.Find(x => x.Id == id);
+            CienComponent component = Components.Find(x => x.Id == id);
             component.SetId(newId);
         }
         #endregion
@@ -61,7 +62,7 @@ namespace OneLevelJson.Model
         #region RenameLayer, ConvertToComposite
         public void RenameLayer(string name, string newName)
         {
-            Layer layer = Layers.Find(x => x.Name == name);
+            CienLayer layer = Layers.Find(x => x.Name == name);
             if(layer != null) layer.SetName(newName);
         }
 
@@ -70,7 +71,7 @@ namespace OneLevelJson.Model
          */
         public void ConvertToComposite(string id)
         {
-            Component comp = Components.Find(x => x.Id == id);
+            CienComponent comp = Components.Find(x => x.Id == id);
             if (comp is CienComposite) return;
 
             CienImage img = comp as CienImage;
@@ -95,12 +96,12 @@ namespace OneLevelJson.Model
         public int Width { get; private set; }
         public int Height { get; private set; }
         public List<Asset> Assets { get; private set; }
-        public List<Component> Components { get; private set; }
+        public List<CienComponent> Components { get; private set; }
         /*public List<CienImage> Images { get; private set; }
         public List<CienComposite> Composites { get; private set; }*/
 
         [JsonIgnore]
-        public List<Layer> Layers;
+        public List<CienLayer> Layers;
 
         [JsonIgnore]
         public const string DefaultLayerName = "Default";

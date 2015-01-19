@@ -29,7 +29,7 @@ namespace OneLevelJson
             AddEvent();
         }
 
-        public void SetDocument(Document document)
+        public void SetDocument(CienDocument document)
         {
             PresentDocument = document;
             UpdateRectangle();
@@ -40,7 +40,7 @@ namespace OneLevelJson
             blackboardContextMenu.ItemClicked += blackboardContextMenu_ItemClicked;
         }
 
-        private bool IsInside(Component component, Point clicked)
+        private bool IsInside(CienComponent component, Point clicked)
         {
             // if clicked is inside the component, then return true
             if (clicked.X > component.Location.X &&
@@ -54,12 +54,7 @@ namespace OneLevelJson
             return false;
         }
 
-        public void RemoveSelected()
-        {
-            State.SelectedComponent = null;
-        }
-
-        private void DrawComponent(PaintEventArgs e, Component component)
+        private void DrawComponent(PaintEventArgs e, CienComponent component)
         {
             using (Image img = component.GetImage())
             {
@@ -79,8 +74,8 @@ namespace OneLevelJson
 
         private void DrawSelectedComponentBorder(PaintEventArgs e)
         {
-            var component = State.SelectedComponent;
-            if (component == null) return;
+            var component = State.Selected.Component;
+            if (!State.IsComponentSelected()) return;
 
             Point[] points =
                 {
@@ -108,7 +103,7 @@ namespace OneLevelJson
             }
         }
 
-        private void UpdateBlackboardContextMenu(List<Component> componentList)
+        private void UpdateBlackboardContextMenu(List<CienComponent> componentList)
         {
             blackboardContextMenu.Items.Clear();
             foreach (var component in componentList)
@@ -158,7 +153,7 @@ namespace OneLevelJson
             return points[0];
         }
 
-        private bool IsSelectable(Component component)
+        private bool IsSelectable(CienComponent component)
         {
             var layer = PresentDocument.Layers.Find(x => x.Name == component.LayerName);
             return layer.IsVisible && !layer.IsLocked;
@@ -170,7 +165,7 @@ namespace OneLevelJson
         #region Delegate Method
         void blackboardContextMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
-            State.SelectedComponent = PresentDocument.Components.Find(x => x.Id == e.ClickedItem.Text);
+            State.SelectComponent(PresentDocument.Components.Find(x => x.Id == e.ClickedItem.Text));
             Invalidate();
         }
         #endregion
@@ -215,10 +210,13 @@ namespace OneLevelJson
                     var selectables = PresentDocument.Components.FindAll(x => IsInside(x, ClickedPoint) && IsSelectable(x));
 
                     if (selectables.Count == 0)
-                        State.SelectedComponent = null;
+                    {
+                        State.SelectAbandon();
+                        break;
+                    }
 
                     var candidate = selectables.Find(x => x.ZIndex ==selectables.Max(y => y.ZIndex));
-                    State.SelectedComponent = candidate;
+                    State.SelectComponent(candidate);
 
                     break;
                 case MouseButtons.Right:
@@ -238,8 +236,8 @@ namespace OneLevelJson
             switch (e.Button)
             {
                 case MouseButtons.Left:
-                    if (State.SelectedComponent == null) return;
-                    State.SelectedComponent.Move(offset);
+                    if (!State.IsComponentSelected()) break;
+                    State.Selected.Move(offset);
                     State.log.Write(offset.ToString());
                     break;
                 case MouseButtons.Middle:
@@ -325,7 +323,7 @@ namespace OneLevelJson
                 dx *= 10;
                 dy *= 10;
             }
-            if (State.SelectedComponent != null) State.SelectedComponent.Move(dx, dy);
+            if (State.IsComponentSelected()) State.Selected.Move(dx, dy);
 
             Invalidate();
         }
@@ -334,7 +332,7 @@ namespace OneLevelJson
         /************************************************************************/
         /* Variables															*/
         /************************************************************************/
-        public Document PresentDocument { get; set; }
+        public CienDocument PresentDocument { get; set; }
 
         public static Point LeftTopPoint;
         private readonly Size LeftTopOffset = new Size(50, 50);

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -8,7 +7,7 @@ using Newtonsoft.Json;
 using OneLevelJson.Export;
 using OneLevelJson.Model;
 using OneLevelJson.TexturePacker;
-using Layer = OneLevelJson.Model.Layer;
+using Layer = OneLevelJson.Model.CienLayer;
 
 namespace OneLevelJson
 {
@@ -21,7 +20,7 @@ namespace OneLevelJson
             NewDocument("noname", 1920, 1080);
 
             // TODO 임시로 처리 해둔것. save를 구현하면 수정해야함.
-            Document.ProjectDirectory = Application.StartupPath;
+            CienDocument.ProjectDirectory = Application.StartupPath;
 
             AddEvent();
         }
@@ -35,10 +34,10 @@ namespace OneLevelJson
             ReloadBlackboard();
 
             // TODO 분리해주어야 좋을 Directory 설정. 이 부분을 어디서 사용할지 모르니까 쉽사리 분리를 하지 못하겠다.
-            string projectPath = Document.ProjectDirectory ?? Application.StartupPath;
-            MakeDirectory(projectPath + @"\" + Document.Name);
-            MakeDirectory(projectPath + @"\" + Document.Name + @"\" + AssetDirectory);
-            MakeDirectory(projectPath + @"\" + Document.Name + @"\" + ImageDataDirectory);
+            string projectPath = CienDocument.ProjectDirectory ?? Application.StartupPath;
+            MakeDirectory(projectPath + @"\" + CienDocument.Name);
+            MakeDirectory(projectPath + @"\" + CienDocument.Name + @"\" + AssetDirectory);
+            MakeDirectory(projectPath + @"\" + CienDocument.Name + @"\" + ImageDataDirectory);
         }
 
         private void AddEvent()
@@ -66,7 +65,7 @@ namespace OneLevelJson
 
             if (_document == null) return;
 
-            Layer selectedLayer = _document.Layers.Find(x => x.Name == e.Item.Text);
+            CienLayer selectedLayer = _document.Layers.Find(x => x.Name == e.Item.Text);
             if (selectedLayer != null) selectedLayer.SetVisible(e.Item.Checked);
 
             blackboard.Invalidate();
@@ -75,7 +74,7 @@ namespace OneLevelJson
         #region New, Load, Save, Import
         private void NewDocument(string name, int width, int height)
         {
-            _document = new Document(name, width, height);
+            _document = new CienDocument(name, width, height);
             blackboard.SetDocument(_document);
             blackboard.Invalidate();
             InitDocument();
@@ -99,14 +98,14 @@ namespace OneLevelJson
         private void SaveDocument(string filename)
         {
             string docjson = JsonConvert.SerializeObject(_document);
-            File.WriteAllText(Document.ProjectDirectory + @"\" + filename, docjson);
+            File.WriteAllText(CienDocument.ProjectDirectory + @"\" + filename, docjson);
             // _document를 json으로 serialize해서 파일에 쓰기.
         }
 
         private void ParseDocument(string docstring)
         {
             // docstring을 deserialize해서 doc에 넣어주기.
-            _document = JsonConvert.DeserializeObject<Document>(docstring);
+            _document = JsonConvert.DeserializeObject<CienDocument>(docstring);
         }
 
         private void ImportAsset(string[] files)
@@ -114,11 +113,11 @@ namespace OneLevelJson
             // 1. 이미지들을 실행파일이 있는 프로젝트로 복사한 후,
             foreach (var file in files)
             {
-                string projectDirectory = Document.ProjectDirectory ?? Application.StartupPath;
+                string projectDirectory = CienDocument.ProjectDirectory ?? Application.StartupPath;
 
                 try
                 {
-                    File.Copy(file, projectDirectory + @"\" + Document.Name + @"\"
+                    File.Copy(file, projectDirectory + @"\" + CienDocument.Name + @"\"
                                     + ImageDataDirectory + @"\" + file.Split('\\').Last());
                 }
                 catch (Exception e)
@@ -133,7 +132,7 @@ namespace OneLevelJson
             // 3. 현재 AssetList를 다시 로드한다.
             ReloadAssetList();
         }
-        
+
         private Asset MakeAssetFrom(string file)
         {
             AssetType type;
@@ -179,7 +178,7 @@ namespace OneLevelJson
             for (int i = 0; i < items.Count; i++)
             {
                 string name = items[i].Text;
-                Size offset = new Size(15*i, 15*i);
+                Size offset = new Size(15 * i, 15 * i);
                 Point transformedLocation = blackboard.PointTransform(location);
                 _document.AddComponent(name, transformedLocation + offset);
                 try
@@ -200,7 +199,7 @@ namespace OneLevelJson
 
         private Image MakeImageFrom(string imageName)
         {
-            string projectDirectory = Document.ProjectDirectory ?? Application.StartupPath;
+            string projectDirectory = CienDocument.ProjectDirectory ?? Application.StartupPath;
             string newImagename = imageName;
 
             if (!CheckExt(imageName))
@@ -209,7 +208,7 @@ namespace OneLevelJson
                 newImagename = asset.GetNameWithExt();
             }
 
-            return Image.FromFile(projectDirectory + @"\" + Document.Name + @"\"
+            return Image.FromFile(projectDirectory + @"\" + CienDocument.Name + @"\"
                                   + ImageDataDirectory + @"\" + newImagename);
         }
 
@@ -298,12 +297,12 @@ namespace OneLevelJson
 
             SortComponentList();
 
-            for (int i = _document.Components.Count-1; i >= 0; i--)
+            for (int i = _document.Components.Count - 1; i >= 0; i--)
             {
                 var component = _document.Components[i];
                 componentList.Items.Add(new ListViewItem(component.Id)
                 {
-                    SubItems = {component.ZIndex.ToString()},
+                    SubItems = { component.ZIndex.ToString() },
                 });
             }
 
@@ -336,7 +335,6 @@ namespace OneLevelJson
         }
         #endregion
 
-
         /************************************************************************/
         /* Asset List															*/
         /************************************************************************/
@@ -345,9 +343,10 @@ namespace OneLevelJson
         {
             if (assetList.SelectedItems.Count != 0)
             {
-                string selectedName = assetList.SelectedItems[0].Text;
+                // TODO picbox를 임시로 삭제
+                /*string selectedName = assetList.SelectedItems[0].Text;
                 Asset selectedAsset = _document.Assets.Find(x => x.GetName() == selectedName);
-                picBox.Image = MakeImageFrom(selectedAsset.GetNameWithExt());
+                picBox.Image = MakeImageFrom(selectedAsset.GetNameWithExt());*/
             }
         }
 
@@ -372,7 +371,7 @@ namespace OneLevelJson
             State.log.Write(e.X + " " + e.Y);
         }
         #endregion
-        
+
         /************************************************************************/
         /* Component List														*/
         /************************************************************************/
@@ -382,7 +381,7 @@ namespace OneLevelJson
             if (componentList.SelectedItems.Count != 0)
             {
                 string selectedId = componentList.SelectedItems[0].Text;
-                State.SelectedComponent = _document.Components.Find(x => x.Id == selectedId);
+                State.SelectComponent(_document.Components.Find(x => x.Id == selectedId));
             }
             blackboard.Invalidate();
         }
@@ -418,7 +417,7 @@ namespace OneLevelJson
                     }
                 }
             }
-            
+
             ReloadComponentList();
         }
 
@@ -438,39 +437,43 @@ namespace OneLevelJson
 
         private void componentUpBtn_Click(object sender, EventArgs e)
         {
-            if (State.SelectedComponent == null) return;
+            if (!State.IsComponentSelected()) return;
 
-            int newZIndex = State.SelectedComponent.ZIndex + 1;
-
+            int newZIndex = State.Selected.Component.ZIndex + 1;
             if (newZIndex > _document.Components.Max(x => x.ZIndex)) return;
 
-            _document.Components.Find(x => x.ZIndex == newZIndex).MoveDown();
-            State.SelectedComponent.MoveUp();
+            /*_document.Components.Find(x => x.ZIndex == newZIndex).MoveDown();
+            State.Selected.Component.MoveUp();*/
+
+            _document.Components.Find(x => x.ZIndex == newZIndex).SetZindex(CienComponent.EmptyZindex);
+            State.Selected.MoveUp();
+            _document.Components.Find(x => x.ZIndex == CienComponent.EmptyZindex).SetZindex(newZIndex - 1);
 
             ReloadComponentList();
         }
 
         private void componentDownBtn_Click(object sender, EventArgs e)
         {
-            if (State.SelectedComponent == null) return;
+            if (!State.IsComponentSelected()) return;
 
-            int newZIndex = State.SelectedComponent.ZIndex - 1;
+            int newZIndex = State.Selected.Component.ZIndex - 1;
             if (newZIndex < 0) return;
 
-            _document.Components.Find(x => x.ZIndex == newZIndex).MoveUp();
-            State.SelectedComponent.MoveDown();
+            _document.Components.Find(x => x.ZIndex == newZIndex).SetZindex(CienComponent.EmptyZindex);
+            State.Selected.MoveDown();
+            _document.Components.Find(x => x.ZIndex == CienComponent.EmptyZindex).SetZindex(newZIndex + 1);
 
             ReloadComponentList();
         }
         #endregion
-        
+
         /************************************************************************/
         /* Layer List															*/
         /************************************************************************/
         #region Layer List
         private void addLayer_Click(object sender, EventArgs e)
         {
-            _document.Layers.Add(new Model.Layer("layer" + _document.Layers.Count, true, false));
+            _document.Layers.Add(new Layer("layer" + _document.Layers.Count, true, false));
             ReloadLayerList();
         }
 
@@ -481,7 +484,7 @@ namespace OneLevelJson
 
             for (int i = 0; i < items.Count; i++)
             {
-                Model.Layer selectedLayer = _document.Layers.Find(x => x.Name == items[i].Text);
+                CienLayer selectedLayer = _document.Layers.Find(x => x.Name == items[i].Text);
                 _document.Layers.Remove(selectedLayer);
             }
 
@@ -492,7 +495,7 @@ namespace OneLevelJson
         {
             if (layerList.SelectedItems.Count == 1)
             {
-                State.SelectedLayer = _document.Layers.Find(x => x.Name == layerList.SelectedItems[0].Text);
+                State.SelectLayer(_document.Layers.Find(x => x.Name == layerList.SelectedItems[0].Text));
             }
         }
 
@@ -522,14 +525,15 @@ namespace OneLevelJson
             ReloadLayerList();
         }
         #endregion
-        
+
         /************************************************************************/
         /* Blackboard															*/
         /************************************************************************/
         #region Blackboard
+
         private void blackboard_DragEnter(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(typeof (ListView.SelectedListViewItemCollection)))
+            if (e.Data.GetDataPresent(typeof(ListView.SelectedListViewItemCollection)))
             {
                 e.Effect = DragDropEffects.Move;
             }
@@ -537,14 +541,16 @@ namespace OneLevelJson
 
         private void blackboard_DragDrop(object sender, DragEventArgs e)
         {
-            if (!e.Data.GetDataPresent(typeof (ListView.SelectedListViewItemCollection))) return;
+            if (!e.Data.GetDataPresent(typeof(ListView.SelectedListViewItemCollection))) return;
 
             var items =
-                e.Data.GetData(typeof (ListView.SelectedListViewItemCollection)) as
+                e.Data.GetData(typeof(ListView.SelectedListViewItemCollection)) as
                     ListView.SelectedListViewItemCollection;
 
             if (items == null) return;
-            picBox.Image = MakeImageFrom(items[0].Text); // 미리보기 이미지 설정
+
+            // TODO picBox 임시로 삭제
+            //picBox.Image = MakeImageFrom(items[0].Text); // 미리보기 이미지 설정
 
             Point location = PointToClient(new Point(e.X, e.Y) - (Size)blackboard.Location);
 
@@ -557,10 +563,10 @@ namespace OneLevelJson
             switch (e.KeyCode)
             {
                 case Keys.Delete:
-                    if (State.SelectedComponent != null)
+                    if (State.IsComponentSelected())
                     {
-                        _document.RemoveComponent(State.SelectedComponent.Id);
-                        State.SelectedComponent = null;
+                        _document.RemoveComponent(State.Selected.Component.Id);
+                        State.SelectAbandon();
                         ReloadComponentList();
                     }
                     break;
@@ -570,7 +576,7 @@ namespace OneLevelJson
         }
 
         #endregion
-        
+
         /************************************************************************/
         /* Menu Strip															*/
         /************************************************************************/
@@ -618,24 +624,24 @@ namespace OneLevelJson
                 Directory.Move(Application.StartupPath + AssetDirectory, Document.SaveDirectory + AssetDirectory);
             }*/
 
-            Document.ProjectDirectory = Application.StartupPath;
+            CienDocument.ProjectDirectory = Application.StartupPath;
             InitDocument();
-            SaveDocument(Document.Name + "." + ProjectExtension);
+            SaveDocument(CienDocument.Name + "." + ProjectExtension);
 
-            MessageBox.Show(Document.Name + @" 프로젝트가 저장되었습니다.");
+            MessageBox.Show(CienDocument.Name + @" 프로젝트가 저장되었습니다.");
         }
 
         private void jsonExportToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (Document.ExportDirectory == null && exportFolderBrowser.ShowDialog() == DialogResult.OK)
+            if (CienDocument.ExportDirectory == null && exportFolderBrowser.ShowDialog() == DialogResult.OK)
             {
-                Document.ExportDirectory = exportFolderBrowser.SelectedPath;
-                MakeDirectory(Document.ExportDirectory + @"\scenes");
-                Export(Document.ExportDirectory);
+                CienDocument.ExportDirectory = exportFolderBrowser.SelectedPath;
+                MakeDirectory(CienDocument.ExportDirectory + @"\scenes");
+                Export(CienDocument.ExportDirectory);
             }
         }
         #endregion
-        
+
         /************************************************************************/
         /* DEBUG																*/
         /************************************************************************/
@@ -643,7 +649,7 @@ namespace OneLevelJson
         /************************************************************************/
         /* Variables															*/
         /************************************************************************/
-        private Document _document;
+        private CienDocument _document;
         public readonly Packer TexturePacker = new Packer();
         public readonly Maker ModelMaker = new Maker();
         private const string ProjectExtension = "dt";
@@ -652,10 +658,8 @@ namespace OneLevelJson
 
         private void tESTToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //string src = @"C:\Users\HAJIN\Documents\Visual Studio 2013\Projects\OneLevelJson\bin\Debug\assets";
-            //string dst = @"C:\Users\HAJIN\Desktop" + @"\" + Document.Name + AssetDirectory;
-            //MakeDirectory(@"C:\Users\HAJIN\Desktop\noname");
-            //Directory.Move(src, dst);
+            State.SelectComponent(new CienImage("asdf", "sdf", Point.Empty, 0));
+            MessageBox.Show(State.Selected.Component.Id);
         }
     }
 }

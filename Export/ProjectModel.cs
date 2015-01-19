@@ -6,25 +6,25 @@ namespace OneLevelJson.Export
     public class ProjectModel
     {
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public List<Resolution> resolutions { get; set; }
-        public List<Scene> scenes { get; set; }
-        public Resolution originalResolution { get; set; }
+        public List<ExportResolution> resolutions { get; set; }
+        public List<ExportScene> scenes { get; set; }
+        public ExportResolution originalResolution { get; set; }
 
-        public class Scene
+        public class ExportScene
         {
             public List<float> ambientColor { get; set; }
-            public Physics physicsPropertiesV0 { get; set; }
+            public ExportPhysics physicsPropertiesVO { get; set; }
             public string sceneName { get; set; }
         }
 
-        public class Resolution
+        public class ExportResolution
         {
             public int width { get; set; }
             public int height { get; set; }
             public string name { get; set; }
         }
 
-        public class Physics
+        public class ExportPhysics
         {
         }
     }

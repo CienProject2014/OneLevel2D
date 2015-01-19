@@ -19,12 +19,12 @@ namespace OneLevelJson.Model
             Name = name;
             Number = Number + 1;
 
-            string projectDirectory = Document.ProjectDirectory ?? Application.StartupPath;
+            string projectDirectory = CienDocument.ProjectDirectory ?? Application.StartupPath;
 
             switch (Type)
             {
                 case AssetType.Image:
-                    Image img = Image.FromFile(projectDirectory + @"\" + Document.Name
+                    Image img = Image.FromFile(projectDirectory + @"\" + CienDocument.Name
                         + MainForm.ImageDataDirectory+@"\"+Name);
                     Data = img;
                     ImageSize = img.Size;
