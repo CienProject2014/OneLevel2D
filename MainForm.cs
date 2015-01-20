@@ -27,6 +27,7 @@ namespace OneLevelJson
 
         private void InitDocument()
         {
+            titleBarControl1.SetTitleName(CienDocument.Name +" - " + ProgramName);
             ReloadAssetList();
             ReloadComponentList();
             ReloadLayerList();
@@ -82,16 +83,8 @@ namespace OneLevelJson
 
         private void LoadDocument(string dir)
         {
-            string extension = dir.Split('.').Last();
-            if (extension != ProjectExtension)
-            {
-                MessageBox.Show(@"프로젝트 파일이 아닙니다!");
-                return;
-            }
-
             string docstring = File.ReadAllText(dir);
             ParseDocument(docstring);
-
             InitDocument();
         }
 
@@ -352,23 +345,19 @@ namespace OneLevelJson
 
         private void assetList_ItemDrag(object sender, ItemDragEventArgs e)
         {
-            State.log.Write("DRAG START");
             //            assetList.DoDragDrop(e.Item, DragDropEffects.Move); // start dragging
             assetList.DoDragDrop(assetList.SelectedItems, DragDropEffects.Move); // start dragging
 
             // the code below will run after the end of dragging
-            State.log.Write("DRAG END");
         }
 
         private void assetList_DragEnter(object sender, DragEventArgs e)
         {
-            State.log.Write("DRAG ENTER");
             e.Effect = e.AllowedEffect;
         }
 
         private void assetList_DragOver(object sender, DragEventArgs e)
         {
-            State.log.Write(e.X + " " + e.Y);
         }
         #endregion
 
@@ -593,12 +582,26 @@ namespace OneLevelJson
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            switch (openProjectDialog.ShowDialog())
+            if (openProjectDialog.ShowDialog() != DialogResult.OK) return;
+            string dir = openProjectDialog.FileNames[0];
+            string extension = dir.Split('.').Last();
+            switch (extension)
             {
-                case DialogResult.OK:
-                    LoadDocument(openProjectDialog.FileNames[0]); // for debug
+                case ProjectExtension:
+                    LoadDocument(dir);
+                    break;
+                case Overlap2DExtention:
+                    LoadOverlap2D(dir);
+                    break;
+                default:
+                    MessageBox.Show(@"프로젝트 파일이 아닙니다!");
                     break;
             }
+        }
+
+        private void LoadOverlap2D(string dir)
+        {
+
         }
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
@@ -652,7 +655,9 @@ namespace OneLevelJson
         private CienDocument _document;
         public readonly Packer TexturePacker = new Packer();
         public readonly Maker ModelMaker = new Maker();
+        private const string ProgramName = "OneLevel2D";
         private const string ProjectExtension = "dt";
+        private const string Overlap2DExtention = "pit";
         public const string AssetDirectory = @"\assets";
         public const string ImageDataDirectory = @"\assets\image";
 

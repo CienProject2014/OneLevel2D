@@ -1,11 +1,14 @@
-﻿namespace OneLevelJson
+﻿using System.ComponentModel;
+using System.Windows.Forms;
+
+namespace OneLevelJson
 {
     partial class SelectedControl
     {
         /// <summary> 
         /// Required designer variable.
         /// </summary>
-        private System.ComponentModel.IContainer components = null;
+        private IContainer components = null;
 
         /// <summary> 
         /// Clean up any resources being used.
@@ -89,10 +92,10 @@
 
         #endregion
 
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label xyValueLabel;
-        private System.Windows.Forms.Label componentIdLabel;
-        private System.Windows.Forms.Label idLabel;
+        private Label label1;
+        private Label xyValueLabel;
+        private Label componentIdLabel;
+        private Label idLabel;
 
 
     }

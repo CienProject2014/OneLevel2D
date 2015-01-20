@@ -1,11 +1,14 @@
-﻿namespace OneLevelJson
+﻿using System.ComponentModel;
+using System.Windows.Forms;
+
+namespace OneLevelJson
 {
     partial class ContextRenameForm
     {
         /// <summary>
         /// Required designer variable.
         /// </summary>
-        private System.ComponentModel.IContainer components = null;
+        private IContainer components = null;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -78,8 +81,8 @@
 
         #endregion
 
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.Button okBtn;
+        private Label label1;
+        private TextBox textBox1;
+        private Button okBtn;
     }
 }

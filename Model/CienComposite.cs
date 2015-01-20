@@ -18,7 +18,7 @@ namespace OneLevelJson.Model
             Tint = new List<int>(4) { 1, 1, 1, 1 };
             LayerName = layerName;
 
-            composite = new Composite()
+            composite = new Composite
             {
                 Layers = new List<Composite.Layer>(3)
                 {
@@ -28,7 +28,7 @@ namespace OneLevelJson.Model
                 },
                 Images = new List<Composite.Image>(1)
                 {
-                    new Composite.Image()
+                    new Composite.Image
                     {
                         ImageName = imageName,
                         LayerName = CienDocument.DefaultLayerName,

@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace OneLevelJson
@@ -16,7 +13,11 @@ namespace OneLevelJson
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm());
+            Form = new MainForm();
+            Application.Run(Form);
         }
+
+        public static MainForm Form;
+
     }
 }

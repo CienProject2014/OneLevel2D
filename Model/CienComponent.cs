@@ -1,8 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Runtime.CompilerServices;
-using OneLevelJson.Annotations;
 
 namespace OneLevelJson.Model
 {
@@ -46,9 +43,7 @@ namespace OneLevelJson.Model
         private Point ConvertLocation(Point location)
         {
             Point translated = location - (Size) Blackboard.LeftTopPoint;
-            int newX = translated.X;
-            int newY = State.DocumentSize.Height - (translated.Y + GetSize().Height);
-            return new Point(newX, newY);
+            return translated;
             
         }
         public Point ConvertedLocation { get; protected set; }

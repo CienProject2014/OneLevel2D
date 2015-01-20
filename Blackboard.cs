@@ -1,7 +1,5 @@
 ﻿using System;
-using System.CodeDom;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
@@ -86,7 +84,7 @@ namespace OneLevelJson
                     new Point(component.Location.X-BorderOffset, component.Location.Y-BorderOffset)
                 };
 
-            using (Pen pen = new Pen(Color.Black))
+            using (Pen pen = new Pen(Color.FromArgb(62, 62, 66)))
             {
                 e.Graphics.DrawLines(pen, points);
             }
@@ -97,7 +95,7 @@ namespace OneLevelJson
         {
             if (RectanglePoints == null) return;
 
-            using (Pen pen = new Pen(Color.Black))
+            using (Pen pen = new Pen(BoundaryColor))
             {
                 e.Graphics.DrawLines(pen, RectanglePoints);
             }
@@ -136,7 +134,7 @@ namespace OneLevelJson
 
         private void ScaleBoard()
         {
-            Point CursorCenterOffset = CursorPosition - (Size)(new Point(this.Width/2, this.Height/2));
+            Point CursorCenterOffset = CursorPosition - (Size)(new Point(Width/2, Height/2));
             ViewMatrix.Translate(CursorCenterOffset.X, CursorCenterOffset.Y);
             ViewMatrix.Scale(_zoom, _zoom);
             ViewMatrix.Translate(-CursorCenterOffset.X, -CursorCenterOffset.Y);
@@ -238,7 +236,6 @@ namespace OneLevelJson
                 case MouseButtons.Left:
                     if (!State.IsComponentSelected()) break;
                     State.Selected.Move(offset);
-                    State.log.Write(offset.ToString());
                     break;
                 case MouseButtons.Middle:
                     TranslateX = offset.X;
@@ -348,6 +345,8 @@ namespace OneLevelJson
 
         private float _zoom = 1.0f;
         private float _zoomFiled = 1.0f;
+
+        private readonly Color BoundaryColor = Color.FromArgb(96, 96, 102);
         private const float ScaleFactor = 0.08f;
         private const float MinimumZoom = 0.2f;
         private const float MaximumZoom = 2.5f;
