@@ -16,8 +16,8 @@ namespace OneLevelJson.Model
             Components = new List<CienComponent>();
             Width = width;
             Height = height;
-            State.DocumentSize = new Size(width, height);
             Layers = new List<CienLayer>(1){new CienLayer(DefaultLayerName)};
+            Resolutions = new List<string>(1){"orig"};
         }
 
         #region Asset: Get, Add, Remove
@@ -55,8 +55,9 @@ namespace OneLevelJson.Model
         public void RenameComponent(string id, string newId)
         {
             CienComponent component = Components.Find(x => x.Id == id);
-            component.SetId(newId);
+            if (component != null) component.SetId(newId);
         }
+
         #endregion
 
         #region RenameLayer, ConvertToComposite
@@ -97,11 +98,11 @@ namespace OneLevelJson.Model
         public int Height { get; private set; }
         public List<Asset> Assets { get; private set; }
         public List<CienComponent> Components { get; private set; }
-        /*public List<CienImage> Images { get; private set; }
-        public List<CienComposite> Composites { get; private set; }*/
-
+        
         [JsonIgnore]
         public List<CienLayer> Layers;
+
+        public List<string> Resolutions { get; private set; }
 
         [JsonIgnore]
         public const string DefaultLayerName = "Default";

@@ -64,11 +64,12 @@ namespace OneLevelJson
             this.componentUpBtn = new System.Windows.Forms.Button();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.toolContainer1 = new System.Windows.Forms.SplitContainer();
+            this.selectedControl = new OneLevelJson.SelectedControl();
             this.toolContainer2 = new System.Windows.Forms.SplitContainer();
             this.directorySearcher1 = new System.DirectoryServices.DirectorySearcher();
             this.blackboard = new OneLevelJson.Blackboard();
-            this.selectedControl = new OneLevelJson.SelectedControl();
             this.titleBarControl1 = new OneLevelJson.TitleBarControl();
+            this.lockunlockToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip.SuspendLayout();
             this.componentContextMenu.SuspendLayout();
             this.layerContextMenu.SuspendLayout();
@@ -246,7 +247,7 @@ namespace OneLevelJson
             // 
             // openProjectDialog
             // 
-            this.openProjectDialog.Filter = "Proejct File(.dt)|*.dt";
+            this.openProjectDialog.Filter = "Proejct File(.dt)|*.dt|Overlap2D Project File(.pit)|*.pit";
             // 
             // deleteLayer
             // 
@@ -262,14 +263,15 @@ namespace OneLevelJson
             // layerContextMenu
             // 
             this.layerContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.renameToolStripMenuItem1});
+            this.renameToolStripMenuItem1,
+            this.lockunlockToolStripMenuItem});
             this.layerContextMenu.Name = "layerMenuStrip";
-            this.layerContextMenu.Size = new System.Drawing.Size(115, 26);
+            this.layerContextMenu.Size = new System.Drawing.Size(153, 70);
             // 
             // renameToolStripMenuItem1
             // 
             this.renameToolStripMenuItem1.Name = "renameToolStripMenuItem1";
-            this.renameToolStripMenuItem1.Size = new System.Drawing.Size(114, 22);
+            this.renameToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
             this.renameToolStripMenuItem1.Text = "rename";
             this.renameToolStripMenuItem1.Click += new System.EventHandler(this.layerRenameToolStripMenuItem_Click);
             // 
@@ -356,6 +358,18 @@ namespace OneLevelJson
             this.toolContainer1.SplitterDistance = 135;
             this.toolContainer1.TabIndex = 17;
             // 
+            // selectedControl
+            // 
+            this.selectedControl.AutoSize = true;
+            this.selectedControl.BackColor = System.Drawing.SystemColors.ControlDark;
+            this.selectedControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.selectedControl.Font = new System.Drawing.Font("NanumGothic", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.selectedControl.Location = new System.Drawing.Point(0, 0);
+            this.selectedControl.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.selectedControl.Name = "selectedControl";
+            this.selectedControl.Size = new System.Drawing.Size(190, 135);
+            this.selectedControl.TabIndex = 17;
+            // 
             // toolContainer2
             // 
             this.toolContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -395,17 +409,6 @@ namespace OneLevelJson
             this.blackboard.Size = new System.Drawing.Size(610, 604);
             this.blackboard.TabIndex = 5;
             // 
-            // selectedControl
-            // 
-            this.selectedControl.AutoSize = true;
-            this.selectedControl.BackColor = System.Drawing.SystemColors.ControlDark;
-            this.selectedControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.selectedControl.Font = new System.Drawing.Font("NanumGothic", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.selectedControl.Location = new System.Drawing.Point(0, 0);
-            this.selectedControl.Name = "selectedControl";
-            this.selectedControl.Size = new System.Drawing.Size(190, 135);
-            this.selectedControl.TabIndex = 17;
-            // 
             // titleBarControl1
             // 
             this.titleBarControl1.AutoSize = true;
@@ -417,6 +420,13 @@ namespace OneLevelJson
             this.titleBarControl1.Name = "titleBarControl1";
             this.titleBarControl1.Size = new System.Drawing.Size(800, 31);
             this.titleBarControl1.TabIndex = 18;
+            // 
+            // lockunlockToolStripMenuItem
+            // 
+            this.lockunlockToolStripMenuItem.Name = "lockunlockToolStripMenuItem";
+            this.lockunlockToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.lockunlockToolStripMenuItem.Text = "lock/unlock";
+            this.lockunlockToolStripMenuItem.Click += new System.EventHandler(this.lockunlockToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -493,6 +503,7 @@ namespace OneLevelJson
         private System.DirectoryServices.DirectorySearcher directorySearcher1;
         private SelectedControl selectedControl;
         private TitleBarControl titleBarControl1;
+        private ToolStripMenuItem lockunlockToolStripMenuItem;
     }
 }
 

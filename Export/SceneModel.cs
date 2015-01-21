@@ -63,6 +63,8 @@ namespace OneLevelJson.Export
         public string layerName { get; set; }
         public string imageName { get; set; }
         public List<float> tint { get; set; }
+        public float x { get; set; }
+        public float y { get; set; }
     }
 
     public class ExportsLabel

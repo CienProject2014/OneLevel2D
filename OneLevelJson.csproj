@@ -66,6 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Composite.cs" />
+    <Compile Include="CoordinateConverter.cs" />
     <Compile Include="Model\Asset.cs" />
     <Compile Include="Blackboard.cs">
       <SubType>UserControl</SubType>
@@ -79,6 +80,7 @@
     <Compile Include="Model\CienDocument.cs" />
     <Compile Include="Export\Maker.cs" />
     <Compile Include="Export\ProjectModel.cs" />
+    <Compile Include="Model\Overlap2DProject.cs" />
     <Compile Include="NewForm.cs">
       <SubType>Form</SubType>
     </Compile>

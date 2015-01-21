@@ -81,7 +81,8 @@ namespace OneLevelJson.Export
                 if (component is CienImage)
                 {
                     CienImage cienImage = (CienImage) component;
-                    Point convertedLocation = ConvertLocation(document, cienImage);
+                    Point convertedLocation = CoordinateConverter.BoardToGame(cienImage.Location, cienImage.GetSize().Width, cienImage.GetSize().Height);
+                    //Point convertedLocation = ConvertLocation(document, cienImage);
                     scene.composite.sImages.Add(new ExportsImage
                     {
                         layerName = cienImage.LayerName,
@@ -131,7 +132,9 @@ namespace OneLevelJson.Export
                         {
                             layerName = image.LayerName,
                             imageName = image.ImageName.Split('.')[0],
-                            tint = image.Tint
+                            tint = image.Tint,
+                            x = image.X,
+                            y = image.Y
                         });
                     }
                 }
@@ -149,7 +152,7 @@ namespace OneLevelJson.Export
 
         private Point ConvertLocation(CienDocument document, CienComponent component)
         {
-            Point translated = component.Location - (Size) Blackboard.LeftTopPoint;
+            Point translated = component.Location - Blackboard.LeftTopOffset;
             int newX = translated.X;
             int newY = document.Height - (translated.Y + component.GetSize().Height);
             return new Point(newX, newY);

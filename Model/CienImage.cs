@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
+using System.Windows.Navigation;
 
 namespace OneLevelJson.Model
 {
@@ -32,20 +33,22 @@ namespace OneLevelJson.Model
 
         public override Size GetSize()
         {
-            using (Image image = GetImage())
-            {
-                return image.Size;
-            }
+            Image image = GetImage();
+
+            return image.Size;
         }
 
         public override Image GetImage()
         {
-            return Image.FromFile(CienDocument.ProjectDirectory + @"\"
-                                  + CienDocument.Name + MainForm.ImageDataDirectory + @"\" + ImageName);
+            if (ImageData == null)
+                ImageData = Image.FromFile(CienDocument.ProjectDirectory + @"\"
+                                  + CienDocument.Name + MainForm.AssetDirectory + MainForm.ImageDirectory + @"\" + ImageName);
+            return ImageData;
         }
 
         /* Variables ************************************************************/
         public string ImageName { get; private set; } // with extension
+        public Image ImageData { get; private set; }
         /************************************************************************/
     }
 }

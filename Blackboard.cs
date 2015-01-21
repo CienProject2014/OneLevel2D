@@ -52,20 +52,75 @@ namespace OneLevelJson
             return false;
         }
 
+        private void UpdateBlackboardContextMenu(List<CienComponent> componentList)
+        {
+            blackboardContextMenu.Items.Clear();
+            foreach (var component in componentList)
+            {
+                blackboardContextMenu.Items.Add(component.Id);
+            }
+        }
+
+        private void UpdateRectangle()
+        {
+            if (PresentDocument == null) return;
+            Point leftTop = new Point(0, 0);
+
+            leftTop = leftTop + LeftTopOffset;
+
+            RectanglePoints = new[]
+            {
+                leftTop,
+                leftTop + new Size(PresentDocument.Width, 0),
+                leftTop + new Size(PresentDocument.Width, PresentDocument.Height),
+                leftTop + new Size(0, PresentDocument.Height),
+                leftTop
+            };
+        }
+
+        private void TranslateBoard()
+        {
+            ViewMatrix.Translate(TranslateX, TranslateY);
+        }
+
+        private void ScaleBoard()
+        {
+            Point CursorCenterOffset = CursorPosition - (Size)(new Point(Width / 2, Height / 2));
+            ViewMatrix.Translate(CursorCenterOffset.X, CursorCenterOffset.Y);
+            ViewMatrix.Scale(_zoom, _zoom);
+            ViewMatrix.Translate(-CursorCenterOffset.X, -CursorCenterOffset.Y);
+        }
+
+        public Point PointTransform(Point point)
+        {
+            Point[] points = { point };
+            using (Matrix invertViewMatrix = ViewMatrix.Clone())
+            {
+                invertViewMatrix.Invert();
+                invertViewMatrix.TransformPoints(points);
+            }
+            return points[0];
+        }
+
+        private bool IsSelectable(CienComponent component)
+        {
+            var layer = PresentDocument.Layers.Find(x => x.Name == component.LayerName);
+            return layer.IsVisible && !layer.IsLocked;
+        }
+
         private void DrawComponent(PaintEventArgs e, CienComponent component)
         {
-            using (Image img = component.GetImage())
-            {
-                e.Graphics.DrawImage(img, new Rectangle(component.Location,
-                    new Size(img.Width, img.Height)));
-            }
+            Image img = component.GetImage();
+
+            e.Graphics.DrawImage(img, new Rectangle(component.Location,
+                new Size(img.Width, img.Height)));
         }
 
         private void DrawComponentList(PaintEventArgs e)
         {
             foreach (var component in PresentDocument.Components)
             {
-                if(PresentDocument.Layers.Find(x => x.Name == component.LayerName).IsVisible)
+                if (PresentDocument.Layers.Find(x => x.Name == component.LayerName).IsVisible)
                     DrawComponent(e, component);
             }
         }
@@ -101,62 +156,6 @@ namespace OneLevelJson
             }
         }
 
-        private void UpdateBlackboardContextMenu(List<CienComponent> componentList)
-        {
-            blackboardContextMenu.Items.Clear();
-            foreach (var component in componentList)
-            {
-                blackboardContextMenu.Items.Add(component.Id);
-            }
-        }
-
-        private void UpdateRectangle()
-        {
-            if (PresentDocument == null) return;
-            Point leftTop = new Point(0, 0);
-
-            LeftTopPoint = leftTop + LeftTopOffset;
-
-            RectanglePoints = new[]
-            {
-                LeftTopPoint,
-                LeftTopPoint + new Size(PresentDocument.Width, 0),
-                LeftTopPoint + new Size(PresentDocument.Width, PresentDocument.Height),
-                LeftTopPoint + new Size(0, PresentDocument.Height),
-                LeftTopPoint
-            };
-        }
-
-        private void TranslateBoard()
-        {
-            ViewMatrix.Translate(TranslateX, TranslateY);
-        }
-
-        private void ScaleBoard()
-        {
-            Point CursorCenterOffset = CursorPosition - (Size)(new Point(Width/2, Height/2));
-            ViewMatrix.Translate(CursorCenterOffset.X, CursorCenterOffset.Y);
-            ViewMatrix.Scale(_zoom, _zoom);
-            ViewMatrix.Translate(-CursorCenterOffset.X, -CursorCenterOffset.Y);
-        }
-
-        public Point PointTransform(Point point)
-        {
-            Point[] points = {point};
-            using (Matrix invertViewMatrix = ViewMatrix.Clone())
-            {
-                invertViewMatrix.Invert();
-                invertViewMatrix.TransformPoints(points);
-            }
-            return points[0];
-        }
-
-        private bool IsSelectable(CienComponent component)
-        {
-            var layer = PresentDocument.Layers.Find(x => x.Name == component.LayerName);
-            return layer.IsVisible && !layer.IsLocked;
-        }
-
         /************************************************************************/
         /* Delegate Event Handler												*/
         /************************************************************************/
@@ -181,7 +180,6 @@ namespace OneLevelJson
             DrawComponentList(e);
             DrawSelectedComponentBorder(e);
             DrawBoundary(e);
-
         }
 
         protected override void OnSizeChanged(EventArgs e)
@@ -213,7 +211,7 @@ namespace OneLevelJson
                         break;
                     }
 
-                    var candidate = selectables.Find(x => x.ZIndex ==selectables.Max(y => y.ZIndex));
+                    var candidate = selectables.Find(x => x.ZIndex == selectables.Max(y => y.ZIndex));
                     State.SelectComponent(candidate);
 
                     break;
@@ -260,12 +258,12 @@ namespace OneLevelJson
             //State.log.Write(e.Delta.ToString());
             //MessageBox.Show(e.Delta.ToString());
 
-            if (e.Delta < 0) 
+            if (e.Delta < 0)
             {
                 _zoom = 1.0f - ScaleFactor;
                 _zoomFiled *= _zoom;
             }
-            else if (e.Delta > 0) 
+            else if (e.Delta > 0)
             {
                 _zoom = 1.0f + ScaleFactor;
                 _zoomFiled *= _zoom;
@@ -299,7 +297,7 @@ namespace OneLevelJson
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
-            int dx = 0, dy=0;
+            int dx = 0, dy = 0;
             switch (e.KeyCode)
             {
                 case Keys.Left:
@@ -315,7 +313,7 @@ namespace OneLevelJson
                     dy += 1;
                     break;
             }
-            if (e.Shift) 
+            if (e.Shift)
             {
                 dx *= 10;
                 dy *= 10;
@@ -331,8 +329,6 @@ namespace OneLevelJson
         /************************************************************************/
         public CienDocument PresentDocument { get; set; }
 
-        public static Point LeftTopPoint;
-        private readonly Size LeftTopOffset = new Size(50, 50);
         public Point[] RectanglePoints { get; private set; }
 
         public Point CursorPosition { get; private set; }
@@ -346,11 +342,11 @@ namespace OneLevelJson
         private float _zoom = 1.0f;
         private float _zoomFiled = 1.0f;
 
+        public static readonly Size LeftTopOffset = new Size(50, 50);
         private readonly Color BoundaryColor = Color.FromArgb(96, 96, 102);
         private const float ScaleFactor = 0.08f;
         private const float MinimumZoom = 0.2f;
         private const float MaximumZoom = 2.5f;
-
         private const int BorderOffset = 0;
     }
 }
