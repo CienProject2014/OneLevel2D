@@ -31,12 +31,12 @@
             this.closeBox = new System.Windows.Forms.PictureBox();
             this.minimizeBox = new System.Windows.Forms.PictureBox();
             this.maximizeBox = new System.Windows.Forms.PictureBox();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.titleLogo = new System.Windows.Forms.PictureBox();
             this.titleLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.closeBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.minimizeBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.maximizeBox)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.titleLogo)).BeginInit();
             this.SuspendLayout();
             // 
             // closeBox
@@ -69,16 +69,16 @@
             this.maximizeBox.TabIndex = 2;
             this.maximizeBox.TabStop = false;
             // 
-            // pictureBox1
+            // titleLogo
             // 
-            this.pictureBox1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
-            this.pictureBox1.Image = global::OneLevelJson.Properties.Resources.package7;
-            this.pictureBox1.Location = new System.Drawing.Point(12, 8);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(20, 20);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox1.TabIndex = 3;
-            this.pictureBox1.TabStop = false;
+            this.titleLogo.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
+            this.titleLogo.Image = global::OneLevelJson.Properties.Resources.package7;
+            this.titleLogo.Location = new System.Drawing.Point(12, 8);
+            this.titleLogo.Name = "titleLogo";
+            this.titleLogo.Size = new System.Drawing.Size(20, 20);
+            this.titleLogo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.titleLogo.TabIndex = 3;
+            this.titleLogo.TabStop = false;
             // 
             // titleLabel
             // 
@@ -100,7 +100,7 @@
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackgroundImage = global::OneLevelJson.Properties.Resources.background;
             this.Controls.Add(this.titleLabel);
-            this.Controls.Add(this.pictureBox1);
+            this.Controls.Add(this.titleLogo);
             this.Controls.Add(this.maximizeBox);
             this.Controls.Add(this.minimizeBox);
             this.Controls.Add(this.closeBox);
@@ -109,7 +109,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.closeBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.minimizeBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.maximizeBox)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.titleLogo)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -120,7 +120,7 @@
         private System.Windows.Forms.PictureBox closeBox;
         private System.Windows.Forms.PictureBox minimizeBox;
         private System.Windows.Forms.PictureBox maximizeBox;
-        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.PictureBox titleLogo;
         private System.Windows.Forms.Label titleLabel;
     }
 }

@@ -7,11 +7,13 @@ namespace OneLevelJson.Model
 {
     public class CienComposite : CienComponent
     {
-        public CienComposite(string imageName, string id, Point position, string layerName = CienDocument.DefaultLayerName)
+        public CienComposite(string imageName, string id, Point position, 
+            int zIndex, string layerName = CienDocument.DefaultLayerName)
         {
             Id = id;
             Location = position;
             Tint = new List<int>(4) { 1, 1, 1, 1 };
+            ZIndex = zIndex;
             LayerName = layerName;
 
             composite = new Composite

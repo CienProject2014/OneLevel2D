@@ -50,8 +50,8 @@ namespace OneLevelJson
         {
             assetList.SelectedIndexChanged += assetList_SelectedIndexChanged;
             assetList.ItemDrag += assetList_ItemDrag;
-            assetList.DragOver += assetList_DragOver;
             assetList.DragEnter += assetList_DragEnter;
+            assetList.MouseDown += assetList_MouseDown;
 
             componentList.MouseDown += componentList_MouseDown;
             componentList.SelectedIndexChanged += componentList_SelectedIndexChanged;
@@ -63,6 +63,18 @@ namespace OneLevelJson
             blackboard.DragEnter += blackboard_DragEnter;
             blackboard.DragDrop += blackboard_DragDrop;
             blackboard.KeyDown += blackboard_KeyDown;
+        }
+
+        void assetList_MouseDown(object sender, MouseEventArgs e)
+        {
+            switch (e.Button)
+            {
+                case MouseButtons.Right:
+                    ListViewHitTestInfo hitTestInfo = assetList.HitTest(e.X, e.Y);
+                    if (hitTestInfo.Item == null) return;
+                    assetContextMenu.Show(this, GetClickedToolPosition(assetList, e.Location));
+                    break;
+            }
         }
 
         private void layerList_ItemChecked(object sender, ItemCheckedEventArgs e)
@@ -182,7 +194,7 @@ namespace OneLevelJson
                 string name = items[i].Text;
                 Size offset = new Size(15 * i, 15 * i);
                 Point transformedLocation = blackboard.PointTransform(location);
-                State.Document.AddComponent(name, transformedLocation + offset);
+                State.Document.AddNewComponent(name, transformedLocation + offset);
                 try
                 {
                     componentList.Items.Add(new ListViewItem(State.Document.Components.Last().Id)
@@ -371,8 +383,20 @@ namespace OneLevelJson
             e.Effect = e.AllowedEffect;
         }
 
-        private void assetList_DragOver(object sender, DragEventArgs e)
+        private void assetRemoveToolStripMenuItem1_Click(object sender, EventArgs e)
         {
+            if (assetList.SelectedItems.Count > 0)
+            {
+                for (int i = assetList.SelectedItems.Count - 1; i >= 0; i--)
+                {
+                    ListViewItem item = assetList.SelectedItems[i];
+                    assetList.Items[item.Index].Remove();
+
+                    State.Document.RemoveAsset(item.Text);
+                }
+            }
+            ReloadComponentList();
+            blackboard.Invalidate();
         }
 
         #endregion
@@ -638,19 +662,19 @@ namespace OneLevelJson
             string dir = filepath.Substring(0, filepath.LastIndexOf(@"\", StringComparison.Ordinal));
             string imageDir = dir + Overlap2DImageDataDirectory;
             string sceneDir = dir + Overlap2DSceneDirectory;
-            DirectoryInfo imagedi = new DirectoryInfo(imageDir);
-            DirectoryInfo scenedi = new DirectoryInfo(sceneDir);
+            DirectoryInfo imageDi = new DirectoryInfo(imageDir);
+            DirectoryInfo sceneDi = new DirectoryInfo(sceneDir);
             FileInfo dtfi = new FileInfo(dir + @"\project.dt");
 
             /************************************************************************/
             /* Check Directories and Files											*/
             /************************************************************************/
-            if (!imagedi.Exists || !imagedi.GetFiles().Any())
+            if (!imageDi.Exists || !imageDi.GetFiles().Any())
             {
                 MessageBox.Show(@"해당 프로젝트에 Asset이 없습니다.");
                 return;
             }
-            if (!scenedi.Exists || !scenedi.GetFiles().Any())
+            if (!sceneDi.Exists || !sceneDi.GetFiles().Any())
             {
                 MessageBox.Show(@"해당 프로젝트에 Scene이 없습니다.");
                 return;
@@ -665,6 +689,7 @@ namespace OneLevelJson
             /* Make New Document													*/
             /************************************************************************/
             // project.pit
+            // TODO Overlap2D 프로젝트 이름을, 나중에 scene이 여러개가 되면 사용한다.
             string pitProjectString = File.ReadAllText(filepath);
             Overlap2DProject projectName = JsonConvert.DeserializeObject<Overlap2DProject>(pitProjectString);
 
@@ -680,14 +705,14 @@ namespace OneLevelJson
             /* Load Assets, Layers and Components									*/
             /************************************************************************/
             #region Load Asset
-            var imageFIs = imagedi.GetFiles();
+            var imageFIs = imageDi.GetFiles();
             var imageStrings = new List<string>(imageFIs.Length);
             imageStrings.AddRange(imageFIs.Select(fileInfo => fileInfo.FullName));
             ImportAsset(imageStrings.ToArray());
             #endregion
 
             #region Load Scene
-            var fIs = scenedi.GetFiles(SceneExtension);
+            var fIs = sceneDi.GetFiles(SceneExtension);
             SceneModel[] sceneModels = new SceneModel[fIs.Length];
             for (int i = 0; i < fIs.Length; i++)
             {
@@ -713,7 +738,7 @@ namespace OneLevelJson
                 foreach (var exportsImage in sceneModel.composite.sImages)
                 {
                     var image = new CienImage(exportsImage.imageName + ".png",
-                        exportsImage.itemIdentifier ?? "image" + CienComponent.Number++,
+                        exportsImage.itemIdentifier ?? "image" + CienComponent.Number,
                         Point.Empty,
                         exportsImage.zIndex,
                         exportsImage.layerName);
@@ -722,7 +747,7 @@ namespace OneLevelJson
                         image.GetSize().Width, image.GetSize().Height);
 
                     image.SetLocation(convertedLocation);
-                    State.Document.Components.Add(image);
+                    State.Document.AddComponent(image);
                 }
 
             #endregion
@@ -736,8 +761,9 @@ namespace OneLevelJson
 
                     var cienComposite = new CienComposite(
                         exportsComposite.composite.sImages[0].imageName,
-                        exportsComposite.itemIdentifier ?? "composite" + CienComponent.Number++,
+                        exportsComposite.itemIdentifier ?? "composite" + CienComponent.Number,
                         Point.Empty,
+                        exportsComposite.zIndex,
                         exportsComposite.layerName
                         );
 
@@ -752,7 +778,7 @@ namespace OneLevelJson
                         cienComposite.AddImage(image.imageName, new Point((int)image.x, (int)image.y), image.layerName);
                     }
 
-                    State.Document.Components.Add(cienComposite);
+                    State.Document.AddComponent(cienComposite);
                 }
 
             #endregion

@@ -16,7 +16,7 @@ namespace OneLevelJson
 
         public void SetTitleName(string name)
         {
-            this.titleLabel.Text = name;
+            titleLabel.Text = name;
         }
 
         private void AddEvent()
@@ -37,6 +37,15 @@ namespace OneLevelJson
             MouseDown += titlePanel_MouseDown;
             MouseMove += titlePanel_MouseMove;
             DoubleClick += titlePanel_DoubleClick;
+
+            titleLabel.MouseUp += titlePanel_MouseUp;
+            titleLabel.MouseDown += titlePanel_MouseDown;
+            titleLabel.MouseMove += titlePanel_MouseMove;
+
+            titleLogo.MouseUp += titlePanel_MouseUp;
+            titleLogo.MouseDown += titlePanel_MouseDown;
+            titleLogo.MouseMove += titlePanel_MouseMove;
+            titleLogo.MouseDoubleClick += titleLogo_MouseDoubleClick;
         }
 
         private void titlePanel_DoubleClick(object sender, EventArgs e)
@@ -101,6 +110,11 @@ namespace OneLevelJson
             }
             else if (sender.Equals(minimizeBox))
                 Program.Form.WindowState = FormWindowState.Minimized;
+        }
+
+        void titleLogo_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            Program.Form.Close();
         }
 
         private bool _dragging;

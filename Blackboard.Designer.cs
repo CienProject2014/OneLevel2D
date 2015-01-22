@@ -38,7 +38,7 @@ namespace OneLevelJson
             // blackboardContextMenu
             // 
             this.blackboardContextMenu.Name = "blackboardContextMenu";
-            this.blackboardContextMenu.Size = new System.Drawing.Size(61, 4);
+            this.blackboardContextMenu.Size = new System.Drawing.Size(153, 26);
             // 
             // Blackboard
             // 

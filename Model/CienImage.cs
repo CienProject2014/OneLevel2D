@@ -6,12 +6,7 @@ namespace OneLevelJson.Model
 {
     public class CienImage : CienComponent
     {
-        public CienImage(string imageName, string id, Point position, int zIndex)
-            : this(imageName, id, position, zIndex, CienDocument.DefaultLayerName)
-        {
-        }
-
-        public CienImage(string imageName, string id, Point position, int zIndex, string layerName)
+        public CienImage(string imageName, string id, Point position, int zIndex, string layerName = CienDocument.DefaultLayerName)
         {
             ImageName = imageName;
             Id = id;

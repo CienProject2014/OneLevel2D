@@ -58,6 +58,7 @@ namespace OneLevelJson
             this.deleteLayer = new System.Windows.Forms.Button();
             this.layerContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.renameToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.lockunlockToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.addLayer = new System.Windows.Forms.Button();
             this.layerList = new System.Windows.Forms.ListView();
             this.componentDownBtn = new System.Windows.Forms.Button();
@@ -69,7 +70,8 @@ namespace OneLevelJson
             this.directorySearcher1 = new System.DirectoryServices.DirectorySearcher();
             this.blackboard = new OneLevelJson.Blackboard();
             this.titleBarControl1 = new OneLevelJson.TitleBarControl();
-            this.lockunlockToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.assetContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.removeToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip.SuspendLayout();
             this.componentContextMenu.SuspendLayout();
             this.layerContextMenu.SuspendLayout();
@@ -85,6 +87,7 @@ namespace OneLevelJson
             this.toolContainer2.Panel1.SuspendLayout();
             this.toolContainer2.Panel2.SuspendLayout();
             this.toolContainer2.SuspendLayout();
+            this.assetContextMenu.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip
@@ -266,14 +269,21 @@ namespace OneLevelJson
             this.renameToolStripMenuItem1,
             this.lockunlockToolStripMenuItem});
             this.layerContextMenu.Name = "layerMenuStrip";
-            this.layerContextMenu.Size = new System.Drawing.Size(153, 70);
+            this.layerContextMenu.Size = new System.Drawing.Size(138, 48);
             // 
             // renameToolStripMenuItem1
             // 
             this.renameToolStripMenuItem1.Name = "renameToolStripMenuItem1";
-            this.renameToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+            this.renameToolStripMenuItem1.Size = new System.Drawing.Size(137, 22);
             this.renameToolStripMenuItem1.Text = "rename";
             this.renameToolStripMenuItem1.Click += new System.EventHandler(this.layerRenameToolStripMenuItem_Click);
+            // 
+            // lockunlockToolStripMenuItem
+            // 
+            this.lockunlockToolStripMenuItem.Name = "lockunlockToolStripMenuItem";
+            this.lockunlockToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
+            this.lockunlockToolStripMenuItem.Text = "lock/unlock";
+            this.lockunlockToolStripMenuItem.Click += new System.EventHandler(this.lockunlockToolStripMenuItem_Click);
             // 
             // addLayer
             // 
@@ -399,13 +409,10 @@ namespace OneLevelJson
             // blackboard
             // 
             this.blackboard.AllowDrop = true;
-            this.blackboard.AutoSize = true;
-            this.blackboard.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.blackboard.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.blackboard.Dock = System.Windows.Forms.DockStyle.Fill;
             this.blackboard.Location = new System.Drawing.Point(0, 55);
             this.blackboard.Name = "blackboard";
-            this.blackboard.PresentDocument = null;
             this.blackboard.Size = new System.Drawing.Size(610, 604);
             this.blackboard.TabIndex = 5;
             // 
@@ -421,12 +428,19 @@ namespace OneLevelJson
             this.titleBarControl1.Size = new System.Drawing.Size(800, 31);
             this.titleBarControl1.TabIndex = 18;
             // 
-            // lockunlockToolStripMenuItem
+            // assetContextMenu
             // 
-            this.lockunlockToolStripMenuItem.Name = "lockunlockToolStripMenuItem";
-            this.lockunlockToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.lockunlockToolStripMenuItem.Text = "lock/unlock";
-            this.lockunlockToolStripMenuItem.Click += new System.EventHandler(this.lockunlockToolStripMenuItem_Click);
+            this.assetContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.removeToolStripMenuItem1});
+            this.assetContextMenu.Name = "assetContextMenu";
+            this.assetContextMenu.Size = new System.Drawing.Size(115, 26);
+            // 
+            // removeToolStripMenuItem1
+            // 
+            this.removeToolStripMenuItem1.Name = "removeToolStripMenuItem1";
+            this.removeToolStripMenuItem1.Size = new System.Drawing.Size(114, 22);
+            this.removeToolStripMenuItem1.Text = "remove";
+            this.removeToolStripMenuItem1.Click += new System.EventHandler(this.assetRemoveToolStripMenuItem1_Click);
             // 
             // MainForm
             // 
@@ -459,6 +473,7 @@ namespace OneLevelJson
             this.toolContainer2.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.toolContainer2)).EndInit();
             this.toolContainer2.ResumeLayout(false);
+            this.assetContextMenu.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -504,6 +519,8 @@ namespace OneLevelJson
         private SelectedControl selectedControl;
         private TitleBarControl titleBarControl1;
         private ToolStripMenuItem lockunlockToolStripMenuItem;
+        private ContextMenuStrip assetContextMenu;
+        private ToolStripMenuItem removeToolStripMenuItem1;
     }
 }
 

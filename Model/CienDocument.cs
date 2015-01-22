@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using Newtonsoft.Json;
 
 namespace OneLevelJson.Model
@@ -29,22 +31,64 @@ namespace OneLevelJson.Model
         public void AddAsset(Asset asset)
         {
             // TODO assetList에 같은 이름의 asset이 있는지 중복 검사를 해야 한다.
+            Asset newasseAsset = Assets.Find(x => x.GetName() == asset.GetName());
+            if (newasseAsset != null)
+            {
+                MessageBox.Show(@"같은 이름의 Asset이 이미 프로젝트내에 존재합니다.");
+                return;
+            }
             Assets.Add(asset);
+
         }
 
-        public void RemoveAsset(Asset asset)
+        public void RemoveAsset(string name)
         {
-            Assets.Remove(asset);
+            // 관련된 Component부터 다 지운다.
+            List<string> removableList = new List<string>();
+            foreach (var component in Components)
+            {
+                if (component is CienImage)
+                {
+                    CienImage image = (CienImage) component;
+                    if(image.ImageName.Split('.')[0] == name)
+                        removableList.Add(image.Id);
+                }
+                else if (component is CienComposite)
+                {
+                    CienComposite composite = (CienComposite) component;
+                    if (composite.composite.Images[0].ImageName.Split('.')[0] == name)
+                        removableList.Add(composite.Id);
+                }
+            }
+
+            foreach (var removable in removableList)
+            {
+                Components.Remove(Components.Find(x => x.Id.Equals(removable)));
+            }
+
+            Assets.Remove(Assets.Find(x => x.GetName() == name));
         }
         #endregion
 
         #region Component: Add, Remove, Rename
-        public void AddComponent(string name, Point location)
+
+        // TODO 무조건 이 함수를 통해서만 Component를 추가한다!
+        public void AddComponent(CienComponent component)
+        {
+            while (State.Document.Components.Find(x => x.ZIndex == component.ZIndex) != null)
+            {
+                component.SetZindex(component.ZIndex+1);
+            }
+            Components.Add(component);
+            CienComposite.Number++;
+        }
+
+        public void AddNewComponent(string name, Point location)
         {
             Asset asset = Assets.Find(x => x.GetName() == name);
             string id = "image" + Components.Count;
             if(State.IsLayerSelected())
-                Components.Add(new CienImage(asset.GetNameWithExt(), id, location, CienComponent.Number++, State.Selected.Layer.Name));
+                AddComponent(new CienImage(asset.GetNameWithExt(), id, location, CienComponent.Number, State.Selected.Layer.Name));
         }
 
         public void RemoveComponent(string id)
@@ -54,7 +98,13 @@ namespace OneLevelJson.Model
 
         public void RenameComponent(string id, string newId)
         {
-            CienComponent component = Components.Find(x => x.Id == id);
+            var test = Components.Find(x => x.Id == newId);
+            if (test == null)
+            {
+                MessageBox.Show(@"이미 같은 이름의 Component가 존재합니다.");
+                return;
+            }
+            var component = Components.Find(x => x.Id == id);
             if (component != null) component.SetId(newId);
         }
 
@@ -63,7 +113,13 @@ namespace OneLevelJson.Model
         #region RenameLayer, ConvertToComposite
         public void RenameLayer(string name, string newName)
         {
-            CienLayer layer = Layers.Find(x => x.Name == name);
+            var test = Layers.Find(x => x.Name.Equals(newName));
+            if (test == null)
+            {
+                MessageBox.Show(@"이미 같은 이름의 Layer가 존재합니다.");
+                return;
+            }
+            var layer = Layers.Find(x => x.Name == name);
             if(layer != null) layer.SetName(newName);
         }
 
@@ -78,7 +134,7 @@ namespace OneLevelJson.Model
             CienImage img = comp as CienImage;
             if (img == null) return;
 
-            CienComposite newComp = new CienComposite(img.ImageName, img.Id, img.Location);
+            CienComposite newComp = new CienComposite(img.ImageName, img.Id, img.Location, img.ZIndex);
             Components.Add(newComp);
         }
         #endregion

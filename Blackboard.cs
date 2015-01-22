@@ -29,7 +29,7 @@ namespace OneLevelJson
 
         public void SetDocument(CienDocument document)
         {
-            PresentDocument = document;
+            State.Document = document;
             UpdateRectangle();
         }
 
@@ -52,60 +52,27 @@ namespace OneLevelJson
             return false;
         }
 
-        private void UpdateBlackboardContextMenu(List<CienComponent> componentList)
-        {
-            blackboardContextMenu.Items.Clear();
-            foreach (var component in componentList)
-            {
-                blackboardContextMenu.Items.Add(component.Id);
-            }
-        }
-
-        private void UpdateRectangle()
-        {
-            if (PresentDocument == null) return;
-            Point leftTop = new Point(0, 0);
-
-            leftTop = leftTop + LeftTopOffset;
-
-            RectanglePoints = new[]
-            {
-                leftTop,
-                leftTop + new Size(PresentDocument.Width, 0),
-                leftTop + new Size(PresentDocument.Width, PresentDocument.Height),
-                leftTop + new Size(0, PresentDocument.Height),
-                leftTop
-            };
-        }
-
-        private void TranslateBoard()
-        {
-            ViewMatrix.Translate(TranslateX, TranslateY);
-        }
-
-        private void ScaleBoard()
-        {
-            Point CursorCenterOffset = CursorPosition - (Size)(new Point(Width / 2, Height / 2));
-            ViewMatrix.Translate(CursorCenterOffset.X, CursorCenterOffset.Y);
-            ViewMatrix.Scale(_zoom, _zoom);
-            ViewMatrix.Translate(-CursorCenterOffset.X, -CursorCenterOffset.Y);
-        }
-
-        public Point PointTransform(Point point)
-        {
-            Point[] points = { point };
-            using (Matrix invertViewMatrix = ViewMatrix.Clone())
-            {
-                invertViewMatrix.Invert();
-                invertViewMatrix.TransformPoints(points);
-            }
-            return points[0];
-        }
-
         private bool IsSelectable(CienComponent component)
         {
-            var layer = PresentDocument.Layers.Find(x => x.Name == component.LayerName);
+            var layer = State.Document.Layers.Find(x => x.Name == component.LayerName);
             return layer.IsVisible && !layer.IsLocked;
+        }
+
+        
+        /************************************************************************/
+        /* Drawing																*/
+        /************************************************************************/
+        #region Drawing Method
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            if (State.Document == null) return;
+
+            e.Graphics.Transform = ViewMatrix;
+
+            DrawComponentList(e);
+            DrawSelectedComponentBorder(e);
+            DrawBoundary(e);
         }
 
         private void DrawComponent(PaintEventArgs e, CienComponent component)
@@ -118,9 +85,9 @@ namespace OneLevelJson
 
         private void DrawComponentList(PaintEventArgs e)
         {
-            foreach (var component in PresentDocument.Components)
+            foreach (var component in State.Document.Components)
             {
-                if (PresentDocument.Layers.Find(x => x.Name == component.LayerName).IsVisible)
+                if (State.Document.Layers.Find(x => x.Name == component.LayerName).IsVisible)
                     DrawComponent(e, component);
             }
         }
@@ -155,32 +122,12 @@ namespace OneLevelJson
                 e.Graphics.DrawLines(pen, RectanglePoints);
             }
         }
-
-        /************************************************************************/
-        /* Delegate Event Handler												*/
-        /************************************************************************/
-        #region Delegate Method
-        void blackboardContextMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
-        {
-            State.SelectComponent(PresentDocument.Components.Find(x => x.Id == e.ClickedItem.Text));
-            Invalidate();
-        }
         #endregion
 
         /************************************************************************/
         /* Override 															*/
         /************************************************************************/
         #region Override Method
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            if (PresentDocument == null) return;
-
-            e.Graphics.Transform = ViewMatrix;
-
-            DrawComponentList(e);
-            DrawSelectedComponentBorder(e);
-            DrawBoundary(e);
-        }
 
         protected override void OnSizeChanged(EventArgs e)
         {
@@ -194,7 +141,7 @@ namespace OneLevelJson
 
         protected override void OnMouseDown(MouseEventArgs e)
         {
-            if (PresentDocument == null) return;
+            if (State.Document == null) return;
 
             ClickedPoint = PointTransform(e.Location);
             PreviousPoint = new Point((Size)ClickedPoint);
@@ -203,7 +150,7 @@ namespace OneLevelJson
             {
                 case MouseButtons.Left:
                     // 선택된 List중에서 ZIndex가 가장 큰 Component를 선택한다.
-                    var selectables = PresentDocument.Components.FindAll(x => IsInside(x, ClickedPoint) && IsSelectable(x));
+                    var selectables = State.Document.Components.FindAll(x => IsInside(x, ClickedPoint) && IsSelectable(x));
 
                     if (selectables.Count == 0)
                     {
@@ -216,7 +163,7 @@ namespace OneLevelJson
 
                     break;
                 case MouseButtons.Right:
-                    var componentList = PresentDocument.Components.FindAll(x => IsInside(x, ClickedPoint));
+                    var componentList = State.Document.Components.FindAll(x => IsInside(x, ClickedPoint));
                     UpdateBlackboardContextMenu(componentList);
                     blackboardContextMenu.Show(PointToScreen(e.Location));
                     break;
@@ -325,10 +272,89 @@ namespace OneLevelJson
         #endregion
 
         /************************************************************************/
-        /* Variables															*/
+        /* Etc.																    */
         /************************************************************************/
-        public CienDocument PresentDocument { get; set; }
+        #region Trasformation
+        private void TranslateBoard()
+        {
+            ViewMatrix.Translate(TranslateX, TranslateY);
+        }
 
+        private void ScaleBoard()
+        {
+            Point CursorCenterOffset = CursorPosition - (Size)(new Point(Width / 2, Height / 2));
+            ViewMatrix.Translate(CursorCenterOffset.X, CursorCenterOffset.Y);
+            ViewMatrix.Scale(_zoom, _zoom);
+            ViewMatrix.Translate(-CursorCenterOffset.X, -CursorCenterOffset.Y);
+        }
+
+        public Point PointTransform(Point point)
+        {
+            Point[] points = { point };
+            using (Matrix invertViewMatrix = ViewMatrix.Clone())
+            {
+                invertViewMatrix.Invert();
+                invertViewMatrix.TransformPoints(points);
+            }
+            return points[0];
+        }
+        #endregion
+
+        #region Delegate Method
+        void blackboardContextMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            var selected = State.Document.Components.Find(x => x.Id == e.ClickedItem.Text);
+            if (selected != null)
+            {
+                State.SelectComponent(selected);
+            }
+            else
+            {
+                switch (e.ClickedItem.Text)
+                {
+                    case ConvertToButton:
+                        State.Document.ConvertToComposite("sf");
+                        break;
+                }
+            }
+            Invalidate();
+        }
+        #endregion
+
+        #region Update Method
+        private void UpdateBlackboardContextMenu(List<CienComponent> componentList)
+        {
+            blackboardContextMenu.Items.Clear();
+            if (componentList.Count != 0)
+            {
+                blackboardContextMenu.Items.Add(ConvertToButton);
+            }
+
+            foreach (var component in componentList)
+            {
+                blackboardContextMenu.Items.Add(component.Id);
+            }
+        }
+
+        private void UpdateRectangle()
+        {
+            if (State.Document == null) return;
+            Point leftTop = new Point(0, 0);
+
+            leftTop = leftTop + LeftTopOffset;
+
+            RectanglePoints = new[]
+            {
+                leftTop,
+                leftTop + new Size(State.Document.Width, 0),
+                leftTop + new Size(State.Document.Width, State.Document.Height),
+                leftTop + new Size(0, State.Document.Height),
+                leftTop
+            };
+        }
+        #endregion
+
+        /* Variables ************************************************************/
         public Point[] RectanglePoints { get; private set; }
 
         public Point CursorPosition { get; private set; }
@@ -348,5 +374,9 @@ namespace OneLevelJson
         private const float MinimumZoom = 0.2f;
         private const float MaximumZoom = 2.5f;
         private const int BorderOffset = 0;
+
+        private const string ConvertToButton = "Convert to button";
+        /************************************************************************/
+
     }
 }
