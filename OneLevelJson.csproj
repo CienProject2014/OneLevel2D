@@ -38,8 +38,13 @@
   <PropertyGroup>
     <GenerateManifests>false</GenerateManifests>
   </PropertyGroup>
+  <PropertyGroup />
   <PropertyGroup>
-    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
+    <ApplicationIcon>
+    </ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <NoWin32Manifest>true</NoWin32Manifest>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -61,6 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Composite.cs" />
+    <Compile Include="CoordinateConverter.cs" />
     <Compile Include="Model\Asset.cs" />
     <Compile Include="Blackboard.cs">
       <SubType>UserControl</SubType>
@@ -74,6 +80,7 @@
     <Compile Include="Model\CienDocument.cs" />
     <Compile Include="Export\Maker.cs" />
     <Compile Include="Export\ProjectModel.cs" />
+    <Compile Include="Model\Overlap2DProject.cs" />
     <Compile Include="NewForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -106,6 +113,12 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Export\SceneModel.cs" />
+    <Compile Include="TitleBarControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="TitleBarControl.Designer.cs">
+      <DependentUpon>TitleBarControl.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Blackboard.resx">
       <DependentUpon>Blackboard.cs</DependentUpon>
     </EmbeddedResource>
@@ -126,11 +139,14 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <EmbeddedResource Include="SelectedControl.resx">
       <DependentUpon>SelectedControl.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="packages.config" />
+    <EmbeddedResource Include="TitleBarControl.resx">
+      <DependentUpon>TitleBarControl.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="Properties\app.manifest">
       <SubType>Designer</SubType>
     </None>
@@ -146,6 +162,33 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\maximizebutton.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\maximizebuttonhover.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\minimizebutton.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\minimizebuttonhover.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\xbutton.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\xbuttonhover.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\background.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\factory3white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\package7.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

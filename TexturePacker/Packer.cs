@@ -94,10 +94,6 @@ namespace OneLevelJson.TexturePacker
 
             InputRects.Sort((a, b) => b.Height.CompareTo(a.Height)); // descend
 
-            foreach (var rect in InputRects)
-            {
-                _log.Write(rect.ToString());
-            }
         }
 
         public void Pack()
@@ -399,8 +395,5 @@ namespace OneLevelJson.TexturePacker
         private int _totalArea;
         private List<Size> bestSizes;
         private List<double> ratios;*/
-
-        private readonly Log _log = new Log();
-
     }
 }

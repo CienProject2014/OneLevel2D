@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.CompilerServices;
-using System.Windows.Controls;
 using OneLevelJson.Annotations;
 using OneLevelJson.Model;
 
@@ -9,9 +8,9 @@ namespace OneLevelJson
 {
     static class State
     {
-        public static Log log = new Log();
+        //public static Log log = new Log();
+        public static CienDocument Document;
         public static SelectedNotifier _selected = new SelectedNotifier();
-        public static Size DocumentSize;
         public static SelectedNotifier Selected
         {
             get { return _selected; }

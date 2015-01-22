@@ -33,9 +33,9 @@ namespace OneLevelJson.Export
 
         public void ExtractProjectModel(CienDocument document)
         {
-            ProjectModel.ExportScene scene = new ProjectModel.ExportScene()
+            ProjectModel.ExportScene scene = new ProjectModel.ExportScene
             {
-                ambientColor = new List<float>()
+                ambientColor = new List<float>
                 {
                     0.5f, 0.5f, 0.5f, 1
                 },
@@ -46,7 +46,7 @@ namespace OneLevelJson.Export
             project.scenes = new List<ProjectModel.ExportScene>();
             project.scenes.Add(scene);
 
-            project.originalResolution = new ProjectModel.ExportResolution()
+            project.originalResolution = new ProjectModel.ExportResolution
             {
                 width = document.Width,
                 height = document.Height,
@@ -57,7 +57,7 @@ namespace OneLevelJson.Export
         public void ExtractSceneModel(CienDocument document)
         {
             // composite
-            scene.composite = new ExportComposite1()
+            scene.composite = new ExportComposite1
             {
                 layers = new List<ExportLayer>(),
                 sImages = new List<ExportsImage>(),
@@ -67,7 +67,7 @@ namespace OneLevelJson.Export
             // layers
             foreach (var layer in document.Layers)
             {
-                scene.composite.layers.Add(new ExportLayer()
+                scene.composite.layers.Add(new ExportLayer
                 {
                     layerName = layer.Name,
                     isVisible = layer.IsVisible,
@@ -81,8 +81,9 @@ namespace OneLevelJson.Export
                 if (component is CienImage)
                 {
                     CienImage cienImage = (CienImage) component;
-                    Point convertedLocation = ConvertLocation(document, cienImage);
-                    scene.composite.sImages.Add(new ExportsImage()
+                    Point convertedLocation = CoordinateConverter.BoardToGame(cienImage.Location, cienImage.GetSize().Width, cienImage.GetSize().Height);
+                    //Point convertedLocation = ConvertLocation(document, cienImage);
+                    scene.composite.sImages.Add(new ExportsImage
                     {
                         layerName = cienImage.LayerName,
                         itemIdentifier = cienImage.Id,
@@ -100,14 +101,14 @@ namespace OneLevelJson.Export
                 else if (component is CienComposite)
                 {
                     CienComposite cienComposite = (CienComposite) component;
-                    scene.composite.sComposites.Add(new ExportsComposite()
+                    scene.composite.sComposites.Add(new ExportsComposite
                     {
                         layerName = cienComposite.LayerName,
                         itemIdentifier = cienComposite.Id,
-                        composite = new ExportComposite2()
+                        composite = new ExportComposite2
                         {
                             layers = new List<ExportLayer>(cienComposite.composite.Layers.Count),
-                            sImages = new List<ExportsImage2>(cienComposite.composite.Images.Count),
+                            sImages = new List<ExportsImage2>(cienComposite.composite.Images.Count)
                         },
                         zIndex = cienComposite.ZIndex,
                         x = cienComposite.Location.X,
@@ -117,7 +118,7 @@ namespace OneLevelJson.Export
 
                     foreach (var layer in cienComposite.composite.Layers)
                     {
-                        scene.composite.sComposites.Last().composite.layers.Add(new ExportLayer()
+                        scene.composite.sComposites.Last().composite.layers.Add(new ExportLayer
                         {
                             layerName =  layer.Name,
                             isVisible = layer.IsVisible,
@@ -127,17 +128,19 @@ namespace OneLevelJson.Export
 
                     foreach (var image in cienComposite.composite.Images)
                     {
-                        scene.composite.sComposites.Last().composite.sImages.Add(new ExportsImage2()
+                        scene.composite.sComposites.Last().composite.sImages.Add(new ExportsImage2
                         {
                             layerName = image.LayerName,
                             imageName = image.ImageName.Split('.')[0],
-                            tint = image.Tint
+                            tint = image.Tint,
+                            x = image.X,
+                            y = image.Y
                         });
                     }
                 }
             }
 
-            scene.ambientColor = new List<float>()
+            scene.ambientColor = new List<float>
             {
                 0.5f, 0.5f, 0.5f, 1
             };
@@ -149,7 +152,7 @@ namespace OneLevelJson.Export
 
         private Point ConvertLocation(CienDocument document, CienComponent component)
         {
-            Point translated = component.Location - (Size) Blackboard.LeftTopPoint;
+            Point translated = component.Location - Blackboard.LeftTopOffset;
             int newX = translated.X;
             int newY = document.Height - (translated.Y + component.GetSize().Height);
             return new Point(newX, newY);

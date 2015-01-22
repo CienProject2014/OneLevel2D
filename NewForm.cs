@@ -33,7 +33,7 @@ namespace OneLevelJson
             }
         }
 
-        private void okBtn_Click(object sender, System.EventArgs e)
+        private void okBtn_Click(object sender, EventArgs e)
         {
             Name = nameBox.Text;
             Width = int.Parse(widthBox.Text);

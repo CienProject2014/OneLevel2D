@@ -25,7 +25,7 @@ namespace OneLevelJson.Model
             {
                 case AssetType.Image:
                     Image img = Image.FromFile(projectDirectory + @"\" + CienDocument.Name
-                        + MainForm.ImageDataDirectory+@"\"+Name);
+                        + MainForm.AssetDirectory + MainForm.ImageDirectory+@"\"+Name);
                     Data = img;
                     ImageSize = img.Size;
                     break;

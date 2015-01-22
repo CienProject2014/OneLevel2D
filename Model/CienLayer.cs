@@ -20,6 +20,11 @@
             IsVisible = value;
         }
 
+        public void LockToggle()
+        {
+            IsLocked = !IsLocked;
+        }
+
         public string Name { get; private set; }
         public bool IsVisible { get; private set; }
         public bool IsLocked { get; private set; }
