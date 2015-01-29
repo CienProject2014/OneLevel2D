@@ -1,11 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 
 namespace OneLevelJson.Model
 {
-    abstract public class CienComponent
+    abstract public class CienComponent : ICloneable
     {
         abstract public override string ToString();
+        public abstract object Clone();
         abstract public Size GetSize();
         abstract public Image GetImage();
 

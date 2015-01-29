@@ -1,5 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
 using Newtonsoft.Json;
 
@@ -7,6 +11,12 @@ namespace OneLevelJson.Model
 {
     public class CienComposite : CienComponent
     {
+        /* Variables ************************************************************/
+        public Composite composite { get; private set; }
+        [JsonIgnore]
+        public Image ImageData { get; private set; }
+        /************************************************************************/
+
         public CienComposite(string imageName, string id, Point position, 
             int zIndex, string layerName = CienDocument.DefaultLayerName)
         {
@@ -56,6 +66,16 @@ namespace OneLevelJson.Model
             return LayerName + " Composite: " + Id;
         }
 
+        public override object Clone()
+        {
+            MessageBox.Show(@"CienImage CLone");
+            return new CienComposite(composite.Images[0].ImageName, Id, Location, ZIndex, LayerName)
+            {
+                composite = (Composite) this.composite.Clone(),
+                ImageData = (Image) GetImage().Clone()
+            };
+        }
+
         public override Size GetSize()
         {
             Image image = GetImage();
@@ -99,21 +119,15 @@ namespace OneLevelJson.Model
             return ImageData;
         }
 
-        /* Variables ************************************************************/
-        public Composite composite { get; private set; }
-        [JsonIgnore]
-        public Image ImageData { get; private set; }
-        /************************************************************************/
-
         /************************************************************************/
         /* Internal Model														*/
         /************************************************************************/
-        public class Composite
+        public class Composite : ICloneable
         {
             public List<Layer> Layers { get; set; }
             public List<Image> Images { get; set; }
 
-            public class Layer
+            public class Layer : ICloneable
             {
                 public Layer(string name)
                     : this(name, true, false)
@@ -131,15 +145,50 @@ namespace OneLevelJson.Model
                 public string Name { get; set; }
                 public bool IsVisible { get; set; }
                 public bool IsLocked { get; set; }
+
+                // Layer
+                public object Clone()
+                {
+                    return new Layer(Name, IsVisible, IsLocked);
+                }
             }
 
-            public class Image
+            public class Image : ICloneable
             {
                 public string LayerName { get; set; }
                 public string ImageName { get; set; } // with extension
                 public List<float> Tint { get; set; }
                 public int X;
                 public int Y;
+
+                // Image (Custom)
+                public object Clone()
+                {
+                    return new Image()
+                    {
+                        ImageName = this.ImageName,
+                        LayerName = this.LayerName,
+                        Tint = new List<float>() {1, 1, 1, 1},
+                        X = this.X,
+                        Y = this.Y
+                    };
+                }
+            }
+
+            // Composite
+            public object Clone()
+            {
+                List<Image> newImages = new List<Image>(Images.Count);
+                newImages.AddRange((IEnumerable<Image>) Images.Select(image => image.Clone()));
+
+                List<Layer> newLayers = new List<Layer>(Layers.Count);
+                newLayers.AddRange((IEnumerable<Layer>) Layers.Select(layer => layer.Clone()));
+
+                return new Composite()
+                {
+                    Images = newImages,
+                    Layers = newLayers
+                };
             }
         }
     }

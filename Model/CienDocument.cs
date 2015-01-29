@@ -1,13 +1,42 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Linq;
 using System.Windows.Forms;
+using System.Windows.Navigation;
 using Newtonsoft.Json;
 
 namespace OneLevelJson.Model
 {
     public class CienDocument
     {
+        // static 변수는 자동으로 제외하기 때문에 이 attribute를 추가해줘야 한다.
+        [JsonProperty]
+        public static string ProjectDirectory { get; set; }
+
+        [JsonProperty]
+        public static string ExportDirectory { get; set; }
+
+        [JsonProperty]  // static을 이렇게 남발해도 되는가? 필요하긴 한데, 필요를 없애는게 맞진 않은가?
+        public static string Name { get; private set; }
+
+        public int Width { get; private set; }
+        public int Height { get; private set; }
+        public List<Asset> Assets { get; private set; }
+        public List<CienComponent> Components { get; private set; }
+
+        [JsonIgnore]
+        public List<CienLayer> Layers;
+
+        public List<string> Resolutions { get; private set; }
+
+        [JsonIgnore]
+        public const string DefaultLayerName = "Default";
+        [JsonIgnore]
+        public const string PressedLayerName = "pressed";
+        [JsonIgnore]
+        public const string NomalLayerName = "normal";
+
         public CienDocument() : this("noname", 1920, 1080) {}
         public CienDocument(string name, int width, int height)
         {
@@ -75,15 +104,22 @@ namespace OneLevelJson.Model
         // TODO 무조건 이 함수를 통해서만 Component를 추가한다!
         public void AddComponent(CienComponent component)
         {
-            while (State.Document.Components.Find(x => x.ZIndex == component.ZIndex) != null)
+            if (State.Document.Components.Find(x => x.Id == component.Id) != null)
             {
-                component.SetZindex(component.ZIndex+1);
+                MessageBox.Show(@"같은 Id의 Component가 존재합니다.");
+                return;
             }
+
+            // TODO Zindex를 정리해줄 필요가 있다.
+            component.SetZindex(GetNewZindex());
+
             Components.Add(component);
-            CienComposite.Number++;
+
+            CienComponent.Number++;
         }
 
-        public void AddNewComponent(string name, Point location)
+        // Asset에서 만들어지는 Component는 무조건 이 함수를 통해서 만들어져야 한다.
+        public void NewComponent(string name, Point location)
         {
             Asset asset = Assets.Find(x => x.GetName() == name);
             string id = "image" + Components.Count;
@@ -96,33 +132,9 @@ namespace OneLevelJson.Model
             Components.Remove(Components.Find(x => x.Id == id));
         }
 
-        public void RenameComponent(string id, string newId)
-        {
-            var test = Components.Find(x => x.Id == newId);
-            if (test == null)
-            {
-                MessageBox.Show(@"이미 같은 이름의 Component가 존재합니다.");
-                return;
-            }
-            var component = Components.Find(x => x.Id == id);
-            if (component != null) component.SetId(newId);
-        }
-
         #endregion
 
-        #region RenameLayer, ConvertToComposite
-        public void RenameLayer(string name, string newName)
-        {
-            var test = Layers.Find(x => x.Name.Equals(newName));
-            if (test == null)
-            {
-                MessageBox.Show(@"이미 같은 이름의 Layer가 존재합니다.");
-                return;
-            }
-            var layer = Layers.Find(x => x.Name == name);
-            if(layer != null) layer.SetName(newName);
-        }
-
+        #region ConvertToComposite
         /*
          * Convert CienImage instance to CienComposite
          */
@@ -139,33 +151,15 @@ namespace OneLevelJson.Model
         }
         #endregion
 
+        public int GetNewZindex()
+        {
+            if (Components.Count == 0) return 1;
+            return Components.Max(x => x.ZIndex) + 1;
+        }
 
-        // static 변수는 자동으로 제외하기 때문에 이 attribute를 추가해줘야 한다.
-        [JsonProperty]
-        public static string ProjectDirectory { get; set; }
-
-        [JsonProperty]
-        public static string ExportDirectory { get; set; }
-
-        [JsonProperty]  // static을 이렇게 남발해도 되는가? 필요하긴 한데, 필요를 없애는게 맞진 않은가?
-        public static string Name { get; private set; }
-
-        public int Width { get; private set; }
-        public int Height { get; private set; }
-        public List<Asset> Assets { get; private set; }
-        public List<CienComponent> Components { get; private set; }
-        
-        [JsonIgnore]
-        public List<CienLayer> Layers;
-
-        public List<string> Resolutions { get; private set; }
-
-        [JsonIgnore]
-        public const string DefaultLayerName = "Default";
-        [JsonIgnore]
-        public const string PressedLayerName = "pressed";
-        [JsonIgnore]
-        public const string NomalLayerName = "normal";
-
+        public void SortComponentsAscending()
+        {
+            Components.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex));
+        }
     }
 }

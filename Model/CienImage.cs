@@ -1,11 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
 using System.Windows.Navigation;
 
 namespace OneLevelJson.Model
 {
     public class CienImage : CienComponent
     {
+        /* Variables ************************************************************/
+        public string ImageName { get; private set; } // with extension
+        public Image ImageData { get; private set; }
+        /************************************************************************/
+
         public CienImage(string imageName, string id, Point position, int zIndex, string layerName = CienDocument.DefaultLayerName)
         {
             ImageName = imageName;
@@ -26,6 +34,14 @@ namespace OneLevelJson.Model
             return LayerName + " Image: " + Id + " " + ImageName;
         }
 
+        public override object Clone()
+        {
+            return new CienImage(ImageName, Id, Location, ZIndex, LayerName)
+            {
+                ImageData = (Image) GetImage().Clone()
+            };
+        }
+
         public override Size GetSize()
         {
             Image image = GetImage();
@@ -41,9 +57,5 @@ namespace OneLevelJson.Model
             return ImageData;
         }
 
-        /* Variables ************************************************************/
-        public string ImageName { get; private set; } // with extension
-        public Image ImageData { get; private set; }
-        /************************************************************************/
     }
 }

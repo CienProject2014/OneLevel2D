@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
+using OneLevelJson.Annotations;
 using OneLevelJson.Model;
 
 namespace OneLevelJson
@@ -85,6 +86,9 @@ namespace OneLevelJson
 
         private void DrawComponentList(PaintEventArgs e)
         {
+            // TODO 그리기 전에도 한 번 정렬해준다. 속도 이슈가 발생하면 삭제해야할듯.
+            State.Document.Components.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex));
+
             foreach (var component in State.Document.Components)
             {
                 if (State.Document.Layers.Find(x => x.Name == component.LayerName).IsVisible)
@@ -161,6 +165,8 @@ namespace OneLevelJson
                     var candidate = selectables.Find(x => x.ZIndex == selectables.Max(y => y.ZIndex));
                     State.SelectComponent(candidate);
 
+                    State.CommandMoveStart(e.Location);
+
                     break;
                 case MouseButtons.Right:
                     var componentList = State.Document.Components.FindAll(x => IsInside(x, ClickedPoint));
@@ -196,6 +202,7 @@ namespace OneLevelJson
 
         protected override void OnMouseUp(MouseEventArgs e)
         {
+            State.CommandMoveEnd(e.Location);
             Invalidate();
         }
 
@@ -244,28 +251,6 @@ namespace OneLevelJson
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
-            int dx = 0, dy = 0;
-            switch (e.KeyCode)
-            {
-                case Keys.Left:
-                    dx -= 1;
-                    break;
-                case Keys.Right:
-                    dx += 1;
-                    break;
-                case Keys.Up:
-                    dy -= 1;
-                    break;
-                case Keys.Down:
-                    dy += 1;
-                    break;
-            }
-            if (e.Shift)
-            {
-                dx *= 10;
-                dy *= 10;
-            }
-            if (State.IsComponentSelected()) State.Selected.Move(dx, dy);
 
             Invalidate();
         }
