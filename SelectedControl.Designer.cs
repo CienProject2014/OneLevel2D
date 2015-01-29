@@ -40,7 +40,7 @@ namespace OneLevelJson
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(18, 66);
+            this.label1.Location = new System.Drawing.Point(18, 58);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(25, 12);
             this.label1.TabIndex = 0;
@@ -49,7 +49,7 @@ namespace OneLevelJson
             // xyValueLabel
             // 
             this.xyValueLabel.AutoSize = true;
-            this.xyValueLabel.Location = new System.Drawing.Point(63, 66);
+            this.xyValueLabel.Location = new System.Drawing.Point(63, 58);
             this.xyValueLabel.Name = "xyValueLabel";
             this.xyValueLabel.Size = new System.Drawing.Size(25, 12);
             this.xyValueLabel.TabIndex = 1;

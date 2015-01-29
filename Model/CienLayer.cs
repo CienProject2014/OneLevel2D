@@ -15,9 +15,9 @@
             Name = name;
         }
 
-        public void SetVisible(bool value)
+        public void VisibleToggle()
         {
-            IsVisible = value;
+            IsVisible = !IsVisible;
         }
 
         public void LockToggle()

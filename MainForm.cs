@@ -16,9 +16,30 @@ namespace OneLevelJson
 {
     public partial class MainForm : Form
     {
+        /************************************************************************/
+        /* Variables															*/
+        /************************************************************************/
+        public const string ProgramName = "OneLevel2D";
+        public const string ProjectExtension = "cien";
+        public const string AssetDirectory = @"\assets";
+        public const string ImageDirectory = @"\image";
+
+        public const string Overlap2DExtention = "pit";
+        public const string Overlap2DImageDataDirectory = @"\assets\orig\images";
+        public const string Overlap2DSceneDirectory = @"\scenes";
+
+        public const string SceneExtension = "*.dt";
+
+        private readonly Packer TexturePacker = new Packer();
+        private readonly Maker ModelMaker = new Maker();
+
         public MainForm()
         {
             InitializeComponent();
+
+            // TODO 접근하기 위해 설정. 
+            State.SetBoard(blackboard);
+            State.SetComponentListView(componentList);
 
             NewDocument("noname", 1920, 1080);
 
@@ -31,6 +52,7 @@ namespace OneLevelJson
         private void InitDocument()
         {
             titleBarControl1.SetTitleName(CienDocument.Name + " - " + ProgramName);
+
             ReloadAssetList();
             ReloadComponentList();
             ReloadLayerList();
@@ -48,17 +70,11 @@ namespace OneLevelJson
 
         private void AddEvent()
         {
-            assetList.SelectedIndexChanged += assetList_SelectedIndexChanged;
             assetList.ItemDrag += assetList_ItemDrag;
             assetList.DragEnter += assetList_DragEnter;
             assetList.MouseDown += assetList_MouseDown;
 
-            componentList.MouseDown += componentList_MouseDown;
-            componentList.SelectedIndexChanged += componentList_SelectedIndexChanged;
-
-            layerList.SelectedIndexChanged += layerList_SelectedIndexChanged;
-            layerList.MouseDown += layerList_MouseDown;
-            layerList.ItemChecked += layerList_ItemChecked;
+            // TODO LayerList 수정
 
             blackboard.DragEnter += blackboard_DragEnter;
             blackboard.DragDrop += blackboard_DragDrop;
@@ -84,10 +100,53 @@ namespace OneLevelJson
             if (State.Document == null) return;
 
             CienLayer selectedLayer = State.Document.Layers.Find(x => x.Name == e.Item.Text);
-            if (selectedLayer != null) selectedLayer.SetVisible(e.Item.Checked);
+            //if (selectedLayer != null) selectedLayer.SetVisible(e.Item.Checked);
 
             blackboard.Invalidate();
         }
+
+        #region Command
+
+        private void CutComponent()
+        {
+            if (!State.IsComponentSelected()) return;
+
+            State.CopiedComponent = (CienComponent) State.Selected.Component.Clone();
+            componentList.RemoveComponent(State.Selected.Component);
+            State.SelectAbandon();
+
+            ReloadComponentList();
+        }
+
+        private void CopyComponent()
+        {
+            if (!State.IsComponentSelected()) return;
+
+            State.CopiedComponent = (CienComponent) State.Selected.Component.Clone();
+        }
+
+        private void PasteComponent()
+        {
+            if (State.CopiedComponent == null) return;
+
+            var newComponent = (CienComponent) State.CopiedComponent.Clone();
+            // TODO 기존의 zIndex 들을 검사해서 비어있으면 숫자들을 당겨줘야 한다.
+            newComponent.SetZindex(State.Document.GetNewZindex());
+
+            State.Document.AddComponent(newComponent);
+
+            componentList.AddComponent(newComponent);
+        }
+
+        private void UnDo()
+        {
+            if (State.Commands.Count == 0) return;
+
+            State.ReverseLastCommand();
+            blackboard.Invalidate();
+        }
+
+        #endregion
 
         #region New, Load, Save, Import
 
@@ -187,27 +246,18 @@ namespace OneLevelJson
 
         #region AddComponent, MakeImageFrom, MakeDirectory, CheckExt, GetClickedToolPostion, Sort
 
-        private void AddComponent(ListView.SelectedListViewItemCollection items, Point location)
+        private void AddNewComponent(ListView.SelectedListViewItemCollection items, Point location)
         {
             for (int i = 0; i < items.Count; i++)
             {
                 string name = items[i].Text;
                 Size offset = new Size(15 * i, 15 * i);
                 Point transformedLocation = blackboard.PointTransform(location);
-                State.Document.AddNewComponent(name, transformedLocation + offset);
-                try
-                {
-                    componentList.Items.Add(new ListViewItem(State.Document.Components.Last().Id)
-                    {
-                        SubItems = { State.Document.Components.Last().ZIndex.ToString() }
-                    });
-                }
-                catch (InvalidOperationException e)
-                {
-                    MessageBox.Show(@"선택된 Layer가 없습니다: " + e.StackTrace);
-
-                }
+                State.Document.NewComponent(name, transformedLocation + offset);
+                componentList.AddComponent(State.Document.Components.Last());
             }
+
+            State.Document.SortComponentsAscending();
 
             ReloadComponentList();
         }
@@ -272,12 +322,6 @@ namespace OneLevelJson
             return splitContainer.Location + (Size)location + (Size)clickedPosition;
         }
 
-        private void SortComponentList()
-        {
-            // descend => latter will be top
-            State.Document.Components.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex));
-        }
-
         #endregion
 
         #region Reload Asset, Component, Layer, Blackboard
@@ -309,41 +353,26 @@ namespace OneLevelJson
 
         private void ReloadComponentList()
         {
-            componentList.BeginUpdate();
-            componentList.Items.Clear();
+            componentList.Clear();
 
-            SortComponentList();
-
+            State.Document.SortComponentsAscending(); 
             for (int i = State.Document.Components.Count - 1; i >= 0; i--)
             {
                 var component = State.Document.Components[i];
-                componentList.Items.Add(new ListViewItem(component.Id)
-                {
-                    SubItems = { component.ZIndex.ToString() },
-                });
+                componentList.AddComponent(component);
             }
 
-            componentList.EndUpdate();
-
+            componentList.Invalidate();
             blackboard.Invalidate();
         }
 
         private void ReloadLayerList()
         {
-            layerList.BeginUpdate();
-            layerList.Items.Clear();
-
+            layerList.Clear();
             foreach (var layer in State.Document.Layers)
             {
-                ListViewItem lvi = new ListViewItem(layer.Name)
-                {
-                    Checked = layer.IsVisible
-                };
-
-                layerList.Items.Add(lvi);
+                layerList.AddLayer(layer);
             }
-
-            layerList.EndUpdate();
         }
 
         private void ReloadBlackboard()
@@ -353,22 +382,7 @@ namespace OneLevelJson
 
         #endregion
 
-        /************************************************************************/
-        /* Asset List															*/
-        /************************************************************************/
-
         #region Asset List
-
-        private void assetList_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (assetList.SelectedItems.Count != 0)
-            {
-                // TODO picbox를 임시로 삭제
-                /*string selectedName = assetList.SelectedItems[0].Text;
-                Asset selectedAsset = State.Document.Assets.Find(x => x.GetName() == selectedName);
-                picBox.Image = MakeImageFrom(selectedAsset.GetNameWithExt());*/
-            }
-        }
 
         private void assetList_ItemDrag(object sender, ItemDragEventArgs e)
         {
@@ -401,13 +415,9 @@ namespace OneLevelJson
 
         #endregion
 
-        /************************************************************************/
-        /* Component List														*/
-        /************************************************************************/
-
         #region Componet List
 
-        private void componentList_SelectedIndexChanged(object sender, EventArgs e)
+        /* private void componentList_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (componentList.SelectedItems.Count != 0)
             {
@@ -433,24 +443,6 @@ namespace OneLevelJson
             }
         }
 
-        private void componentRenameToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            using (ContextRenameForm renameForm = new ContextRenameForm())
-            {
-                if (renameForm.ShowDialog() == DialogResult.OK)
-                {
-                    foreach (ListViewItem selectedItem in componentList.SelectedItems)
-                    {
-                        string selectedId = selectedItem.Text;
-                        string newId = renameForm.Result;
-                        State.Document.RenameComponent(selectedId, newId);
-                    }
-                }
-            }
-
-            ReloadComponentList();
-        }
-
         private void conponentRemoveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (componentList.SelectedItems.Count > 0)
@@ -465,42 +457,9 @@ namespace OneLevelJson
             blackboard.Invalidate();
         }
 
-        private void componentUpBtn_Click(object sender, EventArgs e)
-        {
-            if (!State.IsComponentSelected()) return;
-
-            int newZIndex = State.Selected.Component.ZIndex + 1;
-            if (newZIndex > State.Document.Components.Max(x => x.ZIndex)) return;
-
-            /*State.Document.Components.Find(x => x.ZIndex == newZIndex).MoveDown();
-            State.Selected.Component.MoveUp();*/
-
-            State.Document.Components.Find(x => x.ZIndex == newZIndex).SetZindex(CienComponent.EmptyZindex);
-            State.Selected.MoveUp();
-            State.Document.Components.Find(x => x.ZIndex == CienComponent.EmptyZindex).SetZindex(newZIndex - 1);
-
-            ReloadComponentList();
-        }
-
-        private void componentDownBtn_Click(object sender, EventArgs e)
-        {
-            if (!State.IsComponentSelected()) return;
-
-            int newZIndex = State.Selected.Component.ZIndex - 1;
-            if (newZIndex < 0) return;
-
-            State.Document.Components.Find(x => x.ZIndex == newZIndex).SetZindex(CienComponent.EmptyZindex);
-            State.Selected.MoveDown();
-            State.Document.Components.Find(x => x.ZIndex == CienComponent.EmptyZindex).SetZindex(newZIndex + 1);
-
-            ReloadComponentList();
-        }
+         */
 
         #endregion
-
-        /************************************************************************/
-        /* Layer List															*/
-        /************************************************************************/
 
         #region Layer List
 
@@ -509,21 +468,8 @@ namespace OneLevelJson
             State.Document.Layers.Add(new Layer("layer" + State.Document.Layers.Count, true, false));
             ReloadLayerList();
         }
-
-        private void deleteLayer_Click(object sender, EventArgs e)
-        {
-            var items = layerList.SelectedItems;
-            if (items.Count == 0) return;
-
-            for (int i = 0; i < items.Count; i++)
-            {
-                CienLayer selectedLayer = State.Document.Layers.Find(x => x.Name == items[i].Text);
-                State.Document.Layers.Remove(selectedLayer);
-            }
-
-            ReloadLayerList();
-        }
-
+        // TODO LayerList 수정
+        /*
         private void layerList_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (layerList.SelectedItems.Count == 1)
@@ -565,13 +511,9 @@ namespace OneLevelJson
                 var selectedLayer = State.Document.Layers.Find(x => x.Name == layerList.SelectedItems[0].Text);
                 selectedLayer.LockToggle();
             }
-        }
+        }*/
 
         #endregion
-
-        /************************************************************************/
-        /* Blackboard															*/
-        /************************************************************************/
 
         #region Blackboard
 
@@ -598,14 +540,27 @@ namespace OneLevelJson
 
             Point location = PointToClient(new Point(e.X, e.Y) - (Size)blackboard.Location);
 
-            AddComponent(items, location);
+            AddNewComponent(items, location);
             blackboard.Invalidate();
         }
 
         private void blackboard_KeyDown(object sender, KeyEventArgs e)
         {
+            int dx = 0, dy = 0;
             switch (e.KeyCode)
             {
+                case Keys.Left:
+                    dx -= 1;
+                    break;
+                case Keys.Right:
+                    dx += 1;
+                    break;
+                case Keys.Up:
+                    dy -= 1;
+                    break;
+                case Keys.Down:
+                    dy += 1;
+                    break;
                 case Keys.Delete:
                     if (State.IsComponentSelected())
                     {
@@ -614,16 +569,37 @@ namespace OneLevelJson
                         ReloadComponentList();
                     }
                     break;
-                // case Arrow keys are handled at blackboard's OnKeyDown
+            }
+            if (e.Shift)
+            {
+                dx *= 10;
+                dy *= 10;
+            }
+            if (State.IsComponentSelected()) State.Selected.Move(dx, dy);
+
+
+            if (e.Control)
+            {
+                switch (e.KeyCode)
+                {
+                    case Keys.X:
+                        CutComponent();
+                        break;
+                    case Keys.C:
+                        CopyComponent();
+                        break;
+                    case Keys.V:
+                        PasteComponent();
+                        break;
+                    case Keys.Z:
+                        UnDo();
+                        break;
+                }
             }
             blackboard.Invalidate();
         }
 
         #endregion
-
-        /************************************************************************/
-        /* Menu Strip															*/
-        /************************************************************************/
 
         #region Menu Strip
 
@@ -822,6 +798,8 @@ namespace OneLevelJson
                 CienDocument.ExportDirectory = exportFolderBrowser.SelectedPath;
                 MakeDirectory(CienDocument.ExportDirectory + @"\scenes");
                 Export(CienDocument.ExportDirectory);
+
+                MessageBox.Show("Export COMPLETE!");
             }
         }
 
@@ -830,23 +808,6 @@ namespace OneLevelJson
         /************************************************************************/
         /* DEBUG																*/
         /************************************************************************/
-
-        /************************************************************************/
-        /* Variables															*/
-        /************************************************************************/
-        //private CienDocument _document;
-        private readonly Packer TexturePacker = new Packer();
-        private readonly Maker ModelMaker = new Maker();
-        public const string ProgramName = "OneLevel2D";
-        public const string ProjectExtension = "cien";
-        public const string AssetDirectory = @"\assets";
-        public const string ImageDirectory = @"\image";
-
-        public const string Overlap2DExtention = "pit";
-        public const string Overlap2DImageDataDirectory = @"\assets\orig\images";
-        public const string Overlap2DSceneDirectory = @"\scenes";
-
-        public const string SceneExtension = "*.dt";
 
         private void tESTToolStripMenuItem_Click(object sender, EventArgs e)
         {

@@ -43,35 +43,29 @@ namespace OneLevelJson
             this.importToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tESTToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.assetList = new System.Windows.Forms.ListView();
             this.assetImageList = new System.Windows.Forms.ImageList(this.components);
             this.imageImportDialog = new System.Windows.Forms.OpenFileDialog();
-            this.componentList = new System.Windows.Forms.ListView();
-            this.id = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.zindex = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.componentContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.renameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveFolderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.openProjectDialog = new System.Windows.Forms.OpenFileDialog();
             this.exportFolderBrowser = new System.Windows.Forms.FolderBrowserDialog();
-            this.deleteLayer = new System.Windows.Forms.Button();
             this.layerContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.renameToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.lockunlockToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.addLayer = new System.Windows.Forms.Button();
-            this.layerList = new System.Windows.Forms.ListView();
-            this.componentDownBtn = new System.Windows.Forms.Button();
-            this.componentUpBtn = new System.Windows.Forms.Button();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.toolContainer1 = new System.Windows.Forms.SplitContainer();
-            this.selectedControl = new OneLevelJson.SelectedControl();
             this.toolContainer2 = new System.Windows.Forms.SplitContainer();
             this.directorySearcher1 = new System.DirectoryServices.DirectorySearcher();
-            this.blackboard = new OneLevelJson.Blackboard();
-            this.titleBarControl1 = new OneLevelJson.TitleBarControl();
             this.assetContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.removeToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.assetList = new System.Windows.Forms.ListView();
+            this.blackboard = new OneLevelJson.Blackboard();
+            this.selectedControl = new OneLevelJson.SelectedControl();
+            this.componentList = new OneLevelJson.CustomList.ComponentListView();
+            this.layerList = new OneLevelJson.CustomList.LayerListView();
+            this.titleBarControl1 = new OneLevelJson.TitleBarControl();
             this.menuStrip.SuspendLayout();
             this.componentContextMenu.SuspendLayout();
             this.layerContextMenu.SuspendLayout();
@@ -181,18 +175,6 @@ namespace OneLevelJson
             this.tESTToolStripMenuItem.Text = "TEST";
             this.tESTToolStripMenuItem.Click += new System.EventHandler(this.tESTToolStripMenuItem_Click);
             // 
-            // assetList
-            // 
-            this.assetList.AllowDrop = true;
-            this.assetList.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.assetList.Location = new System.Drawing.Point(0, 0);
-            this.assetList.Name = "assetList";
-            this.assetList.Size = new System.Drawing.Size(190, 150);
-            this.assetList.SmallImageList = this.assetImageList;
-            this.assetList.TabIndex = 2;
-            this.assetList.UseCompatibleStateImageBehavior = false;
-            this.assetList.View = System.Windows.Forms.View.SmallIcon;
-            // 
             // assetImageList
             // 
             this.assetImageList.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
@@ -203,28 +185,6 @@ namespace OneLevelJson
             // 
             this.imageImportDialog.Filter = "png files|*.png|jpg files|*.jpg|All image files|*.*";
             this.imageImportDialog.Multiselect = true;
-            // 
-            // componentList
-            // 
-            this.componentList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.id,
-            this.zindex});
-            this.componentList.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.componentList.LabelEdit = true;
-            this.componentList.Location = new System.Drawing.Point(0, 0);
-            this.componentList.Name = "componentList";
-            this.componentList.Size = new System.Drawing.Size(190, 157);
-            this.componentList.TabIndex = 3;
-            this.componentList.UseCompatibleStateImageBehavior = false;
-            this.componentList.View = System.Windows.Forms.View.Details;
-            // 
-            // id
-            // 
-            this.id.Text = "Id";
-            // 
-            // zindex
-            // 
-            this.zindex.Text = "zIndex";
             // 
             // componentContextMenu
             // 
@@ -239,29 +199,16 @@ namespace OneLevelJson
             this.renameToolStripMenuItem.Name = "renameToolStripMenuItem";
             this.renameToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
             this.renameToolStripMenuItem.Text = "rename";
-            this.renameToolStripMenuItem.Click += new System.EventHandler(this.componentRenameToolStripMenuItem_Click);
             // 
             // removeToolStripMenuItem
             // 
             this.removeToolStripMenuItem.Name = "removeToolStripMenuItem";
             this.removeToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
             this.removeToolStripMenuItem.Text = "remove";
-            this.removeToolStripMenuItem.Click += new System.EventHandler(this.conponentRemoveToolStripMenuItem_Click);
             // 
             // openProjectDialog
             // 
             this.openProjectDialog.Filter = "Proejct File(.dt)|*.dt|Overlap2D Project File(.pit)|*.pit";
-            // 
-            // deleteLayer
-            // 
-            this.deleteLayer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.deleteLayer.Location = new System.Drawing.Point(161, 125);
-            this.deleteLayer.Name = "deleteLayer";
-            this.deleteLayer.Size = new System.Drawing.Size(23, 23);
-            this.deleteLayer.TabIndex = 8;
-            this.deleteLayer.Text = "-";
-            this.deleteLayer.UseVisualStyleBackColor = true;
-            this.deleteLayer.Click += new System.EventHandler(this.deleteLayer_Click);
             // 
             // layerContextMenu
             // 
@@ -276,59 +223,12 @@ namespace OneLevelJson
             this.renameToolStripMenuItem1.Name = "renameToolStripMenuItem1";
             this.renameToolStripMenuItem1.Size = new System.Drawing.Size(137, 22);
             this.renameToolStripMenuItem1.Text = "rename";
-            this.renameToolStripMenuItem1.Click += new System.EventHandler(this.layerRenameToolStripMenuItem_Click);
             // 
             // lockunlockToolStripMenuItem
             // 
             this.lockunlockToolStripMenuItem.Name = "lockunlockToolStripMenuItem";
             this.lockunlockToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
             this.lockunlockToolStripMenuItem.Text = "lock/unlock";
-            this.lockunlockToolStripMenuItem.Click += new System.EventHandler(this.lockunlockToolStripMenuItem_Click);
-            // 
-            // addLayer
-            // 
-            this.addLayer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.addLayer.Location = new System.Drawing.Point(132, 125);
-            this.addLayer.Name = "addLayer";
-            this.addLayer.Size = new System.Drawing.Size(23, 23);
-            this.addLayer.TabIndex = 7;
-            this.addLayer.Text = "+";
-            this.addLayer.UseVisualStyleBackColor = true;
-            this.addLayer.Click += new System.EventHandler(this.addLayer_Click);
-            // 
-            // layerList
-            // 
-            this.layerList.CheckBoxes = true;
-            this.layerList.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.layerList.Location = new System.Drawing.Point(0, 0);
-            this.layerList.MultiSelect = false;
-            this.layerList.Name = "layerList";
-            this.layerList.Size = new System.Drawing.Size(190, 150);
-            this.layerList.TabIndex = 6;
-            this.layerList.UseCompatibleStateImageBehavior = false;
-            this.layerList.View = System.Windows.Forms.View.SmallIcon;
-            // 
-            // componentDownBtn
-            // 
-            this.componentDownBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.componentDownBtn.Location = new System.Drawing.Point(161, 133);
-            this.componentDownBtn.Name = "componentDownBtn";
-            this.componentDownBtn.Size = new System.Drawing.Size(23, 23);
-            this.componentDownBtn.TabIndex = 13;
-            this.componentDownBtn.Text = "↓";
-            this.componentDownBtn.UseVisualStyleBackColor = true;
-            this.componentDownBtn.Click += new System.EventHandler(this.componentDownBtn_Click);
-            // 
-            // componentUpBtn
-            // 
-            this.componentUpBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.componentUpBtn.Location = new System.Drawing.Point(132, 133);
-            this.componentUpBtn.Name = "componentUpBtn";
-            this.componentUpBtn.Size = new System.Drawing.Size(23, 23);
-            this.componentUpBtn.TabIndex = 15;
-            this.componentUpBtn.Text = "↑";
-            this.componentUpBtn.UseVisualStyleBackColor = true;
-            this.componentUpBtn.Click += new System.EventHandler(this.componentUpBtn_Click);
             // 
             // splitContainer
             // 
@@ -361,24 +261,10 @@ namespace OneLevelJson
             // 
             // toolContainer1.Panel2
             // 
-            this.toolContainer1.Panel2.Controls.Add(this.componentDownBtn);
-            this.toolContainer1.Panel2.Controls.Add(this.componentUpBtn);
             this.toolContainer1.Panel2.Controls.Add(this.componentList);
             this.toolContainer1.Size = new System.Drawing.Size(190, 296);
             this.toolContainer1.SplitterDistance = 135;
             this.toolContainer1.TabIndex = 17;
-            // 
-            // selectedControl
-            // 
-            this.selectedControl.AutoSize = true;
-            this.selectedControl.BackColor = System.Drawing.SystemColors.ControlDark;
-            this.selectedControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.selectedControl.Font = new System.Drawing.Font("NanumGothic", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.selectedControl.Location = new System.Drawing.Point(0, 0);
-            this.selectedControl.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.selectedControl.Name = "selectedControl";
-            this.selectedControl.Size = new System.Drawing.Size(190, 135);
-            this.selectedControl.TabIndex = 17;
             // 
             // toolContainer2
             // 
@@ -393,8 +279,6 @@ namespace OneLevelJson
             // 
             // toolContainer2.Panel2
             // 
-            this.toolContainer2.Panel2.Controls.Add(this.addLayer);
-            this.toolContainer2.Panel2.Controls.Add(this.deleteLayer);
             this.toolContainer2.Panel2.Controls.Add(this.layerList);
             this.toolContainer2.Size = new System.Drawing.Size(190, 304);
             this.toolContainer2.SplitterDistance = 150;
@@ -405,28 +289,6 @@ namespace OneLevelJson
             this.directorySearcher1.ClientTimeout = System.TimeSpan.Parse("-00:00:01");
             this.directorySearcher1.ServerPageTimeLimit = System.TimeSpan.Parse("-00:00:01");
             this.directorySearcher1.ServerTimeLimit = System.TimeSpan.Parse("-00:00:01");
-            // 
-            // blackboard
-            // 
-            this.blackboard.AllowDrop = true;
-            this.blackboard.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.blackboard.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.blackboard.Location = new System.Drawing.Point(0, 55);
-            this.blackboard.Name = "blackboard";
-            this.blackboard.Size = new System.Drawing.Size(610, 604);
-            this.blackboard.TabIndex = 5;
-            // 
-            // titleBarControl1
-            // 
-            this.titleBarControl1.AutoSize = true;
-            this.titleBarControl1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.titleBarControl1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
-            this.titleBarControl1.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("titleBarControl1.BackgroundImage")));
-            this.titleBarControl1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.titleBarControl1.Location = new System.Drawing.Point(0, 0);
-            this.titleBarControl1.Name = "titleBarControl1";
-            this.titleBarControl1.Size = new System.Drawing.Size(800, 31);
-            this.titleBarControl1.TabIndex = 18;
             // 
             // assetContextMenu
             // 
@@ -441,6 +303,70 @@ namespace OneLevelJson
             this.removeToolStripMenuItem1.Size = new System.Drawing.Size(114, 22);
             this.removeToolStripMenuItem1.Text = "remove";
             this.removeToolStripMenuItem1.Click += new System.EventHandler(this.assetRemoveToolStripMenuItem1_Click);
+            // 
+            // assetList
+            // 
+            this.assetList.AllowDrop = true;
+            this.assetList.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.assetList.Location = new System.Drawing.Point(0, 0);
+            this.assetList.Name = "assetList";
+            this.assetList.Size = new System.Drawing.Size(190, 150);
+            this.assetList.SmallImageList = this.assetImageList;
+            this.assetList.TabIndex = 2;
+            this.assetList.UseCompatibleStateImageBehavior = false;
+            this.assetList.View = System.Windows.Forms.View.SmallIcon;
+            // 
+            // blackboard
+            // 
+            this.blackboard.AllowDrop = true;
+            this.blackboard.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.blackboard.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.blackboard.Location = new System.Drawing.Point(0, 55);
+            this.blackboard.Name = "blackboard";
+            this.blackboard.Size = new System.Drawing.Size(610, 604);
+            this.blackboard.TabIndex = 5;
+            // 
+            // selectedControl
+            // 
+            this.selectedControl.AutoSize = true;
+            this.selectedControl.BackColor = System.Drawing.SystemColors.ControlDark;
+            this.selectedControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.selectedControl.Font = new System.Drawing.Font("NanumGothic", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.selectedControl.Location = new System.Drawing.Point(0, 0);
+            this.selectedControl.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.selectedControl.Name = "selectedControl";
+            this.selectedControl.Size = new System.Drawing.Size(190, 135);
+            this.selectedControl.TabIndex = 17;
+            // 
+            // componentList
+            // 
+            this.componentList.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.componentList.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.componentList.Location = new System.Drawing.Point(0, 0);
+            this.componentList.Name = "componentList";
+            this.componentList.Size = new System.Drawing.Size(190, 157);
+            this.componentList.TabIndex = 20;
+            // 
+            // layerList
+            // 
+            this.layerList.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.layerList.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.layerList.Location = new System.Drawing.Point(0, 0);
+            this.layerList.Name = "layerList";
+            this.layerList.Size = new System.Drawing.Size(190, 150);
+            this.layerList.TabIndex = 19;
+            // 
+            // titleBarControl1
+            // 
+            this.titleBarControl1.AutoSize = true;
+            this.titleBarControl1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.titleBarControl1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
+            this.titleBarControl1.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("titleBarControl1.BackgroundImage")));
+            this.titleBarControl1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.titleBarControl1.Location = new System.Drawing.Point(0, 0);
+            this.titleBarControl1.Name = "titleBarControl1";
+            this.titleBarControl1.Size = new System.Drawing.Size(800, 31);
+            this.titleBarControl1.TabIndex = 18;
             // 
             // MainForm
             // 
@@ -490,10 +416,8 @@ namespace OneLevelJson
         private System.Windows.Forms.ToolStripMenuItem assetsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem importToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
-        private System.Windows.Forms.ListView assetList;
         private System.Windows.Forms.ImageList assetImageList;
         private System.Windows.Forms.OpenFileDialog imageImportDialog;
-        private System.Windows.Forms.ListView componentList;
         private OneLevelJson.Blackboard blackboard;
         private ToolStripMenuItem newToolStripMenuItem;
         private ContextMenuStrip componentContextMenu;
@@ -503,15 +427,8 @@ namespace OneLevelJson
         private OpenFileDialog openProjectDialog;
         private FolderBrowserDialog exportFolderBrowser;
         private ToolStripMenuItem tESTToolStripMenuItem;
-        private Button deleteLayer;
         private ContextMenuStrip layerContextMenu;
         private ToolStripMenuItem renameToolStripMenuItem1;
-        private Button addLayer;
-        private ListView layerList;
-        private ColumnHeader zindex;
-        private ColumnHeader id;
-        private Button componentDownBtn;
-        private Button componentUpBtn;
         private SplitContainer splitContainer;
         private SplitContainer toolContainer1;
         private SplitContainer toolContainer2;
@@ -521,6 +438,9 @@ namespace OneLevelJson
         private ToolStripMenuItem lockunlockToolStripMenuItem;
         private ContextMenuStrip assetContextMenu;
         private ToolStripMenuItem removeToolStripMenuItem1;
+        private CustomList.LayerListView layerList;
+        private ListView assetList;
+        private CustomList.ComponentListView componentList;
     }
 }
 

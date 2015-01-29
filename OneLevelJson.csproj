@@ -65,8 +65,40 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Command.cs" />
     <Compile Include="Composite.cs" />
     <Compile Include="CoordinateConverter.cs" />
+    <Compile Include="CustomList\AssetItem.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="CustomList\AssetListView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="CustomList\ComponentItem.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="CustomList\ComponentListView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="CustomList\CustomItem.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="CustomList\CustomItem.designer.cs">
+      <DependentUpon>CustomItem.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CustomList\CustomListView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="CustomList\CustomListView.designer.cs">
+      <DependentUpon>CustomListView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CustomList\LayerItem.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="CustomList\LayerListView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Extensions.cs" />
     <Compile Include="Model\Asset.cs" />
     <Compile Include="Blackboard.cs">
       <SubType>UserControl</SubType>
@@ -124,6 +156,21 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ContextRenameForm.resx">
       <DependentUpon>ContextRenameForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CustomList\ComponentListView.resx">
+      <DependentUpon>ComponentListView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CustomList\CustomItem.resx">
+      <DependentUpon>CustomItem.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CustomList\CustomListView.resx">
+      <DependentUpon>CustomListView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CustomList\LayerItem.resx">
+      <DependentUpon>LayerItem.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CustomList\LayerListView.resx">
+      <DependentUpon>LayerListView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
@@ -189,6 +236,30 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\package7.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\eye.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\locked.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\paleeye.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\paleunlocked.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\minus.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\plus.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\uparrow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\downarrow1.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
