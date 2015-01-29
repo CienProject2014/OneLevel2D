@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace OneLevelJson
+namespace OneLevel2D
 {
     static class Program
     {

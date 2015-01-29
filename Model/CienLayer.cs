@@ -1,4 +1,4 @@
-﻿namespace OneLevelJson.Model
+﻿namespace OneLevel2D.Model
 {
     public class CienLayer
     {

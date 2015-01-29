@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
-using OneLevelJson.Properties;
+using OneLevel2D.Properties;
 
-namespace OneLevelJson
+namespace OneLevel2D
 {
     public partial class TitleBarControl : UserControl
     {

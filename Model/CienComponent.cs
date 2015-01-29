@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 
-namespace OneLevelJson.Model
+namespace OneLevel2D.Model
 {
     abstract public class CienComponent : ICloneable
     {

@@ -1,12 +1,17 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace OneLevelJson
+namespace OneLevel2D
 {
     public abstract partial class CustomItem : UserControl, ICloneable
     {
         public bool IsSelected { get; protected set; }
+        private static readonly Color SelecteColor = Color.WhiteSmoke;
+        private static readonly Color EnterColor = Color.LightGray;
+        private static readonly Color LeaveColor = Color.Gray;
+        protected bool MultipleSelect;
 
         protected CustomItem(string name, Point location)
         {
@@ -27,16 +32,39 @@ namespace OneLevelJson
             Location = location;
         }
 
-        public void ShowSelected(Color color)
+        public void ItemSelect()
         {
-            if (IsSelected)
-                BackColor = color;
+            IsSelected = true;
+            ShowSelected();
         }
 
-        private void ShowUnSelected(Color color)
+        public void ItemUnselect()
+        {
+            IsSelected = false;
+            ShowEnter();
+        }
+
+        public void ShowSelected()
+        {
+            if (IsSelected)
+                BackColor = SelecteColor;
+        }
+
+        public void ShowEnter()
         {
             if (!IsSelected)
-                BackColor = color;
+            {
+                Debug.Print("no enter");
+                BackColor = EnterColor;
+            }
+        }
+
+        public void ShowLeave()
+        {
+            if (!IsSelected)
+            {
+                BackColor = LeaveColor;
+            }
         }
 
         protected abstract void ChangeItem(string text);
@@ -56,8 +84,6 @@ namespace OneLevelJson
             nameChangeBox.Visible = true;
             nameChangeBox.Focus();
             itemName.Visible = false;
-
-
         }
 
         private void itemName_MouseEnter(object sender, EventArgs e)
@@ -67,7 +93,7 @@ namespace OneLevelJson
 
         void itemName_MouseLeave(object sender, EventArgs e)
         {
-            ShowUnSelected(Color.DimGray);
+            ShowLeave();
         }
 
         void itemName_MouseUp(object sender, MouseEventArgs e)
@@ -100,29 +126,56 @@ namespace OneLevelJson
             }
         }
 
+        protected override bool IsInputKey(Keys keyData)
+        {
+            if (keyData == Keys.Control)
+            {
+                return true;
+            }
+            return base.IsInputKey(keyData);
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            if (e.Control)
+            {
+                MultipleSelect = true;
+            }
+        }
+
+        protected override void OnKeyUp(KeyEventArgs e)
+        {
+            if (MultipleSelect)
+                MultipleSelect = false;
+        }
+
         protected override void OnMouseEnter(EventArgs e)
         {
-            ShowUnSelected(Color.LightGray);
-            Parent.Focus();
+            ShowEnter();
+            // TODO Compoennt List View에 문제가 생기면 여기를 확인.
+            //Parent.Focus();
+            Focus();
         }
 
         protected override void OnMouseLeave(EventArgs e)
         {
-            ShowUnSelected(Color.Gray);
+            ShowLeave();
         }
 
         protected override void OnMouseDown(MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
             {
-                IsSelected = !IsSelected;
-                ShowSelected(Color.WhiteSmoke);
+                if (!IsSelected)
+                    ItemSelect();
+                else
+                    ItemUnselect();
             }
         }
 
         protected override void OnMouseUp(MouseEventArgs e)
         {
-            ShowUnSelected(Color.LightGray);
+            ShowEnter();
         }
 
 

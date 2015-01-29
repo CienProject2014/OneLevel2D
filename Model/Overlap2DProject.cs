@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 #pragma warning disable 169
 #pragma warning disable 649
 
-namespace OneLevelJson.Model
+namespace OneLevel2D.Model
 {
     class Overlap2DProject
     {

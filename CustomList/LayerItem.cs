@@ -1,10 +1,10 @@
 ﻿using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
-using OneLevelJson.Model;
-using OneLevelJson.Properties;
+using OneLevel2D.Model;
+using OneLevel2D.Properties;
 
-namespace OneLevelJson.CustomList
+namespace OneLevel2D.CustomList
 {
     public class LayerItem : CustomItem
     {
@@ -92,7 +92,7 @@ namespace OneLevelJson.CustomList
             // 
             this.lockBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.lockBox.BackColor = System.Drawing.Color.Transparent;
-            this.lockBox.BackgroundImage = global::OneLevelJson.Properties.Resources.paleunlocked;
+            this.lockBox.BackgroundImage = global::OneLevel2D.Properties.Resources.paleunlocked;
             this.lockBox.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.lockBox.Location = new System.Drawing.Point(203, 6);
             this.lockBox.Name = "lockBox";
@@ -104,7 +104,7 @@ namespace OneLevelJson.CustomList
             // 
             this.eyeBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.eyeBox.BackColor = System.Drawing.Color.Transparent;
-            this.eyeBox.BackgroundImage = global::OneLevelJson.Properties.Resources.paleeye;
+            this.eyeBox.BackgroundImage = global::OneLevel2D.Properties.Resources.paleeye;
             this.eyeBox.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.eyeBox.Location = new System.Drawing.Point(179, 6);
             this.eyeBox.Name = "eyeBox";

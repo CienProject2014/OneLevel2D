@@ -7,7 +7,7 @@ using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
 using Newtonsoft.Json;
 
-namespace OneLevelJson.Model
+namespace OneLevel2D.Model
 {
     public class CienComposite : CienComponent
     {

@@ -1,8 +1,8 @@
 ﻿using System.Drawing;
 using System.Windows.Forms;
-using OneLevelJson.Model;
+using OneLevel2D.Model;
 
-namespace OneLevelJson.CustomList
+namespace OneLevel2D.CustomList
 {
     public class ComponentItem : CustomItem
     {
@@ -20,7 +20,6 @@ namespace OneLevelJson.CustomList
             Invalidate();
         }
 
-
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
@@ -28,9 +27,23 @@ namespace OneLevelJson.CustomList
             if (e.Button == MouseButtons.Left)
             {
                 if (IsSelected)
-                    State.SelectComponent(Component);
+                {
+                    if (MultipleSelect)
+                    {
+                        ItemSelect();
+                        State.SelectComponent(Component);
+                    }
+                    else
+                    {
+                        ItemSelect();
+                        State.SelectOneComponent(Component);
+                    }
+                }
                 else
-                    State.UnSelectComponent(Component);    
+                {
+                    ItemUnselect();
+                    State.UnselectComponent(Component);
+                }
             }
         }
 

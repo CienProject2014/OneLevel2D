@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Windows.Navigation;
 
-namespace OneLevelJson.Model
+namespace OneLevel2D.Model
 {
     public class CienImage : CienComponent
     {

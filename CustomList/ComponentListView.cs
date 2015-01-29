@@ -7,9 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using OneLevelJson.Model;
+using OneLevel2D.Model;
 
-namespace OneLevelJson.CustomList
+namespace OneLevel2D.CustomList
 {
     public class ComponentListView : CustomListView
     {
@@ -35,15 +35,17 @@ namespace OneLevelJson.CustomList
             };
             AddItem(componentItem);
 
-            SortListDescending();
+            SortDescending();
         }
 
-        public void SortListDescending()
+        public void SortDescending()
         {
             var sorting = new List<ComponentItem>(items.Count);
             sorting.AddRange(items.Select(item => item as ComponentItem));
             // 내림차순 (component list)
             sorting.Sort((a, b) => b.Component.ZIndex.CompareTo(a.Component.ZIndex));
+
+            items.Clear();
             items = new List<CustomItem>(sorting);
 
             UpdateListPanel();
@@ -64,6 +66,22 @@ namespace OneLevelJson.CustomList
                 var component = State.Document.Components.Find(x => x.Id == item.Name);
                 if (component != null)
                     RemoveComponent(component);
+            }
+        }
+
+        public void SelectComponent(CienComponent component)
+        {
+            foreach (var componentItem in items.Cast<ComponentItem>().Where(componentItem => componentItem.Component.Id == component.Id))
+            {
+                SelectItem(componentItem);
+            }
+        }
+
+        public void UnselectComponent(CienComponent component)
+        {
+            foreach (var componentItem in items.Cast<ComponentItem>().Where(componentItem => componentItem.Component.Id == component.Id))
+            {
+                UnselectItem(componentItem);
             }
         }
 
@@ -138,7 +156,7 @@ namespace OneLevelJson.CustomList
             // 
             // downBox
             // 
-            this.downBox.BackgroundImage = global::OneLevelJson.Properties.Resources.downarrow1;
+            this.downBox.BackgroundImage = global::OneLevel2D.Properties.Resources.downarrow1;
             this.downBox.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.downBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.downBox.Location = new System.Drawing.Point(241, 3);
@@ -150,7 +168,7 @@ namespace OneLevelJson.CustomList
             // 
             // minusBox
             // 
-            this.minusBox.BackgroundImage = global::OneLevelJson.Properties.Resources.minus;
+            this.minusBox.BackgroundImage = global::OneLevel2D.Properties.Resources.minus;
             this.minusBox.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.minusBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.minusBox.Location = new System.Drawing.Point(261, 3);

@@ -7,8 +7,8 @@
     <ProjectGuid>{BCCA8A76-52E3-4653-923D-4E3139621FE3}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>OneLevelJson</RootNamespace>
-    <AssemblyName>OneLevelJson</AssemblyName>
+    <RootNamespace>OneLevel2D</RootNamespace>
+    <AssemblyName>OneLevel2D</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

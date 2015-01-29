@@ -5,10 +5,10 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Documents;
 using System.Windows.Forms;
-using OneLevelJson.CustomList;
-using OneLevelJson.Model;
+using OneLevel2D.CustomList;
+using OneLevel2D.Model;
 
-namespace OneLevelJson
+namespace OneLevel2D
 {
     public partial class CustomListView : UserControl
     {
@@ -126,6 +126,29 @@ namespace OneLevelJson
         }
         #endregion
 
+        protected void SelectItem(CustomItem item)
+        {
+            item.ItemSelect();
+            item.ShowSelected();
+
+            listPanel.ScrollControlIntoView(item);
+        }
+
+        protected void UnselectItem(CustomItem item)
+        {
+            item.ItemUnselect();
+            item.ShowLeave();
+        }
+
+        public void UnselectAll()
+        {
+            var selected = items.FindAll(x => x.IsSelected);
+            foreach (var item in selected)
+            {
+                UnselectItem(item);
+            }
+        }
+
         protected void UpdateListPanel()
         {
             listPanel.Controls.Clear();
@@ -133,6 +156,7 @@ namespace OneLevelJson
             {
                 listPanel.Controls.Add(item);
             }
+            listPanel.Invalidate();
         }
 
         protected int GetY()
@@ -140,7 +164,7 @@ namespace OneLevelJson
             return CustomItem.ItemHeight*GetNumber();
         }
 
-        public int GetNumber()
+        protected int GetNumber()
         {
             return items.Count;
         }
