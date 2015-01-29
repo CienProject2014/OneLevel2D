@@ -6,7 +6,7 @@ using System.Windows.Forms;
 using System.Windows.Navigation;
 using Newtonsoft.Json;
 
-namespace OneLevelJson.Model
+namespace OneLevel2D.Model
 {
     public class CienDocument
     {

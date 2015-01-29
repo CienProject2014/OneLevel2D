@@ -1,6 +1,6 @@
 ﻿using System.Windows.Forms;
 
-namespace OneLevelJson
+namespace OneLevel2D
 {
     partial class MainForm
     {
@@ -61,11 +61,11 @@ namespace OneLevelJson
             this.assetContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.removeToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.assetList = new System.Windows.Forms.ListView();
-            this.blackboard = new OneLevelJson.Blackboard();
-            this.selectedControl = new OneLevelJson.SelectedControl();
-            this.componentList = new OneLevelJson.CustomList.ComponentListView();
-            this.layerList = new OneLevelJson.CustomList.LayerListView();
-            this.titleBarControl1 = new OneLevelJson.TitleBarControl();
+            this.blackboard = new OneLevel2D.Blackboard();
+            this.selectedControl = new OneLevel2D.SelectedControl();
+            this.componentList = new OneLevel2D.CustomList.ComponentListView();
+            this.layerList = new OneLevel2D.CustomList.LayerListView();
+            this.titleBarControl1 = new OneLevel2D.TitleBarControl();
             this.menuStrip.SuspendLayout();
             this.componentContextMenu.SuspendLayout();
             this.layerContextMenu.SuspendLayout();
@@ -418,7 +418,7 @@ namespace OneLevelJson
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ImageList assetImageList;
         private System.Windows.Forms.OpenFileDialog imageImportDialog;
-        private OneLevelJson.Blackboard blackboard;
+        private OneLevel2D.Blackboard blackboard;
         private ToolStripMenuItem newToolStripMenuItem;
         private ContextMenuStrip componentContextMenu;
         private ToolStripMenuItem renameToolStripMenuItem;

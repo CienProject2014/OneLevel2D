@@ -1,4 +1,4 @@
-﻿namespace OneLevelJson
+﻿namespace OneLevel2D
 {
     partial class TitleBarControl
     {
@@ -42,7 +42,7 @@
             // closeBox
             // 
             this.closeBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.closeBox.BackgroundImage = global::OneLevelJson.Properties.Resources.xbutton;
+            this.closeBox.BackgroundImage = global::OneLevel2D.Properties.Resources.xbutton;
             this.closeBox.Location = new System.Drawing.Point(403, 0);
             this.closeBox.Name = "closeBox";
             this.closeBox.Size = new System.Drawing.Size(34, 28);
@@ -52,7 +52,7 @@
             // minimizeBox
             // 
             this.minimizeBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.minimizeBox.BackgroundImage = global::OneLevelJson.Properties.Resources.minimizebutton;
+            this.minimizeBox.BackgroundImage = global::OneLevel2D.Properties.Resources.minimizebutton;
             this.minimizeBox.Location = new System.Drawing.Point(335, 0);
             this.minimizeBox.Name = "minimizeBox";
             this.minimizeBox.Size = new System.Drawing.Size(34, 28);
@@ -62,7 +62,7 @@
             // maximizeBox
             // 
             this.maximizeBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.maximizeBox.BackgroundImage = global::OneLevelJson.Properties.Resources.maximizebutton;
+            this.maximizeBox.BackgroundImage = global::OneLevel2D.Properties.Resources.maximizebutton;
             this.maximizeBox.Location = new System.Drawing.Point(369, 0);
             this.maximizeBox.Name = "maximizeBox";
             this.maximizeBox.Size = new System.Drawing.Size(34, 28);
@@ -72,7 +72,7 @@
             // titleLogo
             // 
             this.titleLogo.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(48)))));
-            this.titleLogo.Image = global::OneLevelJson.Properties.Resources.package7;
+            this.titleLogo.Image = global::OneLevel2D.Properties.Resources.package7;
             this.titleLogo.Location = new System.Drawing.Point(12, 8);
             this.titleLogo.Name = "titleLogo";
             this.titleLogo.Size = new System.Drawing.Size(20, 20);
@@ -98,7 +98,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.BackgroundImage = global::OneLevelJson.Properties.Resources.background;
+            this.BackgroundImage = global::OneLevel2D.Properties.Resources.background;
             this.Controls.Add(this.titleLabel);
             this.Controls.Add(this.titleLogo);
             this.Controls.Add(this.maximizeBox);

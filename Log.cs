@@ -2,7 +2,7 @@
 using System.IO;
 using System.Windows.Forms;
 
-namespace OneLevelJson
+namespace OneLevel2D
 {
     public class Log
     {
@@ -10,7 +10,7 @@ namespace OneLevelJson
 
         public Log()
         {
-            _filePath = @"C:\Users\HAJIN\Documents\Visual Studio 2013\Projects\OneLevelJson\bin\Debug\Logs\" + "[" + DateTime.Now.ToString("HH-mm-ss") + "]" + ".log";
+            _filePath = @"C:\Users\HAJIN\Documents\Visual Studio 2013\Projects\OneLevel2D\bin\Debug\Logs\" + "[" + DateTime.Now.ToString("HH-mm-ss") + "]" + ".log";
 
             try
             {

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
 
-namespace OneLevelJson
+namespace OneLevel2D
 {
     class Composite
     {

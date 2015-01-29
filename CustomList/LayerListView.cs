@@ -3,9 +3,9 @@ using System.Drawing;
 using System.Runtime.Versioning;
 using System.Security.Cryptography.X509Certificates;
 using System.Windows.Forms;
-using OneLevelJson.Model;
+using OneLevel2D.Model;
 
-namespace OneLevelJson.CustomList
+namespace OneLevel2D.CustomList
 {
     public class LayerListView : CustomListView
     {
@@ -101,7 +101,7 @@ namespace OneLevelJson.CustomList
             // 
             // plusBox
             // 
-            this.plusBox.BackgroundImage = global::OneLevelJson.Properties.Resources.plus;
+            this.plusBox.BackgroundImage = global::OneLevel2D.Properties.Resources.plus;
             this.plusBox.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.plusBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.plusBox.Location = new System.Drawing.Point(241, 3);
@@ -113,7 +113,7 @@ namespace OneLevelJson.CustomList
             // 
             // minusBox
             // 
-            this.minusBox.BackgroundImage = global::OneLevelJson.Properties.Resources.minus;
+            this.minusBox.BackgroundImage = global::OneLevel2D.Properties.Resources.minus;
             this.minusBox.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.minusBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.minusBox.Location = new System.Drawing.Point(261, 3);

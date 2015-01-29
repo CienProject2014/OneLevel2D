@@ -4,10 +4,10 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
-using OneLevelJson.Annotations;
-using OneLevelJson.Model;
+using OneLevel2D.Annotations;
+using OneLevel2D.Model;
 
-namespace OneLevelJson
+namespace OneLevel2D
 {
     public partial class Blackboard : UserControl
     {
@@ -163,7 +163,7 @@ namespace OneLevelJson
                     }
 
                     var candidate = selectables.Find(x => x.ZIndex == selectables.Max(y => y.ZIndex));
-                    State.SelectComponent(candidate);
+                    State.SelectOneComponent(candidate);
 
                     State.CommandMoveStart(e.Location);
 
@@ -310,10 +310,10 @@ namespace OneLevelJson
         private void UpdateBlackboardContextMenu(List<CienComponent> componentList)
         {
             blackboardContextMenu.Items.Clear();
-            if (componentList.Count != 0)
+/*            if (componentList.Count != 0)
             {
                 blackboardContextMenu.Items.Add(ConvertToButton);
-            }
+            }*/
 
             foreach (var component in componentList)
             {

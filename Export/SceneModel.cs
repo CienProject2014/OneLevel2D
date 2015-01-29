@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace OneLevelJson.Export
+namespace OneLevel2D.Export
 {
     public class SceneModel
     {

@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 
-namespace OneLevelJson
+namespace OneLevel2D
 {
     static class CoordinateConverter
     {

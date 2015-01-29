@@ -48,9 +48,9 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using OneLevelJson.Model;
+using OneLevel2D.Model;
 
-namespace OneLevelJson.TexturePacker
+namespace OneLevel2D.TexturePacker
 {
     public class Packer
     {

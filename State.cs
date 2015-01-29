@@ -5,11 +5,11 @@ using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Forms;
-using OneLevelJson.Annotations;
-using OneLevelJson.CustomList;
-using OneLevelJson.Model;
+using OneLevel2D.Annotations;
+using OneLevel2D.CustomList;
+using OneLevel2D.Model;
 
-namespace OneLevelJson
+namespace OneLevel2D
 {
     static class State
     {
@@ -40,13 +40,25 @@ namespace OneLevelJson
         {
             _selected.Component = component;
 
-            if (!_selected.ComponentList.Contains(component))
+            if (!_selected.ComponentList.Contains(component) && component != CienComponent.Empty)
                 _selected.ComponentList.Add(component);
+
+            ComponentListView.SelectComponent(_selected.Component);
+            Board.Invalidate();
         }
 
-        public static void UnSelectComponent(CienComponent component)
+        public static void SelectOneComponent(CienComponent component)
+        {
+            SelectAbandon();
+            SelectComponent(component);
+        }
+
+        public static void UnselectComponent(CienComponent component)
         {
             _selected.ComponentList.Remove(component);
+
+            if (_selected.Component.Id == component.Id)
+                ComponentListView.UnselectComponent(_selected.Component);
         }
 
         public static void SelectLayer(CienLayer layer)
@@ -58,6 +70,8 @@ namespace OneLevelJson
         {
             SelectComponent(CienComponent.Empty);
             _selected.ComponentList.Clear();
+
+            ComponentListView.UnselectAll();
         }
 
         public static bool IsComponentSelected()

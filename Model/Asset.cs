@@ -3,7 +3,7 @@ using System.Windows.Forms;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace OneLevelJson.Model
+namespace OneLevel2D.Model
 {
     public enum AssetType
     {

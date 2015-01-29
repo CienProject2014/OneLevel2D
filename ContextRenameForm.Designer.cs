@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Windows.Forms;
 
-namespace OneLevelJson
+namespace OneLevel2D
 {
     partial class ContextRenameForm
     {
