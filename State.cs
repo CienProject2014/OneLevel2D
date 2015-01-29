@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -14,12 +15,12 @@ namespace OneLevel2D
     static class State
     {
         /************************************************************************/
-        public static ComponentListView ComponentListView;
-        /************************************************************************/
-
+        public static ComponentListView ComponentView;
         public static CienDocument Document;
         public static Blackboard Board;
-        public static CienComponent CopiedComponent;
+        /************************************************************************/
+        
+        public static List<CienComponent> CopiedComponentList;
         public static SelectedNotifier _selected = new SelectedNotifier();
         public static SelectedNotifier Selected
         {
@@ -33,9 +34,23 @@ namespace OneLevel2D
 
         public static void SetComponentListView(ComponentListView clv)
         {
-            ComponentListView = clv;
+            ComponentView = clv;
         }
 
+        #region Component Control
+        // from document and view
+        public static void RemoveSelectedComponent()
+        {
+            foreach (var component in _selected.ComponentList)
+            {
+                Document.RemoveComponent(component.Id);
+                ComponentView.RemoveComponent(component);
+            }
+        }
+
+        #endregion
+
+        #region Select
         public static void SelectComponent(CienComponent component)
         {
             _selected.Component = component;
@@ -43,7 +58,7 @@ namespace OneLevel2D
             if (!_selected.ComponentList.Contains(component) && component != CienComponent.Empty)
                 _selected.ComponentList.Add(component);
 
-            ComponentListView.SelectComponent(_selected.Component);
+            ComponentView.SelectComponent(_selected.Component);
             Board.Invalidate();
         }
 
@@ -58,7 +73,7 @@ namespace OneLevel2D
             _selected.ComponentList.Remove(component);
 
             if (_selected.Component.Id == component.Id)
-                ComponentListView.UnselectComponent(_selected.Component);
+                ComponentView.UnselectComponent(_selected.Component);
         }
 
         public static void SelectLayer(CienLayer layer)
@@ -71,13 +86,14 @@ namespace OneLevel2D
             SelectComponent(CienComponent.Empty);
             _selected.ComponentList.Clear();
 
-            ComponentListView.UnselectAll();
+            ComponentView.UnselectAll();
         }
 
         public static bool IsComponentSelected()
         {
-            if (_selected.Component == null) _selected.Component = CienComponent.Empty;
-            return !_selected.Component.Equals(CienComponent.Empty);
+            /*if (_selected.Component == null) _selected.Component = CienComponent.Empty;
+            return !_selected.Component.Equals(CienComponent.Empty);*/
+            return _selected.ComponentList.Count != 0;
         }
 
         public static bool IsLayerSelected()
@@ -85,47 +101,151 @@ namespace OneLevel2D
             if (_selected.Layer == null) _selected.Layer = CienLayer.Empty;
             return !_selected.Layer.Equals(CienLayer.Empty);
         }
+        #endregion
 
-        #region Commands
-        public static Stack<Command> Commands = new Stack<Command>();
-        public static Command LastCommand;
-        public static CienComponent LastComponent;
+        #region Command
+
+        public static void Copy()
+        {
+            if (_selected.ComponentList.Count == 0) return;
+
+            CopiedComponentList = new List<CienComponent>(_selected.ComponentList.Count);
+            _selected.ComponentList.ForEach((item) =>
+            {
+                CopiedComponentList.Add((CienComponent)item.Clone());
+            });
+        }
+
+        public static void Paste()
+        {
+            if (CopiedComponentList.Count == 0) return;
+
+            foreach (var component in CopiedComponentList)
+            {
+                var newComponent = (CienComponent)component.Clone();
+                newComponent.SetZindex(Document.GetNewZindex());
+                Document.AddComponent(newComponent);
+                ComponentView.AddComponent(newComponent);
+            }
+        }
+
+        #endregion
+
+        #region Command Class
+        public static readonly Stack<Command> Commands = new Stack<Command>();
+        public static readonly Stack<Command> RevertedCommands = new Stack<Command>();
+        private static Command _lastCommand;
 
         public static void CommandMoveStart(Point startPoint)
         {
-            var command = new MoveCommand();
+            var command = new MoveCommand(Command.MOVE, _selected.ComponentList);
 
             command.StartPoint = startPoint;
-
-            LastCommand = command;
-
-            LastComponent = _selected.Component;
+            _lastCommand = command;
         }
 
         public static void CommandMoveEnd(Point endPoint)
         {
-            if (LastCommand == null) return;
+            if (_lastCommand == null) return;
 
-            var command = (MoveCommand)LastCommand;
-
+            var command = (MoveCommand)_lastCommand;
             command.EndPoint = endPoint;
 
-            LastCommand = command;
+            if (!command.IsMoved())
+            {
+                _lastCommand = null;
+                return;
+            }
 
-            Commands.Push(LastCommand);
-            LastCommand = null;
+            _lastCommand = command;
+            Commands.Push(_lastCommand);
+            _lastCommand = null;
+        }
+
+        public static void CommandAddComponent(List<CienComponent> components)
+        {
+            var command = new AddCommand(Command.ADD, components);
+
+            Commands.Push(command);
+        }
+
+        public static void CommandRemoveComponent(List<CienComponent> components)
+        {
+            var command = new RemoveCommand(Command.REMOVE, components);
+
+            Commands.Push(command);
+        }
+
+        private static void DoCommand(Command command)
+        {
+            switch (command.Name)
+            {
+                case Command.MOVE:
+                    var moveCommand = (MoveCommand)command;
+                    var offset = (Size)moveCommand.EndPoint - (Size)moveCommand.StartPoint;
+
+                    foreach (var component in moveCommand.ComponentList)
+                    {
+                        component.SetLocation(component.Location + offset);
+                    }
+
+                    break;
+                case Command.ADD:
+
+                    break;
+                case Command.REMOVE:
+                    var removeCommand = (RemoveCommand)command;
+                    foreach (var component in removeCommand.ComponentList)
+                    {
+                        Document.RemoveComponent(component.Id);
+                        ComponentView.RemoveComponent(component);
+                    }
+                    break;
+            }
+        }
+
+        private static void DoReverse(Command command)
+        {
+            switch (command.Name)
+            {
+                case Command.MOVE:
+                    var moveCommand = (MoveCommand)command;
+                    var offset = (Size)moveCommand.EndPoint - (Size)moveCommand.StartPoint;
+
+                    foreach (var component in moveCommand.ComponentList)
+                    {
+                        component.SetLocation(component.Location - offset);
+                    }
+
+                    break;
+                case Command.ADD:
+                    var addCommand = (AddCommand)command;
+                    foreach (var component in addCommand.ComponentList)
+                    {
+                        Document.RemoveComponent(component.Id);
+                        ComponentView.RemoveComponent(component);
+                    }
+                    break;
+                case Command.REMOVE:
+                    
+                    break;
+            }
         }
 
         public static void ReverseLastCommand()
         {
             var command = Commands.Pop();
-            if (command is MoveCommand)
-            {
-                var moveCommand = (MoveCommand)command;
-                var offset = (Size)moveCommand.EndPoint - (Size)moveCommand.StartPoint;
-                LastComponent.SetLocation(LastComponent.Location - offset);
-            }
+            DoReverse(command);
+            RevertedCommands.Push(command);
         }
+
+        public static void ReverseLastReverse()
+        {
+            var command = RevertedCommands.Pop();
+            DoCommand(command);
+            Commands.Push(command);
+        }
+
         #endregion
 
     }
@@ -159,13 +279,17 @@ namespace OneLevel2D
 
         public void Move(Point offset)
         {
-            Component.SetLocation(Component.Location + (Size)offset);
-            NotifyPropertyChanged();
-        }
-
-        public void Move(int dx, int dy)
-        {
-            Component.SetLocation(Component.Location + new Size(dx, dy));
+            if (ComponentList.Count != 1)
+            {
+                foreach (var component in ComponentList)
+                {
+                    component.SetLocation(component.Location + (Size)offset);
+                }
+            }
+            else
+            {
+                Component.SetLocation(Component.Location + (Size)offset);
+            }
             NotifyPropertyChanged();
         }
 
