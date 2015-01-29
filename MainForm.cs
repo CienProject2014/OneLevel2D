@@ -575,7 +575,7 @@ namespace OneLevel2D
                 dx *= 10;
                 dy *= 10;
             }
-            if (State.IsComponentSelected()) State.Selected.Move(dx, dy);
+            if (State.IsComponentSelected()) State.Selected.Move(new Point(dx, dy));
 
 
             if (e.Control)

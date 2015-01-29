@@ -11,6 +11,33 @@ namespace OneLevel2D
 {
     public partial class Blackboard : UserControl
     {
+        /* Variables ************************************************************/
+        public Point[] RectanglePoints { get; private set; }
+
+        public Point CursorPosition { get; private set; }
+        public Point ClickedPoint { get; private set; }
+        public Point PreviousPoint { get; private set; }
+
+        public Matrix ViewMatrix { get; private set; }
+        public int TranslateX { get; private set; }
+        public int TranslateY { get; private set; }
+
+        private float _zoom = 1.0f;
+        private float _zoomFiled = 1.0f;
+
+        public bool MultipleSelect { get; set; }
+
+        public static readonly Size LeftTopOffset = new Size(50, 50);
+        private readonly Color BoundaryColor = Color.FromArgb(96, 96, 102);
+        private const float ScaleFactor = 0.08f;
+        private const float MinimumZoom = 0.2f;
+        private const float MaximumZoom = 2.5f;
+        private const int BorderOffset = 0;
+
+        private const string ConvertToButton = "Convert to button";
+        /************************************************************************/
+
+
         public Blackboard()
         {
             InitializeComponent();
@@ -163,7 +190,10 @@ namespace OneLevel2D
                     }
 
                     var candidate = selectables.Find(x => x.ZIndex == selectables.Max(y => y.ZIndex));
-                    State.SelectOneComponent(candidate);
+                    if (MultipleSelect)
+                        State.SelectComponent(candidate);
+                    else
+                        State.SelectOneComponent(candidate);
 
                     State.CommandMoveStart(e.Location);
 
@@ -244,6 +274,8 @@ namespace OneLevel2D
                 case Keys.Shift | Keys.Up:
                 case Keys.Shift | Keys.Down:
                     return true;
+                case Keys.Control:
+                    return true;
             }
             return base.IsInputKey(keyData);
         }
@@ -252,8 +284,16 @@ namespace OneLevel2D
         {
             base.OnKeyDown(e);
 
+            if (e.Control) MultipleSelect = true;
+
             Invalidate();
         }
+
+        protected override void OnKeyUp(KeyEventArgs e)
+        {
+            if (MultipleSelect) MultipleSelect = false;
+        }
+
         #endregion
 
         /************************************************************************/
@@ -339,29 +379,6 @@ namespace OneLevel2D
         }
         #endregion
 
-        /* Variables ************************************************************/
-        public Point[] RectanglePoints { get; private set; }
-
-        public Point CursorPosition { get; private set; }
-        public Point ClickedPoint { get; private set; }
-        public Point PreviousPoint { get; private set; }
-
-        public Matrix ViewMatrix { get; private set; }
-        public int TranslateX { get; private set; }
-        public int TranslateY { get; private set; }
-
-        private float _zoom = 1.0f;
-        private float _zoomFiled = 1.0f;
-
-        public static readonly Size LeftTopOffset = new Size(50, 50);
-        private readonly Color BoundaryColor = Color.FromArgb(96, 96, 102);
-        private const float ScaleFactor = 0.08f;
-        private const float MinimumZoom = 0.2f;
-        private const float MaximumZoom = 2.5f;
-        private const int BorderOffset = 0;
-
-        private const string ConvertToButton = "Convert to button";
-        /************************************************************************/
 
     }
 }

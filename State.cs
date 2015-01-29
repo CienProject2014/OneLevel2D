@@ -159,13 +159,17 @@ namespace OneLevel2D
 
         public void Move(Point offset)
         {
-            Component.SetLocation(Component.Location + (Size)offset);
-            NotifyPropertyChanged();
-        }
-
-        public void Move(int dx, int dy)
-        {
-            Component.SetLocation(Component.Location + new Size(dx, dy));
+            if (ComponentList.Count != 1)
+            {
+                foreach (var component in ComponentList)
+                {
+                    component.SetLocation(component.Location + (Size)offset);
+                }
+            }
+            else
+            {
+                Component.SetLocation(Component.Location + (Size)offset);
+            }
             NotifyPropertyChanged();
         }
 
