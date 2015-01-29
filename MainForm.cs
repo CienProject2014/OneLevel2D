@@ -16,9 +16,6 @@ namespace OneLevel2D
 {
     public partial class MainForm : Form
     {
-        /************************************************************************/
-        /* Variables															*/
-        /************************************************************************/
         public const string ProgramName = "OneLevel2D";
         public const string ProjectExtension = "cien";
         public const string AssetDirectory = @"\assets";
@@ -57,7 +54,7 @@ namespace OneLevel2D
             ReloadComponentList();
             ReloadLayerList();
 
-            ReloadBlackboard();
+            State.Board.Invalidate();
 
             CienComponent.Number = 0;
 
@@ -81,61 +78,35 @@ namespace OneLevel2D
             blackboard.KeyDown += blackboard_KeyDown;
         }
 
-        void assetList_MouseDown(object sender, MouseEventArgs e)
-        {
-            switch (e.Button)
-            {
-                case MouseButtons.Right:
-                    ListViewHitTestInfo hitTestInfo = assetList.HitTest(e.X, e.Y);
-                    if (hitTestInfo.Item == null) return;
-                    assetContextMenu.Show(this, GetClickedToolPosition(assetList, e.Location));
-                    break;
-            }
-        }
-
-        private void layerList_ItemChecked(object sender, ItemCheckedEventArgs e)
-        {
-            //MessageBox.Show(e.Item.Checked.ToString());
-
-            if (State.Document == null) return;
-
-            CienLayer selectedLayer = State.Document.Layers.Find(x => x.Name == e.Item.Text);
-            //if (selectedLayer != null) selectedLayer.SetVisible(e.Item.Checked);
-
-            blackboard.Invalidate();
-        }
-
         #region Command
 
         private void CutComponent()
         {
             if (!State.IsComponentSelected()) return;
 
-            State.CopiedComponent = (CienComponent) State.Selected.Component.Clone();
-            componentList.RemoveComponent(State.Selected.Component);
+            State.Copy();
+            State.RemoveSelectedComponent();
+
             State.SelectAbandon();
 
-            ReloadComponentList();
+            State.Board.Invalidate();
+
+            ReloadComponentList();  // Troll, 나중에 확인.
         }
 
         private void CopyComponent()
         {
             if (!State.IsComponentSelected()) return;
 
-            State.CopiedComponent = (CienComponent) State.Selected.Component.Clone();
+            State.Copy();
         }
 
         private void PasteComponent()
         {
-            if (State.CopiedComponent == null) return;
+            if (State.CopiedComponentList == null) return;
 
-            var newComponent = (CienComponent) State.CopiedComponent.Clone();
             // TODO 기존의 zIndex 들을 검사해서 비어있으면 숫자들을 당겨줘야 한다.
-            newComponent.SetZindex(State.Document.GetNewZindex());
-
-            State.Document.AddComponent(newComponent);
-
-            componentList.AddComponent(newComponent);
+            State.Paste();
         }
 
         private void UnDo()
@@ -143,7 +114,17 @@ namespace OneLevel2D
             if (State.Commands.Count == 0) return;
 
             State.ReverseLastCommand();
-            blackboard.Invalidate();
+
+            State.Board.Invalidate();
+        }
+
+        private void ReDo()
+        {
+            if (State.RevertedCommands.Count == 0) return;
+
+            State.ReverseLastReverse();
+
+            State.Board.Invalidate();
         }
 
         #endregion
@@ -153,8 +134,8 @@ namespace OneLevel2D
         private void NewDocument(string name, int width, int height)
         {
             State.Document = new CienDocument(name, width, height);
-            blackboard.SetDocument(State.Document);
-            blackboard.Invalidate();
+            State.Board.SetDocument(State.Document);
+            State.Board.Invalidate();
             InitDocument();
         }
 
@@ -252,9 +233,9 @@ namespace OneLevel2D
             {
                 string name = items[i].Text;
                 Size offset = new Size(15 * i, 15 * i);
-                Point transformedLocation = blackboard.PointTransform(location);
+                Point transformedLocation = State.Board.PointTransform(location);
                 State.Document.NewComponent(name, transformedLocation + offset);
-                componentList.AddComponent(State.Document.Components.Last());
+                State.ComponentView.AddComponent(State.Document.Components.Last());
             }
 
             State.Document.SortComponentsAscending();
@@ -353,17 +334,16 @@ namespace OneLevel2D
 
         private void ReloadComponentList()
         {
-            componentList.Clear();
+            State.ComponentView.Clear();
 
-            State.Document.SortComponentsAscending(); 
+            State.Document.SortComponentsAscending();
             for (int i = State.Document.Components.Count - 1; i >= 0; i--)
             {
                 var component = State.Document.Components[i];
-                componentList.AddComponent(component);
+                State.ComponentView.AddComponent(component);
             }
 
-            componentList.Invalidate();
-            blackboard.Invalidate();
+            State.Board.Invalidate();
         }
 
         private void ReloadLayerList()
@@ -373,11 +353,6 @@ namespace OneLevel2D
             {
                 layerList.AddLayer(layer);
             }
-        }
-
-        private void ReloadBlackboard()
-        {
-            blackboard.Invalidate();
         }
 
         #endregion
@@ -410,108 +385,20 @@ namespace OneLevel2D
                 }
             }
             ReloadComponentList();
-            blackboard.Invalidate();
+            State.Board.Invalidate();
         }
 
-        #endregion
-
-        #region Componet List
-
-        /* private void componentList_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (componentList.SelectedItems.Count != 0)
-            {
-                string selectedId = componentList.SelectedItems[0].Text;
-                State.SelectComponent(State.Document.Components.Find(x => x.Id == selectedId));
-            }
-            blackboard.Invalidate();
-        }
-
-        private void componentList_MouseDown(object sender, MouseEventArgs e)
+        void assetList_MouseDown(object sender, MouseEventArgs e)
         {
             switch (e.Button)
             {
                 case MouseButtons.Right:
-                    ListViewHitTestInfo hitTestInfo = componentList.HitTest(e.X, e.Y);
+                    ListViewHitTestInfo hitTestInfo = assetList.HitTest(e.X, e.Y);
                     if (hitTestInfo.Item == null) return;
-                    if (componentList.SelectedIndices.Count > 1)
-                    {
-                        componentContextMenu.Items[0].Enabled = false;
-                    }
-                    componentContextMenu.Show(this, GetClickedToolPosition(componentList, e.Location));
+                    assetContextMenu.Show(this, GetClickedToolPosition(assetList, e.Location));
                     break;
             }
         }
-
-        private void conponentRemoveToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (componentList.SelectedItems.Count > 0)
-            {
-                for (int i = componentList.SelectedItems.Count - 1; i >= 0; i--)
-                {
-                    ListViewItem item = componentList.SelectedItems[i];
-                    componentList.Items[item.Index].Remove();
-                    State.Document.RemoveComponent(item.SubItems[0].Text);
-                }
-            }
-            blackboard.Invalidate();
-        }
-
-         */
-
-        #endregion
-
-        #region Layer List
-
-        private void addLayer_Click(object sender, EventArgs e)
-        {
-            State.Document.Layers.Add(new Layer("layer" + State.Document.Layers.Count, true, false));
-            ReloadLayerList();
-        }
-        // TODO LayerList 수정
-        /*
-        private void layerList_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (layerList.SelectedItems.Count == 1)
-            {
-                State.SelectLayer(State.Document.Layers.Find(x => x.Name == layerList.SelectedItems[0].Text));
-            }
-        }
-
-        private void layerList_MouseDown(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Right)
-            {
-                ListViewHitTestInfo hitTestInfo = layerList.HitTest(e.X, e.Y);
-                if (hitTestInfo.Item == null) return;
-
-                layerContextMenu.Show(this, GetClickedToolPosition(layerList, e.Location));
-            }
-        }
-
-        private void layerRenameToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ContextRenameForm renameForm = new ContextRenameForm();
-            if (renameForm.ShowDialog() == DialogResult.OK)
-            {
-                foreach (ListViewItem selectedItem in layerList.SelectedItems)
-                {
-                    string selectedId = selectedItem.Text;
-                    string newId = renameForm.Result;
-                    State.Document.RenameLayer(selectedId, newId);
-                }
-            }
-            ReloadLayerList();
-        }
-
-        private void lockunlockToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (layerList.SelectedItems.Count == 1)
-            {
-                var selectedLayer = State.Document.Layers.Find(x => x.Name == layerList.SelectedItems[0].Text);
-                selectedLayer.LockToggle();
-            }
-        }*/
 
         #endregion
 
@@ -535,13 +422,10 @@ namespace OneLevel2D
 
             if (items == null) return;
 
-            // TODO picBox 임시로 삭제
-            //picBox.Image = MakeImageFrom(items[0].Text); // 미리보기 이미지 설정
-
-            Point location = PointToClient(new Point(e.X, e.Y) - (Size)blackboard.Location);
+            Point location = PointToClient(new Point(e.X, e.Y) - (Size)State.Board.Location);
 
             AddNewComponent(items, location);
-            blackboard.Invalidate();
+            State.Board.Invalidate();
         }
 
         private void blackboard_KeyDown(object sender, KeyEventArgs e)
@@ -594,9 +478,12 @@ namespace OneLevel2D
                     case Keys.Z:
                         UnDo();
                         break;
+                    case Keys.Y:
+                        ReDo();
+                        break;
                 }
             }
-            blackboard.Invalidate();
+            State.Board.Invalidate();
         }
 
         #endregion

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
@@ -190,8 +191,12 @@ namespace OneLevel2D
                     }
 
                     var candidate = selectables.Find(x => x.ZIndex == selectables.Max(y => y.ZIndex));
+
                     if (MultipleSelect)
+                    {
                         State.SelectComponent(candidate);
+                        Debug.Print("multiple");
+                    }
                     else
                         State.SelectOneComponent(candidate);
 

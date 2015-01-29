@@ -63,13 +63,15 @@ namespace OneLevel2D
         #endregion
 
         #region Remove Item
-        public void RemoveItem(string name)
+
+        protected void RemoveItem(string name)
         {
             var removable = items.Find(x => x.Name == name);
             if (removable != null)
                 RemoveItem(removable);
         }
-        public void RemoveItem(CustomItem item)
+
+        protected void RemoveItem(CustomItem item)
         {
             items.Remove(item);
             var removable = listPanel.Controls.Find(item.Name, false);

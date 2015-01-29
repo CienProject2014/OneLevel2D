@@ -123,8 +123,11 @@ namespace OneLevel2D.Model
         {
             Asset asset = Assets.Find(x => x.GetName() == name);
             string id = "image" + Components.Count;
-            if(State.IsLayerSelected())
-                AddComponent(new CienImage(asset.GetNameWithExt(), id, location, CienComponent.Number, State.Selected.Layer.Name));
+            if (State.IsLayerSelected())
+                AddComponent(new CienImage(asset.GetNameWithExt(), id, location, CienComponent.Number,
+                    State.Selected.Layer.Name));
+            else
+                MessageBox.Show("선택된 layer가 없습니다!");
         }
 
         public void RemoveComponent(string id)
