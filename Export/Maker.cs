@@ -80,8 +80,8 @@ namespace OneLevel2D.Export
                 // sImages
                 if (component is CienImage)
                 {
-                    CienImage cienImage = (CienImage) component;
-                    Point convertedLocation = CoordinateConverter.BoardToGame(cienImage.Location, cienImage.GetSize().Width, cienImage.GetSize().Height);
+                    CienImage cienImage = (CienImage)component;
+                    Point convertedLocation = CoordinateConverter.BoardToGame(cienImage.Location, cienImage.GetSize());
                     //Point convertedLocation = ConvertLocation(document, cienImage);
                     scene.composite.sImages.Add(new ExportsImage
                     {
@@ -95,12 +95,13 @@ namespace OneLevel2D.Export
                         y = cienImage.Location.Y,*/
                         tint = cienImage.Tint
                     });
-                     
+
                 }
                 // sComposites
                 else if (component is CienComposite)
                 {
-                    CienComposite cienComposite = (CienComposite) component;
+                    CienComposite cienComposite = (CienComposite)component;
+                    Point convertedLocation = CoordinateConverter.BoardToGame(cienComposite.Location, cienComposite.GetSize());
                     scene.composite.sComposites.Add(new ExportsComposite
                     {
                         layerName = cienComposite.LayerName,
@@ -111,8 +112,8 @@ namespace OneLevel2D.Export
                             sImages = new List<ExportsImage2>(cienComposite.composite.Images.Count)
                         },
                         zIndex = cienComposite.ZIndex,
-                        x = cienComposite.Location.X,
-                        y = cienComposite.Location.Y,
+                        x = convertedLocation.X,
+                        y = convertedLocation.Y,
                         tint = cienComposite.Tint
                     });
 
@@ -120,7 +121,7 @@ namespace OneLevel2D.Export
                     {
                         scene.composite.sComposites.Last().composite.layers.Add(new ExportLayer
                         {
-                            layerName =  layer.Name,
+                            layerName = layer.Name,
                             isVisible = layer.IsVisible,
                             isLocked = layer.IsLocked
                         });

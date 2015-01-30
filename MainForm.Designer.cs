@@ -56,16 +56,17 @@ namespace OneLevel2D
             this.lockunlockToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.toolContainer1 = new System.Windows.Forms.SplitContainer();
+            this.selectedControl = new OneLevel2D.SelectedControl();
+            this.componentList = new OneLevel2D.CustomList.ComponentListView();
             this.toolContainer2 = new System.Windows.Forms.SplitContainer();
+            this.assetList = new System.Windows.Forms.ListView();
+            this.layerList = new OneLevel2D.CustomList.LayerListView();
             this.directorySearcher1 = new System.DirectoryServices.DirectorySearcher();
             this.assetContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.removeToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.assetList = new System.Windows.Forms.ListView();
             this.blackboard = new OneLevel2D.Blackboard();
-            this.selectedControl = new OneLevel2D.SelectedControl();
-            this.componentList = new OneLevel2D.CustomList.ComponentListView();
-            this.layerList = new OneLevel2D.CustomList.LayerListView();
             this.titleBarControl1 = new OneLevel2D.TitleBarControl();
+            this.importSceneToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip.SuspendLayout();
             this.componentContextMenu.SuspendLayout();
             this.layerContextMenu.SuspendLayout();
@@ -141,6 +142,8 @@ namespace OneLevel2D
             // 
             // editToolStripMenuItem
             // 
+            this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.importSceneToolStripMenuItem});
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
             this.editToolStripMenuItem.Size = new System.Drawing.Size(40, 20);
             this.editToolStripMenuItem.Text = "Edit";
@@ -156,7 +159,7 @@ namespace OneLevel2D
             // importToolStripMenuItem
             // 
             this.importToolStripMenuItem.Name = "importToolStripMenuItem";
-            this.importToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
+            this.importToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.importToolStripMenuItem.Text = "Import";
             this.importToolStripMenuItem.Click += new System.EventHandler(this.importToolStripMenuItem_Click);
             // 
@@ -208,7 +211,7 @@ namespace OneLevel2D
             // 
             // openProjectDialog
             // 
-            this.openProjectDialog.Filter = "Proejct File(.dt)|*.dt|Overlap2D Project File(.pit)|*.pit";
+            this.openProjectDialog.Filter = "Proejct File(.cien)|*.cien|Overlap2D Project File(.pit)|*.pit";
             // 
             // layerContextMenu
             // 
@@ -266,66 +269,6 @@ namespace OneLevel2D
             this.toolContainer1.SplitterDistance = 135;
             this.toolContainer1.TabIndex = 17;
             // 
-            // toolContainer2
-            // 
-            this.toolContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.toolContainer2.Location = new System.Drawing.Point(0, 0);
-            this.toolContainer2.Name = "toolContainer2";
-            this.toolContainer2.Orientation = System.Windows.Forms.Orientation.Horizontal;
-            // 
-            // toolContainer2.Panel1
-            // 
-            this.toolContainer2.Panel1.Controls.Add(this.assetList);
-            // 
-            // toolContainer2.Panel2
-            // 
-            this.toolContainer2.Panel2.Controls.Add(this.layerList);
-            this.toolContainer2.Size = new System.Drawing.Size(190, 304);
-            this.toolContainer2.SplitterDistance = 150;
-            this.toolContainer2.TabIndex = 17;
-            // 
-            // directorySearcher1
-            // 
-            this.directorySearcher1.ClientTimeout = System.TimeSpan.Parse("-00:00:01");
-            this.directorySearcher1.ServerPageTimeLimit = System.TimeSpan.Parse("-00:00:01");
-            this.directorySearcher1.ServerTimeLimit = System.TimeSpan.Parse("-00:00:01");
-            // 
-            // assetContextMenu
-            // 
-            this.assetContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.removeToolStripMenuItem1});
-            this.assetContextMenu.Name = "assetContextMenu";
-            this.assetContextMenu.Size = new System.Drawing.Size(115, 26);
-            // 
-            // removeToolStripMenuItem1
-            // 
-            this.removeToolStripMenuItem1.Name = "removeToolStripMenuItem1";
-            this.removeToolStripMenuItem1.Size = new System.Drawing.Size(114, 22);
-            this.removeToolStripMenuItem1.Text = "remove";
-            this.removeToolStripMenuItem1.Click += new System.EventHandler(this.assetRemoveToolStripMenuItem1_Click);
-            // 
-            // assetList
-            // 
-            this.assetList.AllowDrop = true;
-            this.assetList.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.assetList.Location = new System.Drawing.Point(0, 0);
-            this.assetList.Name = "assetList";
-            this.assetList.Size = new System.Drawing.Size(190, 150);
-            this.assetList.SmallImageList = this.assetImageList;
-            this.assetList.TabIndex = 2;
-            this.assetList.UseCompatibleStateImageBehavior = false;
-            this.assetList.View = System.Windows.Forms.View.SmallIcon;
-            // 
-            // blackboard
-            // 
-            this.blackboard.AllowDrop = true;
-            this.blackboard.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.blackboard.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.blackboard.Location = new System.Drawing.Point(0, 55);
-            this.blackboard.Name = "blackboard";
-            this.blackboard.Size = new System.Drawing.Size(610, 604);
-            this.blackboard.TabIndex = 5;
-            // 
             // selectedControl
             // 
             this.selectedControl.AutoSize = true;
@@ -347,6 +290,36 @@ namespace OneLevel2D
             this.componentList.Size = new System.Drawing.Size(190, 157);
             this.componentList.TabIndex = 20;
             // 
+            // toolContainer2
+            // 
+            this.toolContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.toolContainer2.Location = new System.Drawing.Point(0, 0);
+            this.toolContainer2.Name = "toolContainer2";
+            this.toolContainer2.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // toolContainer2.Panel1
+            // 
+            this.toolContainer2.Panel1.Controls.Add(this.assetList);
+            // 
+            // toolContainer2.Panel2
+            // 
+            this.toolContainer2.Panel2.Controls.Add(this.layerList);
+            this.toolContainer2.Size = new System.Drawing.Size(190, 304);
+            this.toolContainer2.SplitterDistance = 150;
+            this.toolContainer2.TabIndex = 17;
+            // 
+            // assetList
+            // 
+            this.assetList.AllowDrop = true;
+            this.assetList.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.assetList.Location = new System.Drawing.Point(0, 0);
+            this.assetList.Name = "assetList";
+            this.assetList.Size = new System.Drawing.Size(190, 150);
+            this.assetList.SmallImageList = this.assetImageList;
+            this.assetList.TabIndex = 2;
+            this.assetList.UseCompatibleStateImageBehavior = false;
+            this.assetList.View = System.Windows.Forms.View.SmallIcon;
+            // 
             // layerList
             // 
             this.layerList.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
@@ -355,6 +328,37 @@ namespace OneLevel2D
             this.layerList.Name = "layerList";
             this.layerList.Size = new System.Drawing.Size(190, 150);
             this.layerList.TabIndex = 19;
+            // 
+            // directorySearcher1
+            // 
+            this.directorySearcher1.ClientTimeout = System.TimeSpan.Parse("-00:00:01");
+            this.directorySearcher1.ServerPageTimeLimit = System.TimeSpan.Parse("-00:00:01");
+            this.directorySearcher1.ServerTimeLimit = System.TimeSpan.Parse("-00:00:01");
+            // 
+            // assetContextMenu
+            // 
+            this.assetContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.removeToolStripMenuItem1});
+            this.assetContextMenu.Name = "assetContextMenu";
+            this.assetContextMenu.Size = new System.Drawing.Size(115, 26);
+            // 
+            // removeToolStripMenuItem1
+            // 
+            this.removeToolStripMenuItem1.Name = "removeToolStripMenuItem1";
+            this.removeToolStripMenuItem1.Size = new System.Drawing.Size(114, 22);
+            this.removeToolStripMenuItem1.Text = "remove";
+            this.removeToolStripMenuItem1.Click += new System.EventHandler(this.assetRemoveToolStripMenuItem1_Click);
+            // 
+            // blackboard
+            // 
+            this.blackboard.AllowDrop = true;
+            this.blackboard.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.blackboard.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.blackboard.Location = new System.Drawing.Point(0, 55);
+            this.blackboard.MultipleSelect = false;
+            this.blackboard.Name = "blackboard";
+            this.blackboard.Size = new System.Drawing.Size(610, 604);
+            this.blackboard.TabIndex = 5;
             // 
             // titleBarControl1
             // 
@@ -367,6 +371,12 @@ namespace OneLevel2D
             this.titleBarControl1.Name = "titleBarControl1";
             this.titleBarControl1.Size = new System.Drawing.Size(800, 31);
             this.titleBarControl1.TabIndex = 18;
+            // 
+            // importSceneToolStripMenuItem
+            // 
+            this.importSceneToolStripMenuItem.Name = "importSceneToolStripMenuItem";
+            this.importSceneToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
+            this.importSceneToolStripMenuItem.Text = "Import Scene";
             // 
             // MainForm
             // 
@@ -441,6 +451,7 @@ namespace OneLevel2D
         private CustomList.LayerListView layerList;
         private ListView assetList;
         private CustomList.ComponentListView componentList;
+        private ToolStripMenuItem importSceneToolStripMenuItem;
     }
 }
 

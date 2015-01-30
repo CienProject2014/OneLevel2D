@@ -18,17 +18,15 @@ namespace OneLevel2D.Model
         public static string ExportDirectory { get; set; }
 
         [JsonProperty]  // static을 이렇게 남발해도 되는가? 필요하긴 한데, 필요를 없애는게 맞진 않은가?
-        public static string Name { get; private set; }
+        public static string Name { get;  set; }
 
-        public int Width { get; private set; }
-        public int Height { get; private set; }
-        public List<Asset> Assets { get; private set; }
-        public List<CienComponent> Components { get; private set; }
+        public int Width { get;  set; }
+        public int Height { get;  set; }
+        public List<Asset> Assets { get;  set; }
+        public List<CienComponent> Components { get;  set; }
+        public List<CienLayer> Layers { get; set; }
 
-        [JsonIgnore]
-        public List<CienLayer> Layers;
-
-        public List<string> Resolutions { get; private set; }
+        public List<string> Resolutions { get;  set; }
 
         [JsonIgnore]
         public const string DefaultLayerName = "Default";
@@ -37,18 +35,21 @@ namespace OneLevel2D.Model
         [JsonIgnore]
         public const string NomalLayerName = "normal";
 
-        public CienDocument() : this("noname", 1920, 1080) {}
-        public CienDocument(string name, int width, int height)
+//        public CienDocument() : this("noname", 1920, 1080){}
+        public CienDocument()
+        {
+        }
+
+        public void Init(string name, int width, int height)
         {
             Name = name;
-            Assets = new List<Asset>();
-            /*Images = new List<CienImage>();
-            Composites = new List<CienComposite>();*/
-            Components = new List<CienComponent>();
             Width = width;
             Height = height;
-            Layers = new List<CienLayer>(1){new CienLayer(DefaultLayerName)};
-            Resolutions = new List<string>(1){"orig"};
+
+            Assets = new List<Asset>();
+            Components = new List<CienComponent>();
+            Layers = new List<CienLayer>(1) { new CienLayer(DefaultLayerName) };
+            Resolutions = new List<string>(1) { "orig" };
         }
 
         #region Asset: Get, Add, Remove
@@ -127,7 +128,7 @@ namespace OneLevel2D.Model
                 AddComponent(new CienImage(asset.GetNameWithExt(), id, location, CienComponent.Number,
                     State.Selected.Layer.Name));
             else
-                MessageBox.Show("선택된 layer가 없습니다!");
+                MessageBox.Show(@"선택된 layer가 없습니다!");
         }
 
         public void RemoveComponent(string id)
@@ -135,23 +136,15 @@ namespace OneLevel2D.Model
             Components.Remove(Components.Find(x => x.Id == id));
         }
 
+        public void RemoveComponent(CienComponent component)
+        {
+            RemoveComponent(component.Id);
+        }
+
         #endregion
 
         #region ConvertToComposite
-        /*
-         * Convert CienImage instance to CienComposite
-         */
-        public void ConvertToComposite(string id)
-        {
-            CienComponent comp = Components.Find(x => x.Id == id);
-            if (comp is CienComposite) return;
 
-            CienImage img = comp as CienImage;
-            if (img == null) return;
-
-            CienComposite newComp = new CienComposite(img.ImageName, img.Id, img.Location, img.ZIndex);
-            Components.Add(newComp);
-        }
         #endregion
 
         public int GetNewZindex()

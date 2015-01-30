@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Windows.Forms;
 using Newtonsoft.Json;
 using OneLevel2D.Export;
@@ -87,7 +88,7 @@ namespace OneLevel2D
             State.Copy();
             State.RemoveSelectedComponent();
 
-            State.SelectAbandon();
+            State.SelectedComponentAbandon();
 
             State.Board.Invalidate();
 
@@ -133,7 +134,9 @@ namespace OneLevel2D
 
         private void NewDocument(string name, int width, int height)
         {
-            State.Document = new CienDocument(name, width, height);
+            State.Document = new CienDocument();
+            State.Document.Init(name, width, height);
+
             State.Board.SetDocument(State.Document);
             State.Board.Invalidate();
             InitDocument();
@@ -149,15 +152,22 @@ namespace OneLevel2D
 
         private void SaveDocument(string filename)
         {
-            string docjson = JsonConvert.SerializeObject(State.Document);
+            string docjson = JsonConvert.SerializeObject(State.Document, new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Objects
+            });
+
             File.WriteAllText(CienDocument.ProjectDirectory + @"\" + filename, docjson);
-            // State.Document를 json으로 serialize해서 파일에 쓰기.
         }
 
         private void ParseDocument(string docstring)
         {
-            // docstring을 deserialize해서 doc에 넣어주기.
-            State.Document = JsonConvert.DeserializeObject<CienDocument>(docstring);
+            var newDoc = JsonConvert.DeserializeObject<CienDocument>(docstring, new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Objects
+            });
+
+            State.Document = newDoc;
         }
 
         private void ImportAsset(string[] files)
@@ -235,6 +245,7 @@ namespace OneLevel2D
                 Size offset = new Size(15 * i, 15 * i);
                 Point transformedLocation = State.Board.PointTransform(location);
                 State.Document.NewComponent(name, transformedLocation + offset);
+                // TODO 중복되는 경우를 해결할 필요가 있다.
                 State.ComponentView.AddComponent(State.Document.Components.Last());
             }
 
@@ -449,7 +460,7 @@ namespace OneLevel2D
                     if (State.IsComponentSelected())
                     {
                         State.Document.RemoveComponent(State.Selected.Component.Id);
-                        State.SelectAbandon();
+                        State.SelectedComponentAbandon();
                         ReloadComponentList();
                     }
                     break;
@@ -583,6 +594,7 @@ namespace OneLevel2D
                 string sceneString = File.ReadAllText(fileInfo.FullName);
                 sceneModels[i] = JsonConvert.DeserializeObject<SceneModel>(sceneString);
             }
+            // TODO 여러개의 Scene을 지원하지 않음
             var sceneModel = sceneModels[0];
             #endregion
 
@@ -623,7 +635,7 @@ namespace OneLevel2D
                     if (exportsComposite.composite.sImages == null) continue;
 
                     var cienComposite = new CienComposite(
-                        exportsComposite.composite.sImages[0].imageName,
+                        exportsComposite.composite.sImages[0].imageName + ".png",
                         exportsComposite.itemIdentifier ?? "composite" + CienComponent.Number,
                         Point.Empty,
                         exportsComposite.zIndex,
@@ -638,6 +650,8 @@ namespace OneLevel2D
                     for (int i = 1; i < exportsComposite.composite.sImages.Count; i++)
                     {
                         var image = exportsComposite.composite.sImages[i];
+                        // TODO Image를 로드할때는 composite크기 기준으로 좌상단 원점 좌표계로 바꿔야 한다.
+                        //CoordinateConverter.CompositeToBoard(new Point((int) image.x, (int) image.y), exportsComposite);
                         cienComposite.AddImage(image.imageName, new Point((int)image.x, (int)image.y), image.layerName);
                     }
 
@@ -645,6 +659,7 @@ namespace OneLevel2D
                 }
 
             #endregion
+
             ReloadComponentList();
         }
 

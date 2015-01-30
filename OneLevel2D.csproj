@@ -67,6 +67,12 @@
   <ItemGroup>
     <Compile Include="Command.cs" />
     <Compile Include="Composite.cs" />
+    <Compile Include="CompositeEditForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CompositeEditForm.Designer.cs">
+      <DependentUpon>CompositeEditForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="CoordinateConverter.cs" />
     <Compile Include="CustomList\AssetItem.cs">
       <SubType>UserControl</SubType>
@@ -153,6 +159,9 @@
     </Compile>
     <EmbeddedResource Include="Blackboard.resx">
       <DependentUpon>Blackboard.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CompositeEditForm.resx">
+      <DependentUpon>CompositeEditForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ContextRenameForm.resx">
       <DependentUpon>ContextRenameForm.cs</DependentUpon>

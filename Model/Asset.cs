@@ -46,7 +46,7 @@ namespace OneLevel2D.Model
 
         [JsonConverter(typeof (StringEnumConverter))]
         public AssetType Type { get; set; }
-        private string Name { get; set; }    // 확장자 포함
+        public string Name { get; set; }    // 확장자 포함
         public Size ImageSize;
 
         [JsonIgnore]

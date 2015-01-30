@@ -186,7 +186,7 @@ namespace OneLevel2D
 
                     if (selectables.Count == 0)
                     {
-                        State.SelectAbandon();
+                        State.SelectedComponentAbandon();
                         break;
                     }
 
@@ -206,7 +206,8 @@ namespace OneLevel2D
                 case MouseButtons.Right:
                     var componentList = State.Document.Components.FindAll(x => IsInside(x, ClickedPoint));
                     UpdateBlackboardContextMenu(componentList);
-                    blackboardContextMenu.Show(PointToScreen(e.Location));
+                    blackboardContextMenu.Show(PointToScreen(e.Location));    
+                    
                     break;
             }
         }
@@ -263,6 +264,21 @@ namespace OneLevel2D
 
             ScaleBoard();
             Invalidate();
+        }
+
+        protected override void OnMouseDoubleClick(MouseEventArgs e)
+        {
+            /*if (State._selected.ComponentList.Count == 1)
+            {
+                var composite = State._selected.ComponentList.Last() as CienComposite;
+                if (composite != null)
+                {
+                    State.CompositeEditForm.Set(composite);
+                    State.CompositeEditForm.Show();
+                    State.CompositeEditForm.Focus();
+                }
+            }*/
+            MessageBox.Show(@"Composite Edit Form");
         }
 
         protected override bool IsInputKey(Keys keyData)
@@ -336,14 +352,17 @@ namespace OneLevel2D
             var selected = State.Document.Components.Find(x => x.Id == e.ClickedItem.Text);
             if (selected != null)
             {
-                State.SelectComponent(selected);
+                State.SelectOneComponent(selected);
             }
             else
             {
                 switch (e.ClickedItem.Text)
                 {
                     case ConvertToButton:
-                        State.Document.ConvertToComposite("sf");
+                        if (State._selected.ComponentList.Count == 1)
+                        {
+                            State.ConvertToComposite(State._selected.Component.Id);
+                        }
                         break;
                 }
             }
@@ -355,11 +374,13 @@ namespace OneLevel2D
         private void UpdateBlackboardContextMenu(List<CienComponent> componentList)
         {
             blackboardContextMenu.Items.Clear();
-/*            if (componentList.Count != 0)
-            {
-                blackboardContextMenu.Items.Add(ConvertToButton);
-            }*/
 
+            // TODO 로직을 더 좋게 하자.
+            if (componentList.Count != 0 && State._selected.ComponentList.Count == 1)
+            {
+                if (State._selected.ComponentList.Last() is CienImage)
+                    blackboardContextMenu.Items.Add(ConvertToButton);
+            }
             foreach (var component in componentList)
             {
                 blackboardContextMenu.Items.Add(component.Id);

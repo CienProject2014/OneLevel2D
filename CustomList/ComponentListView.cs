@@ -31,6 +31,12 @@ namespace OneLevel2D.CustomList
                 Width = listPanel.Width,
                 Anchor = (AnchorStyles.Left | AnchorStyles.Right)
             };
+            if (component is CienComposite)
+            {
+                var prevFont = componentItem.itemName.Font;
+                componentItem.itemName.Font = new Font(prevFont.Name, prevFont.Size, FontStyle.Bold);    
+            }
+            
             AddItem(componentItem);
 
             SortDescending();

@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Diagnostics;
+using System.Drawing;
 using System.Windows.Forms;
 using OneLevel2D.Model;
 
@@ -30,24 +31,23 @@ namespace OneLevel2D.CustomList
                 {
                     if (MultipleSelect)
                     {
-                        ItemSelect();
                         State.SelectComponent(Component);
+                        Debug.Print("multiplie component");
+                        
                     }
                     else
-                    {
-                        ItemSelect();
                         State.SelectOneComponent(Component);
-                    }
+                    ItemSelect();
                 }
                 else
                 {
-                    ItemUnselect();
                     State.UnselectComponent(Component);
+                    ItemUnselect();
                 }
             }
         }
 
-        protected override void ChangeItem(string newId)
+        protected override void ChangeItemName(string newId)
         {
             if (newId == null) return;
 

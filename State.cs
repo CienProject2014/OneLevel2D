@@ -18,6 +18,7 @@ namespace OneLevel2D
         public static ComponentListView ComponentView;
         public static CienDocument Document;
         public static Blackboard Board;
+        public static CompositeEditForm CompositeEditForm = new CompositeEditForm();
         /************************************************************************/
         
         public static List<CienComponent> CopiedComponentList;
@@ -48,6 +49,24 @@ namespace OneLevel2D
             }
         }
 
+        /*
+         * Convert CienImage instance to CienComposite
+         */
+        public static void ConvertToComposite(string id)
+        {
+            // TODO sImage to sComposite
+            CienComponent comp = Document.Components.Find(x => x.Id == id);
+            if (comp is CienComposite) return;
+
+            CienImage image = comp as CienImage;
+            if (image == null) return;
+
+            CienComposite newComposite = new CienComposite(image.ImageName, image.Id, image.Location, image.ZIndex);
+            RemoveSelectedComponent();
+            Document.AddComponent(newComposite);
+            ComponentView.AddComponent(newComposite);
+        }
+
         #endregion
 
         #region Select
@@ -64,7 +83,7 @@ namespace OneLevel2D
 
         public static void SelectOneComponent(CienComponent component)
         {
-            SelectAbandon();
+            SelectedComponentAbandon();
             SelectComponent(component);
         }
 
@@ -76,12 +95,7 @@ namespace OneLevel2D
                 ComponentView.UnselectComponent(_selected.Component);
         }
 
-        public static void SelectLayer(CienLayer layer)
-        {
-            _selected.Layer = layer;
-        }
-
-        public static void SelectAbandon()
+        public static void SelectedComponentAbandon()
         {
             SelectComponent(CienComponent.Empty);
             _selected.ComponentList.Clear();
@@ -91,9 +105,12 @@ namespace OneLevel2D
 
         public static bool IsComponentSelected()
         {
-            /*if (_selected.Component == null) _selected.Component = CienComponent.Empty;
-            return !_selected.Component.Equals(CienComponent.Empty);*/
             return _selected.ComponentList.Count != 0;
+        }
+
+        public static void SelectLayer(CienLayer layer)
+        {
+            _selected.Layer = layer;
         }
 
         public static bool IsLayerSelected()

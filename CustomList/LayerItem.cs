@@ -32,6 +32,23 @@ namespace OneLevel2D.CustomList
 
         void LayerItem_MouseDown(object sender, MouseEventArgs e)
         {
+            base.OnMouseDown(e);
+
+            if (e.Button == MouseButtons.Left)
+            {
+                if (IsSelected)
+                {
+                    if (MultipleSelect)
+                    {
+                    }
+                    else
+                    {
+                    }
+                }
+                else
+                {
+                }
+            }
         }
 
         protected override void OnMouseDown(MouseEventArgs e)
@@ -67,7 +84,7 @@ namespace OneLevel2D.CustomList
             State.Board.Invalidate();
         }
 
-        protected override void ChangeItem(string newName)
+        protected override void ChangeItemName(string newName)
         {
             if (newName == null) return;
 

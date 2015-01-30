@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
-using System.Runtime.InteropServices;
-using System.Windows.Forms;
-using System.Windows.Navigation;
+using Newtonsoft.Json;
 
 namespace OneLevel2D.Model
 {
@@ -11,6 +8,7 @@ namespace OneLevel2D.Model
     {
         /* Variables ************************************************************/
         public string ImageName { get; private set; } // with extension
+        [JsonIgnore]
         public Image ImageData { get; private set; }
         /************************************************************************/
 

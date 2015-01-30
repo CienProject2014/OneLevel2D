@@ -38,7 +38,7 @@ namespace OneLevel2D.Model
                 {
                     new Composite.Image
                     {
-                        ImageName = imageName,
+                        ImageName = imageName.Split('.')[0],
                         LayerName = CienDocument.DefaultLayerName,
                         Tint = new List<float>(4){1, 1, 1, 1}
                     }
@@ -46,12 +46,23 @@ namespace OneLevel2D.Model
             };
         }
 
-        public void AddImage(string imageName, Point location, string LayerName)
+        public void AddImage(CienImage image)
+        {
+            AddImage(image.ImageName, image.LayerName);
+        }
+
+        public void AddImage(string imageName, string layerName)
+        {
+            AddImage(imageName, new Point(), layerName);
+        }
+
+        // for load
+        public void AddImage(string imageName, Point location, string layerName)
         {
             Composite.Image image = new Composite.Image()
             {
-                LayerName = LayerName,
-                ImageName =  imageName,
+                LayerName = layerName,
+                ImageName = imageName,
                 Tint = new List<float>(4) { 1, 1, 1, 1 },
                 X = location.X,
                 Y = location.Y
@@ -76,6 +87,14 @@ namespace OneLevel2D.Model
             };
         }
 
+        public override Image GetImage()
+        {
+            if (ImageData == null)
+                UpdateImage();
+
+            return ImageData;
+        }
+
         public override Size GetSize()
         {
             Image image = GetImage();
@@ -88,7 +107,7 @@ namespace OneLevel2D.Model
             var firstImage =
                 Image.FromFile(CienDocument.ProjectDirectory + @"\" + CienDocument.Name + MainForm.AssetDirectory +
                                MainForm.ImageDirectory + @"\" +
-                               composite.Images[0].ImageName + ".png");
+                               composite.Images[0].ImageName);  // TODO ImageName에 확장자가 포함되어 있다.
 
             using (var e = Graphics.FromImage(firstImage))
             {
@@ -102,21 +121,14 @@ namespace OneLevel2D.Model
                     //Point converted = ConvertLocation(composite.Images[i], image);
                     var compositeLocation = Location;
                     var imageLocation = new Point(composite.Images[i].X, composite.Images[i].Y);
-                    Point converted = CoordinateConverter.CompositeToBoard(compositeLocation, imageLocation, image.Width,
+                    /*Point converted = CoordinateConverter.CompositeToBoard(compositeLocation, imageLocation, image.Width,
                         image.Height);
-                    e.DrawImage(image, converted);
+                    e.DrawImage(image, converted);*/
+                    e.DrawImage(image, imageLocation);
                 }
             }
 
             ImageData = (Image) firstImage.Clone();
-        }
-
-        public override Image GetImage()
-        {
-            if (ImageData == null)
-                UpdateImage();
-
-            return ImageData;
         }
 
         /************************************************************************/

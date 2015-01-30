@@ -8,10 +8,10 @@ namespace OneLevel2D
     public abstract partial class CustomItem : UserControl, ICloneable
     {
         public bool IsSelected { get; protected set; }
+        protected bool MultipleSelect { get; private set; }
         private static readonly Color SelecteColor = Color.WhiteSmoke;
         private static readonly Color EnterColor = Color.LightGray;
         private static readonly Color LeaveColor = Color.Gray;
-        protected bool MultipleSelect;
 
         protected CustomItem(string name, Point location)
         {
@@ -67,7 +67,7 @@ namespace OneLevel2D
             }
         }
 
-        protected abstract void ChangeItem(string text);
+        protected abstract void ChangeItemName(string text);
 
         protected override void OnPaint(PaintEventArgs e)
         {
@@ -109,7 +109,7 @@ namespace OneLevel2D
 
         private void nameChangeBox_LostFocus(object sender, EventArgs e)
         {
-            ChangeItem(nameChangeBox.Text);
+            ChangeItemName(nameChangeBox.Text);
 
             nameChangeBox.Visible = false;
             itemName.Visible = true;
@@ -119,7 +119,7 @@ namespace OneLevel2D
         {
             if (e.KeyCode == Keys.Enter)
             {
-                ChangeItem(nameChangeBox.Text);
+                ChangeItemName(nameChangeBox.Text);
 
                 nameChangeBox.Visible = false;
                 itemName.Visible = true;
@@ -138,15 +138,16 @@ namespace OneLevel2D
         protected override void OnKeyDown(KeyEventArgs e)
         {
             if (e.Control)
-            {
                 MultipleSelect = true;
-            }
+            Debug.Print(MultipleSelect.ToString());
         }
 
         protected override void OnKeyUp(KeyEventArgs e)
         {
             if (MultipleSelect)
                 MultipleSelect = false;
+
+            Debug.Print(MultipleSelect.ToString());
         }
 
         protected override void OnMouseEnter(EventArgs e)
