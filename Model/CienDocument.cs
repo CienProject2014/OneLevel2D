@@ -11,31 +11,25 @@ namespace OneLevel2D.Model
     public class CienDocument
     {
         // static 변수는 자동으로 제외하기 때문에 이 attribute를 추가해줘야 한다.
+        // static을 이렇게 남발해도 되는가? 필요하긴 한데, 필요를 없애는게 맞진 않은가?
+        // set도 Serialization을 위해 public으로 두었다. 이렇게 해도 되는가?
         [JsonProperty]
         public static string ProjectDirectory { get; set; }
-
         [JsonProperty]
         public static string ExportDirectory { get; set; }
+        [JsonProperty]
+        public static string Name { get; set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
+        public List<string> Resolutions { get; set; }
+        public List<Asset> Assets { get; set; }
+        public CienScene CurrentScene { get; set; }
+        public List<CienScene> Scenes { get; set; }
 
-        [JsonProperty]  // static을 이렇게 남발해도 되는가? 필요하긴 한데, 필요를 없애는게 맞진 않은가?
-        public static string Name { get;  set; }
-
-        public int Width { get;  set; }
-        public int Height { get;  set; }
-        public List<Asset> Assets { get;  set; }
-        public List<CienComponent> Components { get;  set; }
-        public List<CienLayer> Layers { get; set; }
-
-        public List<string> Resolutions { get;  set; }
-
-        [JsonIgnore]
         public const string DefaultLayerName = "Default";
-        [JsonIgnore]
         public const string PressedLayerName = "pressed";
-        [JsonIgnore]
         public const string NomalLayerName = "normal";
 
-//        public CienDocument() : this("noname", 1920, 1080){}
         public CienDocument()
         {
         }
@@ -45,11 +39,13 @@ namespace OneLevel2D.Model
             Name = name;
             Width = width;
             Height = height;
-
-            Assets = new List<Asset>();
-            Components = new List<CienComponent>();
-            Layers = new List<CienLayer>(1) { new CienLayer(DefaultLayerName) };
             Resolutions = new List<string>(1) { "orig" };
+            Assets = new List<Asset>();
+
+            CurrentScene = new CienScene();
+            CurrentScene.InitScene();
+            Scenes = new List<CienScene>();
+            Scenes.Add(CurrentScene);
         }
 
         #region Asset: Get, Add, Remove
@@ -75,25 +71,29 @@ namespace OneLevel2D.Model
         {
             // 관련된 Component부터 다 지운다.
             List<string> removableList = new List<string>();
-            foreach (var component in Components)
-            {
-                if (component is CienImage)
-                {
-                    CienImage image = (CienImage) component;
-                    if(image.ImageName.Split('.')[0] == name)
-                        removableList.Add(image.Id);
-                }
-                else if (component is CienComposite)
-                {
-                    CienComposite composite = (CienComposite) component;
-                    if (composite.composite.Images[0].ImageName.Split('.')[0] == name)
-                        removableList.Add(composite.Id);
-                }
-            }
 
-            foreach (var removable in removableList)
+            foreach (var scene in Scenes)
             {
-                Components.Remove(Components.Find(x => x.Id.Equals(removable)));
+                foreach (var component in scene.Components)
+                {
+                    if (component is CienImage)
+                    {
+                        CienImage image = (CienImage)component;
+                        if (image.ImageName.Split('.')[0] == name)
+                            removableList.Add(image.Id);
+                    }
+                    else if (component is CienComposite)
+                    {
+                        CienComposite composite = (CienComposite)component;
+                        if (composite.composite.Images[0].ImageName.Split('.')[0] == name)
+                            removableList.Add(composite.Id);
+                    }
+                }
+
+                foreach (var removable in removableList)
+                {
+                    scene.Components.Remove(scene.Components.Find(x => x.Id.Equals(removable)));
+                }
             }
 
             Assets.Remove(Assets.Find(x => x.GetName() == name));
@@ -105,7 +105,7 @@ namespace OneLevel2D.Model
         // TODO 무조건 이 함수를 통해서만 Component를 추가한다!
         public void AddComponent(CienComponent component)
         {
-            if (State.Document.Components.Find(x => x.Id == component.Id) != null)
+            if (CurrentScene.Components.Find(x => x.Id == component.Id) != null)
             {
                 MessageBox.Show(@"같은 Id의 Component가 존재합니다.");
                 return;
@@ -114,7 +114,7 @@ namespace OneLevel2D.Model
             // TODO Zindex를 정리해줄 필요가 있다.
             component.SetZindex(GetNewZindex());
 
-            Components.Add(component);
+            CurrentScene.Components.Add(component);
 
             CienComponent.Number++;
         }
@@ -123,7 +123,7 @@ namespace OneLevel2D.Model
         public void NewComponent(string name, Point location)
         {
             Asset asset = Assets.Find(x => x.GetName() == name);
-            string id = "image" + Components.Count;
+            string id = "image" + CurrentScene.Components.Count;
             if (State.IsLayerSelected())
                 AddComponent(new CienImage(asset.GetNameWithExt(), id, location, CienComponent.Number,
                     State.Selected.Layer.Name));
@@ -133,7 +133,7 @@ namespace OneLevel2D.Model
 
         public void RemoveComponent(string id)
         {
-            Components.Remove(Components.Find(x => x.Id == id));
+            CurrentScene.Components.Remove(CurrentScene.Components.Find(x => x.Id == id));
         }
 
         public void RemoveComponent(CienComponent component)
@@ -143,19 +143,15 @@ namespace OneLevel2D.Model
 
         #endregion
 
-        #region ConvertToComposite
-
-        #endregion
-
         public int GetNewZindex()
         {
-            if (Components.Count == 0) return 1;
-            return Components.Max(x => x.ZIndex) + 1;
+            if (CurrentScene.Components.Count == 0) return 1;
+            return CurrentScene.Components.Max(x => x.ZIndex) + 1;
         }
 
         public void SortComponentsAscending()
         {
-            Components.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex));
+            CurrentScene.Components.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex));
         }
     }
 }

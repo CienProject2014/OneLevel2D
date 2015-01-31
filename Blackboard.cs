@@ -83,7 +83,7 @@ namespace OneLevel2D
 
         private bool IsSelectable(CienComponent component)
         {
-            var layer = State.Document.Layers.Find(x => x.Name == component.LayerName);
+            var layer = State.Document.CurrentScene.Layers.Find(x => x.Name == component.LayerName);
             return layer.IsVisible && !layer.IsLocked;
         }
 
@@ -115,11 +115,11 @@ namespace OneLevel2D
         private void DrawComponentList(PaintEventArgs e)
         {
             // TODO 그리기 전에도 한 번 정렬해준다. 속도 이슈가 발생하면 삭제해야할듯.
-            State.Document.Components.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex));
+            State.Document.CurrentScene.Components.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex));
 
-            foreach (var component in State.Document.Components)
+            foreach (var component in State.Document.CurrentScene.Components)
             {
-                if (State.Document.Layers.Find(x => x.Name == component.LayerName).IsVisible)
+                if (State.Document.CurrentScene.Layers.Find(x => x.Name == component.LayerName).IsVisible)
                     DrawComponent(e, component);
             }
         }
@@ -182,7 +182,7 @@ namespace OneLevel2D
             {
                 case MouseButtons.Left:
                     // 선택된 List중에서 ZIndex가 가장 큰 Component를 선택한다.
-                    var selectables = State.Document.Components.FindAll(x => IsInside(x, ClickedPoint) && IsSelectable(x));
+                    var selectables = State.Document.CurrentScene.Components.FindAll(x => IsInside(x, ClickedPoint) && IsSelectable(x));
 
                     if (selectables.Count == 0)
                     {
@@ -204,7 +204,7 @@ namespace OneLevel2D
 
                     break;
                 case MouseButtons.Right:
-                    var componentList = State.Document.Components.FindAll(x => IsInside(x, ClickedPoint));
+                    var componentList = State.Document.CurrentScene.Components.FindAll(x => IsInside(x, ClickedPoint));
                     UpdateBlackboardContextMenu(componentList);
                     blackboardContextMenu.Show(PointToScreen(e.Location));    
                     
@@ -349,7 +349,7 @@ namespace OneLevel2D
         #region Delegate Method
         void blackboardContextMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
-            var selected = State.Document.Components.Find(x => x.Id == e.ClickedItem.Text);
+            var selected = State.Document.CurrentScene.Components.Find(x => x.Id == e.ClickedItem.Text);
             if (selected != null)
             {
                 State.SelectOneComponent(selected);

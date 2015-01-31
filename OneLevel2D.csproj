@@ -118,6 +118,7 @@
     <Compile Include="Model\CienDocument.cs" />
     <Compile Include="Export\Maker.cs" />
     <Compile Include="Export\ProjectModel.cs" />
+    <Compile Include="Model\CienScene.cs" />
     <Compile Include="Model\Overlap2DProject.cs" />
     <Compile Include="NewForm.cs">
       <SubType>Form</SubType>

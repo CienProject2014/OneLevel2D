@@ -65,7 +65,7 @@ namespace OneLevel2D.Export
             };
 
             // layers
-            foreach (var layer in document.Layers)
+            foreach (var layer in document.CurrentScene.Layers)
             {
                 scene.composite.layers.Add(new ExportLayer
                 {
@@ -75,7 +75,7 @@ namespace OneLevel2D.Export
                 });
             }
 
-            foreach (var component in document.Components)
+            foreach (var component in document.CurrentScene.Components)
             {
                 // sImages
                 if (component is CienImage)

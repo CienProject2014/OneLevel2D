@@ -55,7 +55,7 @@ namespace OneLevel2D
         public static void ConvertToComposite(string id)
         {
             // TODO sImage to sComposite
-            CienComponent comp = Document.Components.Find(x => x.Id == id);
+            CienComponent comp = Document.CurrentScene.Components.Find(x => x.Id == id);
             if (comp is CienComposite) return;
 
             CienImage image = comp as CienImage;
@@ -312,7 +312,7 @@ namespace OneLevel2D
 
         private void MoveUp()
         {
-            var toDown = State.Document.Components.Find(x => x.ZIndex == Component.ZIndex + 1);
+            var toDown = State.Document.CurrentScene.Components.Find(x => x.ZIndex == Component.ZIndex + 1);
             if (toDown != null)
             {
                 toDown.SetZindex(Component.ZIndex);
@@ -324,7 +324,7 @@ namespace OneLevel2D
 
         private void MoveDown()
         {
-            var toUp = State.Document.Components.Find(x => x.ZIndex == Component.ZIndex - 1);
+            var toUp = State.Document.CurrentScene.Components.Find(x => x.ZIndex == Component.ZIndex - 1);
             if (toUp != null)
             {
                 toUp.SetZindex(Component.ZIndex);
@@ -339,7 +339,7 @@ namespace OneLevel2D
             // 내림차순
             ComponentList.Sort((a, b) => b.ZIndex.CompareTo(a.ZIndex));
 
-            var maxZindex = State.Document.Components.Max(x => x.ZIndex);
+            var maxZindex = State.Document.CurrentScene.Components.Max(x => x.ZIndex);
 
             foreach (var component in ComponentList)
             {
@@ -357,7 +357,7 @@ namespace OneLevel2D
             // 오름차순
             ComponentList.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex));
 
-            var minZindex = State.Document.Components.Min(x => x.ZIndex);
+            var minZindex = State.Document.CurrentScene.Components.Min(x => x.ZIndex);
 
             foreach (var component in ComponentList)
             {

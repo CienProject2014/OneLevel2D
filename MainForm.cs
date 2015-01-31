@@ -18,7 +18,7 @@ namespace OneLevel2D
     public partial class MainForm : Form
     {
         public const string ProgramName = "OneLevel2D";
-        public const string ProjectExtension = "cien";
+
         public const string AssetDirectory = @"\assets";
         public const string ImageDirectory = @"\image";
 
@@ -26,7 +26,8 @@ namespace OneLevel2D
         public const string Overlap2DImageDataDirectory = @"\assets\orig\images";
         public const string Overlap2DSceneDirectory = @"\scenes";
 
-        public const string SceneExtension = "*.dt";
+        public const string ProjectExtension = "cien";
+        public const string SceneExtension = "dt";
 
         private readonly Packer TexturePacker = new Packer();
         private readonly Maker ModelMaker = new Maker();
@@ -35,35 +36,22 @@ namespace OneLevel2D
         {
             InitializeComponent();
 
+            Init();
+        }
+
+        private void Init()
+        {
             // TODO 접근하기 위해 설정. 
             State.SetBoard(blackboard);
             State.SetComponentListView(componentList);
 
             NewDocument("noname", 1920, 1080);
 
+
             // TODO 임시로 처리 해둔것. Project save to other directory를 구현하면 수정해야함.
             CienDocument.ProjectDirectory = Application.StartupPath;
 
             AddEvent();
-        }
-
-        private void InitDocument()
-        {
-            titleBarControl1.SetTitleName(CienDocument.Name + " - " + ProgramName);
-
-            ReloadAssetList();
-            ReloadComponentList();
-            ReloadLayerList();
-
-            State.Board.Invalidate();
-
-            CienComponent.Number = 0;
-
-            // TODO 분리해주어야 좋을 Directory 설정. 이 부분을 어디서 사용할지 모르니까 쉽사리 분리를 하지 못하겠다.
-            string projectPath = CienDocument.ProjectDirectory ?? Application.StartupPath;
-            MakeDirectory(projectPath + @"\" + CienDocument.Name);
-            MakeDirectory(projectPath + @"\" + CienDocument.Name + @"\" + AssetDirectory);
-            MakeDirectory(projectPath + @"\" + CienDocument.Name + @"\" + AssetDirectory + ImageDirectory);
         }
 
         private void AddEvent()
@@ -150,6 +138,25 @@ namespace OneLevel2D
             InitDocument();
         }
 
+        private void InitDocument()
+        {
+            titleBarControl1.SetTitleName(CienDocument.Name + " - " + ProgramName);
+
+            ReloadAssetList();
+            ReloadComponentList();
+            ReloadLayerList();
+
+            State.Board.Invalidate();
+
+            CienComponent.Number = 0;
+
+            // TODO 분리해주어야 좋을 Directory 설정. 이 부분을 어디서 사용할지 모르니까 쉽사리 분리를 하지 못하겠다.
+            string projectPath = CienDocument.ProjectDirectory ?? Application.StartupPath;
+            MakeDirectory(projectPath + @"\" + CienDocument.Name);
+            MakeDirectory(projectPath + @"\" + CienDocument.Name + @"\" + AssetDirectory);
+            MakeDirectory(projectPath + @"\" + CienDocument.Name + @"\" + AssetDirectory + ImageDirectory);
+        }
+
         private void SaveDocument(string filename)
         {
             string docjson = JsonConvert.SerializeObject(State.Document, new JsonSerializerSettings
@@ -181,6 +188,7 @@ namespace OneLevel2D
                 {
                     File.Copy(file, projectDirectory + @"\" + CienDocument.Name + @"\"
                                     + AssetDirectory + ImageDirectory + @"\" + file.Split('\\').Last());
+
                 }
                 catch (Exception e)
                 {
@@ -246,7 +254,7 @@ namespace OneLevel2D
                 Point transformedLocation = State.Board.PointTransform(location);
                 State.Document.NewComponent(name, transformedLocation + offset);
                 // TODO 중복되는 경우를 해결할 필요가 있다.
-                State.ComponentView.AddComponent(State.Document.Components.Last());
+                State.ComponentView.AddComponent(State.Document.CurrentScene.Components.Last());
             }
 
             State.Document.SortComponentsAscending();
@@ -348,9 +356,9 @@ namespace OneLevel2D
             State.ComponentView.Clear();
 
             State.Document.SortComponentsAscending();
-            for (int i = State.Document.Components.Count - 1; i >= 0; i--)
+            for (int i = State.Document.CurrentScene.Components.Count - 1; i >= 0; i--)
             {
-                var component = State.Document.Components[i];
+                var component = State.Document.CurrentScene.Components[i];
                 State.ComponentView.AddComponent(component);
             }
 
@@ -360,7 +368,7 @@ namespace OneLevel2D
         private void ReloadLayerList()
         {
             layerList.Clear();
-            foreach (var layer in State.Document.Layers)
+            foreach (var layer in State.Document.CurrentScene.Layers)
             {
                 layerList.AddLayer(layer);
             }
@@ -393,6 +401,22 @@ namespace OneLevel2D
                     assetList.Items[item.Index].Remove();
 
                     State.Document.RemoveAsset(item.Text);
+                    // TODO 이미지 확장자를 유동적으로 
+                    var imageDir = CienDocument.ProjectDirectory + @"\" + CienDocument.Name + @"\"
+                                   + AssetDirectory + ImageDirectory + @"\" + item.Text + ".png";
+                    if (File.Exists(imageDir))
+                    {
+                        try
+                        {
+                            GC.Collect();
+                            GC.WaitForPendingFinalizers();
+                            File.Delete(imageDir);
+                        }
+                        catch (IOException exception)
+                        {
+                            MessageBox.Show(exception.Message);
+                        }       
+                    }
                 }
             }
             ReloadComponentList();
@@ -525,8 +549,11 @@ namespace OneLevel2D
                 case Overlap2DExtention:
                     LoadOverlap2D(filepath);
                     break;
+                case SceneExtension:
+                    MessageBox.Show(@"단일 Scene을 수정하는 기능은 아직 구현되지 않았습니다.");
+                    break;
                 default:
-                    MessageBox.Show(@"프로젝트 파일이 아닙니다!");
+                    MessageBox.Show(@"지원하는 파일이 아닙니다!");
                     break;
             }
         }
@@ -586,7 +613,7 @@ namespace OneLevel2D
             #endregion
 
             #region Load Scene
-            var fIs = sceneDi.GetFiles(SceneExtension);
+            var fIs = sceneDi.GetFiles("*."+SceneExtension);
             SceneModel[] sceneModels = new SceneModel[fIs.Length];
             for (int i = 0; i < fIs.Length; i++)
             {
@@ -599,10 +626,10 @@ namespace OneLevel2D
             #endregion
 
             #region Load Layer
-            State.Document.Layers.Clear();
+            State.Document.CurrentScene.Layers.Clear();
             foreach (var exportLayer in sceneModel.composite.layers)
             {
-                State.Document.Layers.Add(new CienLayer(exportLayer.layerName, exportLayer.isVisible, exportLayer.isLocked));
+                State.Document.CurrentScene.Layers.Add(new CienLayer(exportLayer.layerName, exportLayer.isVisible, exportLayer.isLocked));
             }
             ReloadLayerList();
             #endregion
