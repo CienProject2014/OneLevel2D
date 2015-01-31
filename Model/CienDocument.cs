@@ -79,6 +79,7 @@ namespace OneLevel2D.Model
                     if (component is CienImage)
                     {
                         CienImage image = (CienImage)component;
+                        image.ImageData.Dispose();
                         if (image.ImageName.Split('.')[0] == name)
                             removableList.Add(image.Id);
                     }
