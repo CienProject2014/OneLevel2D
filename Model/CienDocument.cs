@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Windows.Navigation;
 using Newtonsoft.Json;
@@ -106,12 +108,6 @@ namespace OneLevel2D.Model
         // TODO 무조건 이 함수를 통해서만 Component를 추가한다!
         public void AddComponent(CienComponent component)
         {
-            if (CurrentScene.Components.Find(x => x.Id == component.Id) != null)
-            {
-                MessageBox.Show(@"같은 Id의 Component가 존재합니다.");
-                return;
-            }
-
             // TODO Zindex를 정리해줄 필요가 있다.
             component.SetZindex(GetNewZindex());
 
@@ -125,6 +121,12 @@ namespace OneLevel2D.Model
         {
             Asset asset = Assets.Find(x => x.GetName() == name);
             string id = "image" + CurrentScene.Components.Count;
+
+            for(int i=CurrentScene.Components.Count; CurrentScene.Components.Find(x => x.Id == id) != null; i++)
+            {
+                id = Regex.Replace(id, @"[\d-]", "") + (i);
+            }
+
             if (State.IsLayerSelected())
                 AddComponent(new CienImage(asset.GetNameWithExt(), id, location, CienComponent.Number,
                     State.Selected.Layer.Name));

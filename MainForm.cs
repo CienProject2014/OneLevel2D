@@ -36,8 +36,50 @@ namespace OneLevel2D
         {
             InitializeComponent();
 
+            FormSetting();
+
             Init();
         }
+
+        #region Form Setting
+        // TODO 윈도우 크기를 조절하기 위한 설정들. 아직은 적용 안됨.
+        private const int cGrip = 16;      // Grip size
+        private void FormSetting()
+        {
+            SetStyle(ControlStyles.ResizeRedraw, true);
+        }
+        protected override void WndProc(ref Message m)
+        {
+            Point pos = new Point(m.LParam.ToInt32() & 0xffff, m.LParam.ToInt32() >> 16);
+            pos = this.PointToClient(pos);
+            if (m.Msg == 0x84)
+            {  // Trap WM_NCHITTEST
+                if (pos.X >= this.ClientSize.Width - cGrip && pos.Y >= this.ClientSize.Height - cGrip)
+                {
+                    m.Result = (IntPtr)17; // HT BOTTOMRIGHT
+                    return;
+                }
+            }
+
+            if (m.Msg == 0x84)
+            {
+                switch ("abs")
+                {
+                    case "l": m.Result = (IntPtr)10; return;  // the Mouse on Left Form
+                    case "r": m.Result = (IntPtr)11; return;  // the Mouse on Right Form
+                    case "t": m.Result = (IntPtr)12; return;
+                    case "lt": m.Result = (IntPtr)13; return;
+                    case "rt": m.Result = (IntPtr)14; return;
+                    case "b": m.Result = (IntPtr)15; return;
+                    case "lb": m.Result = (IntPtr)16; return;
+                    case "rb": m.Result = (IntPtr)17; return; // the Mouse on Right_Under Form
+                    case "": m.Result = pos.Y < 32 /*mouse on title Bar*/ ? (IntPtr)2 : (IntPtr)1; return;
+
+                }
+            }
+            base.WndProc(ref m);
+        }
+        #endregion
 
         private void Init()
         {
