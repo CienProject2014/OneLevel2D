@@ -57,15 +57,15 @@ namespace OneLevel2D
             this.lockunlockToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.toolContainer1 = new System.Windows.Forms.SplitContainer();
-            this.selectedControl = new OneLevel2D.SelectedControl();
-            this.componentList = new OneLevel2D.CustomList.ComponentListView();
             this.toolContainer2 = new System.Windows.Forms.SplitContainer();
             this.assetList = new System.Windows.Forms.ListView();
-            this.layerList = new OneLevel2D.CustomList.LayerListView();
             this.directorySearcher1 = new System.DirectoryServices.DirectorySearcher();
             this.assetContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.removeToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.blackboard = new OneLevel2D.Blackboard();
+            this.selectedControl = new OneLevel2D.SelectedControl();
+            this.componentList = new OneLevel2D.CustomList.ComponentListView();
+            this.layerList = new OneLevel2D.CustomList.LayerListView();
             this.titleBarControl1 = new OneLevel2D.TitleBarControl();
             this.menuStrip.SuspendLayout();
             this.componentContextMenu.SuspendLayout();
@@ -153,6 +153,7 @@ namespace OneLevel2D
             this.importSceneToolStripMenuItem.Name = "importSceneToolStripMenuItem";
             this.importSceneToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
             this.importSceneToolStripMenuItem.Text = "Import Scene";
+            this.importSceneToolStripMenuItem.Click += new System.EventHandler(this.importSceneToolStripMenuItem_Click);
             // 
             // assetsToolStripMenuItem
             // 
@@ -192,7 +193,7 @@ namespace OneLevel2D
             // 
             // imageImportDialog
             // 
-            this.imageImportDialog.Filter = "png files|*.png|jpg files|*.jpg|All image files|*.*";
+            this.imageImportDialog.Filter = "png files|*.png|jpg files|*.jpg|font files(.ttf)|*.ttf";
             this.imageImportDialog.Multiselect = true;
             // 
             // componentContextMenu
@@ -255,7 +256,7 @@ namespace OneLevel2D
             // 
             this.splitContainer.Panel2.Controls.Add(this.toolContainer2);
             this.splitContainer.Size = new System.Drawing.Size(190, 604);
-            this.splitContainer.SplitterDistance = 296;
+            this.splitContainer.SplitterDistance = 283;
             this.splitContainer.TabIndex = 16;
             // 
             // toolContainer1
@@ -272,30 +273,9 @@ namespace OneLevel2D
             // toolContainer1.Panel2
             // 
             this.toolContainer1.Panel2.Controls.Add(this.componentList);
-            this.toolContainer1.Size = new System.Drawing.Size(190, 296);
-            this.toolContainer1.SplitterDistance = 135;
+            this.toolContainer1.Size = new System.Drawing.Size(190, 283);
+            this.toolContainer1.SplitterDistance = 123;
             this.toolContainer1.TabIndex = 17;
-            // 
-            // selectedControl
-            // 
-            this.selectedControl.AutoSize = true;
-            this.selectedControl.BackColor = System.Drawing.SystemColors.ControlDark;
-            this.selectedControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.selectedControl.Font = new System.Drawing.Font("NanumGothic", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.selectedControl.Location = new System.Drawing.Point(0, 0);
-            this.selectedControl.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.selectedControl.Name = "selectedControl";
-            this.selectedControl.Size = new System.Drawing.Size(190, 135);
-            this.selectedControl.TabIndex = 17;
-            // 
-            // componentList
-            // 
-            this.componentList.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.componentList.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.componentList.Location = new System.Drawing.Point(0, 0);
-            this.componentList.Name = "componentList";
-            this.componentList.Size = new System.Drawing.Size(190, 157);
-            this.componentList.TabIndex = 20;
             // 
             // toolContainer2
             // 
@@ -311,7 +291,7 @@ namespace OneLevel2D
             // toolContainer2.Panel2
             // 
             this.toolContainer2.Panel2.Controls.Add(this.layerList);
-            this.toolContainer2.Size = new System.Drawing.Size(190, 304);
+            this.toolContainer2.Size = new System.Drawing.Size(190, 317);
             this.toolContainer2.SplitterDistance = 150;
             this.toolContainer2.TabIndex = 17;
             // 
@@ -326,15 +306,6 @@ namespace OneLevel2D
             this.assetList.TabIndex = 2;
             this.assetList.UseCompatibleStateImageBehavior = false;
             this.assetList.View = System.Windows.Forms.View.SmallIcon;
-            // 
-            // layerList
-            // 
-            this.layerList.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.layerList.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.layerList.Location = new System.Drawing.Point(0, 0);
-            this.layerList.Name = "layerList";
-            this.layerList.Size = new System.Drawing.Size(190, 150);
-            this.layerList.TabIndex = 19;
             // 
             // directorySearcher1
             // 
@@ -366,6 +337,36 @@ namespace OneLevel2D
             this.blackboard.Name = "blackboard";
             this.blackboard.Size = new System.Drawing.Size(610, 604);
             this.blackboard.TabIndex = 5;
+            // 
+            // selectedControl
+            // 
+            this.selectedControl.AutoSize = true;
+            this.selectedControl.BackColor = System.Drawing.SystemColors.ControlDark;
+            this.selectedControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.selectedControl.Font = new System.Drawing.Font("NanumGothic", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.selectedControl.Location = new System.Drawing.Point(0, 0);
+            this.selectedControl.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.selectedControl.Name = "selectedControl";
+            this.selectedControl.Size = new System.Drawing.Size(190, 123);
+            this.selectedControl.TabIndex = 17;
+            // 
+            // componentList
+            // 
+            this.componentList.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.componentList.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.componentList.Location = new System.Drawing.Point(0, 0);
+            this.componentList.Name = "componentList";
+            this.componentList.Size = new System.Drawing.Size(190, 156);
+            this.componentList.TabIndex = 20;
+            // 
+            // layerList
+            // 
+            this.layerList.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.layerList.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.layerList.Location = new System.Drawing.Point(0, 0);
+            this.layerList.Name = "layerList";
+            this.layerList.Size = new System.Drawing.Size(190, 163);
+            this.layerList.TabIndex = 19;
             // 
             // titleBarControl1
             // 

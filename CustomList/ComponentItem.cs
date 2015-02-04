@@ -7,9 +7,9 @@ namespace OneLevel2D.CustomList
 {
     public class ComponentItem : CustomItem
     {
-        public CienComponent Component { get; private set; }
+        public CienBaseComponent Component { get; private set; }
 
-        public ComponentItem(CienComponent component, Point location)
+        public ComponentItem(CienBaseComponent component, Point location)
             : base(component.Id, location)
         {
 

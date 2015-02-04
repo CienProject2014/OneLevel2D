@@ -19,9 +19,10 @@ namespace OneLevel2D
         public static CienDocument Document;
         public static Blackboard Board;
         public static CompositeEditForm CompositeEditForm = new CompositeEditForm();
+        public static LabelForm LabelForm;
         /************************************************************************/
         
-        public static List<CienComponent> CopiedComponentList;
+        public static List<CienBaseComponent> CopiedComponentList;
         public static SelectedNotifier _selected = new SelectedNotifier();
         public static SelectedNotifier Selected
         {
@@ -55,13 +56,14 @@ namespace OneLevel2D
         public static void ConvertToComposite(string id)
         {
             // TODO sImage to sComposite
-            CienComponent comp = Document.CurrentScene.Components.Find(x => x.Id == id);
+            CienBaseComponent comp = Document.CurrentScene.Components.Find(x => x.Id == id);
             if (comp is CienComposite) return;
 
-            CienImage image = comp as CienImage;
-            if (image == null) return;
+            CienComposite newComposite;
+            string newId = "composite" + CienBaseComponent.Number;
 
-            CienComposite newComposite = new CienComposite(image.ImageName, image.Id, image.Location, image.ZIndex);
+            newComposite = new CienComposite(newId, comp.Location, Document.GetNewZindex());
+            newComposite.AddComponent(comp);
             RemoveSelectedComponent();
             Document.AddComponent(newComposite);
             ComponentView.AddComponent(newComposite);
@@ -70,24 +72,24 @@ namespace OneLevel2D
         #endregion
 
         #region Select
-        public static void SelectComponent(CienComponent component)
+        public static void SelectComponent(CienBaseComponent component)
         {
             _selected.Component = component;
 
-            if (!_selected.ComponentList.Contains(component) && component != CienComponent.Empty)
+            if (!_selected.ComponentList.Contains(component) && component != CienBaseComponent.Empty)
                 _selected.ComponentList.Add(component);
 
             ComponentView.SelectComponent(_selected.Component);
             Board.Invalidate();
         }
 
-        public static void SelectOneComponent(CienComponent component)
+        public static void SelectOneComponent(CienBaseComponent component)
         {
             SelectedComponentAbandon();
             SelectComponent(component);
         }
 
-        public static void UnselectComponent(CienComponent component)
+        public static void UnselectComponent(CienBaseComponent component)
         {
             _selected.ComponentList.Remove(component);
 
@@ -97,7 +99,7 @@ namespace OneLevel2D
 
         public static void SelectedComponentAbandon()
         {
-            SelectComponent(CienComponent.Empty);
+            SelectComponent(CienBaseComponent.Empty);
             _selected.ComponentList.Clear();
 
             ComponentView.UnselectAll();
@@ -126,10 +128,10 @@ namespace OneLevel2D
         {
             if (_selected.ComponentList.Count == 0) return;
 
-            CopiedComponentList = new List<CienComponent>(_selected.ComponentList.Count);
+            CopiedComponentList = new List<CienBaseComponent>(_selected.ComponentList.Count);
             _selected.ComponentList.ForEach((item) =>
             {
-                CopiedComponentList.Add((CienComponent)item.Clone());
+                CopiedComponentList.Add((CienBaseComponent)item.Clone());
             });
         }
 
@@ -139,7 +141,7 @@ namespace OneLevel2D
 
             foreach (var component in CopiedComponentList)
             {
-                var newComponent = (CienComponent)component.Clone();
+                var newComponent = (CienBaseComponent)component.Clone();
                 newComponent.SetZindex(Document.GetNewZindex());
                 Document.AddComponent(newComponent);
                 ComponentView.AddComponent(newComponent);
@@ -179,14 +181,14 @@ namespace OneLevel2D
             _lastCommand = null;
         }
 
-        public static void CommandAddComponent(List<CienComponent> components)
+        public static void CommandAddComponent(List<CienBaseComponent> components)
         {
             var command = new AddCommand(Command.ADD, components);
 
             Commands.Push(command);
         }
 
-        public static void CommandRemoveComponent(List<CienComponent> components)
+        public static void CommandRemoveComponent(List<CienBaseComponent> components)
         {
             var command = new RemoveCommand(Command.REMOVE, components);
 
@@ -275,14 +277,14 @@ namespace OneLevel2D
             get { return _layer; }
             set { _layer = value; }
         }
-        private CienComponent _component = CienComponent.Empty;
-        public CienComponent Component
+        private CienBaseComponent _component = CienBaseComponent.Empty;
+        public CienBaseComponent Component
         {
             get { return _component; }
             set { _component = value; NotifyPropertyChanged(); }
         }
-        private List<CienComponent> _componentList = new List<CienComponent>();
-        public List<CienComponent> ComponentList
+        private List<CienBaseComponent> _componentList = new List<CienBaseComponent>();
+        public List<CienBaseComponent> ComponentList
         {
             get { return _componentList; }
             set { _componentList = value; }

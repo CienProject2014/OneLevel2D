@@ -74,12 +74,6 @@
       <DependentUpon>CompositeEditForm.cs</DependentUpon>
     </Compile>
     <Compile Include="CoordinateConverter.cs" />
-    <Compile Include="CustomList\AssetItem.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="CustomList\AssetListView.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Include="CustomList\ComponentItem.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -114,10 +108,11 @@
     </Compile>
     <Compile Include="Model\CienComposite.cs" />
     <Compile Include="Model\CienImage.cs" />
-    <Compile Include="Model\CienComponent.cs" />
+    <Compile Include="Model\CienBaseComponent.cs" />
     <Compile Include="Model\CienDocument.cs" />
     <Compile Include="Export\Maker.cs" />
     <Compile Include="Export\ProjectModel.cs" />
+    <Compile Include="Model\CienLabel.cs" />
     <Compile Include="Model\CienScene.cs" />
     <Compile Include="Model\Overlap2DProject.cs" />
     <Compile Include="NewForm.cs">
@@ -140,6 +135,12 @@
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Model\CienLayer.cs" />
+    <Compile Include="LabelForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LabelForm.Designer.cs">
+      <DependentUpon>LabelForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="SelectedControl.cs">
       <SubType>UserControl</SubType>
@@ -187,6 +188,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="NewForm.resx">
       <DependentUpon>NewForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LabelForm.resx">
+      <DependentUpon>LabelForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -270,6 +274,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\downarrow1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\pen.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\pen_white.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -11,7 +11,7 @@ namespace OneLevel2D.Model
     {
         [JsonProperty]
         public static string Name { get; set; }
-        public List<CienComponent> Components { get; set; }
+        public List<CienBaseComponent> Components { get; set; }
         public List<CienLayer> Layers { get; set; }
 
         public CienScene() { }
@@ -19,7 +19,7 @@ namespace OneLevel2D.Model
         public void InitScene()
         {
             Name = "Scene";
-            Components = new List<CienComponent>();
+            Components = new List<CienBaseComponent>();
             Layers = new List<CienLayer>(1) { new CienLayer(CienDocument.DefaultLayerName) };
         }
     }

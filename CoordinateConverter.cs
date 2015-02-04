@@ -36,15 +36,10 @@ namespace OneLevel2D
             return translatedPoint;
         }
 
-        public static Point BoardToComposite(Point compositeLocation, Point imageLocation, int width, int height)
+        // composite에 상대적인 image좌표 <-> Board 좌표
+        public static Point CompositeBoard(Point Location, Size compositeSize)
         {
-            return Point.Empty;
-        }
-
-        // composite에 상대적인 image좌표를 뒤집는다.
-        public static Point CompositeToBoard(Point imageLocation, Size compositeSize)
-        {
-            Point flipped = new Point(imageLocation.X, compositeSize.Height - imageLocation.Y);
+            Point flipped = new Point(Location.X, compositeSize.Height - Location.Y);
             return flipped;
         }
 

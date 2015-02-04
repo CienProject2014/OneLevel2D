@@ -35,7 +35,7 @@ namespace OneLevel2D
         private const float MaximumZoom = 2.5f;
         private const int BorderOffset = 0;
 
-        private const string ConvertToButton = "Convert to button";
+        private const string ConvertToComposite = "Convert to composite";
         /************************************************************************/
 
 
@@ -56,18 +56,32 @@ namespace OneLevel2D
             AddEvent();
         }
 
-        public void SetDocument(CienDocument document)
-        {
-            State.Document = document;
-            UpdateRectangle();
-        }
-
         private void AddEvent()
         {
-            blackboardContextMenu.ItemClicked += blackboardContextMenu_ItemClicked;
+            blackboardContextMenu.ItemClicked += (object sender, ToolStripItemClickedEventArgs e) =>
+            {
+                var selected = State.Document.CurrentScene.Components.Find(x => x.Id == e.ClickedItem.Text);
+                if (selected != null)
+                {
+                    State.SelectOneComponent(selected);
+                }
+                else
+                {
+                    switch (e.ClickedItem.Text)
+                    {
+                        case ConvertToComposite:
+                            if (State._selected.ComponentList.Count == 1)
+                            {
+                                State.ConvertToComposite(State._selected.Component.Id);
+                            }
+                            break;
+                    }
+                }
+                Invalidate();
+            };
         }
 
-        private bool IsInside(CienComponent component, Point clicked)
+        private bool IsInside(CienBaseComponent component, Point clicked)
         {
             // if clicked is inside the component, then return true
             if (clicked.X > component.Location.X &&
@@ -81,13 +95,13 @@ namespace OneLevel2D
             return false;
         }
 
-        private bool IsSelectable(CienComponent component)
+        private bool IsSelectable(CienBaseComponent component)
         {
             var layer = State.Document.CurrentScene.Layers.Find(x => x.Name == component.LayerName);
             return layer.IsVisible && !layer.IsLocked;
         }
 
-        
+
         /************************************************************************/
         /* Drawing																*/
         /************************************************************************/
@@ -102,9 +116,11 @@ namespace OneLevel2D
             DrawComponentList(e);
             DrawSelectedComponentBorder(e);
             DrawBoundary(e);
+
+            //e.Graphics.DrawString("TESTasdfasdfasdf", new Font("맑은고딕", 20), new SolidBrush(Color.Wheat), new PointF(0, 0));
         }
 
-        private void DrawComponent(PaintEventArgs e, CienComponent component)
+        private void DrawComponent(PaintEventArgs e, CienBaseComponent component)
         {
             Image img = component.GetImage();
 
@@ -168,12 +184,14 @@ namespace OneLevel2D
 
         protected override void OnMouseEnter(EventArgs e)
         {
-            if (!Focused) Focus();
+            // TODO Blackboard의 Focusing 문제가 발생하면 여길 보자.
+            //if (!Focused) Focus();
         }
 
         protected override void OnMouseDown(MouseEventArgs e)
         {
             if (State.Document == null) return;
+            if (!Focused) Focus();
 
             ClickedPoint = PointTransform(e.Location);
             PreviousPoint = new Point((Size)ClickedPoint);
@@ -206,8 +224,8 @@ namespace OneLevel2D
                 case MouseButtons.Right:
                     var componentList = State.Document.CurrentScene.Components.FindAll(x => IsInside(x, ClickedPoint));
                     UpdateBlackboardContextMenu(componentList);
-                    blackboardContextMenu.Show(PointToScreen(e.Location));    
-                    
+                    blackboardContextMenu.Show(PointToScreen(e.Location));
+
                     break;
             }
         }
@@ -268,7 +286,7 @@ namespace OneLevel2D
 
         protected override void OnMouseDoubleClick(MouseEventArgs e)
         {
-            /*if (State._selected.ComponentList.Count == 1)
+            if (State._selected.ComponentList.Count == 1)
             {
                 var composite = State._selected.ComponentList.Last() as CienComposite;
                 if (composite != null)
@@ -277,8 +295,7 @@ namespace OneLevel2D
                     State.CompositeEditForm.Show();
                     State.CompositeEditForm.Focus();
                 }
-            }*/
-            MessageBox.Show(@"Composite Edit Form");
+            }
         }
 
         protected override bool IsInputKey(Keys keyData)
@@ -346,40 +363,16 @@ namespace OneLevel2D
         }
         #endregion
 
-        #region Delegate Method
-        void blackboardContextMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
-        {
-            var selected = State.Document.CurrentScene.Components.Find(x => x.Id == e.ClickedItem.Text);
-            if (selected != null)
-            {
-                State.SelectOneComponent(selected);
-            }
-            else
-            {
-                switch (e.ClickedItem.Text)
-                {
-                    case ConvertToButton:
-                        if (State._selected.ComponentList.Count == 1)
-                        {
-                            State.ConvertToComposite(State._selected.Component.Id);
-                        }
-                        break;
-                }
-            }
-            Invalidate();
-        }
-        #endregion
-
         #region Update Method
-        private void UpdateBlackboardContextMenu(List<CienComponent> componentList)
+        private void UpdateBlackboardContextMenu(List<CienBaseComponent> componentList)
         {
             blackboardContextMenu.Items.Clear();
 
             // TODO 로직을 더 좋게 하자.
             if (componentList.Count != 0 && State._selected.ComponentList.Count == 1)
             {
-                if (State._selected.ComponentList.Last() is CienImage)
-                    blackboardContextMenu.Items.Add(ConvertToButton);
+                if (!(State._selected.ComponentList.Last() is CienComposite))
+                    blackboardContextMenu.Items.Add(ConvertToComposite);
             }
             foreach (var component in componentList)
             {

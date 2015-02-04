@@ -7,7 +7,7 @@ namespace OneLevel2D.Model
 {
     public enum AssetType
     {
-        Image
+        Image, Font, None
     }
 
     public class Asset
@@ -25,9 +25,14 @@ namespace OneLevel2D.Model
             {
                 case AssetType.Image:
                     Image img = Image.FromFile(projectDirectory + @"\" + CienDocument.Name
-                        + MainForm.AssetDirectory + MainForm.ImageDirectory+@"\"+Name);
+                        + MainForm.ImageDirectory+@"\"+Name);
                     Data = img;
                     ImageSize = img.Size;
+                    break;
+                case AssetType.Font:
+                    break;
+                case AssetType.None:
+                    MessageBox.Show(@"잘못된 형식의 Asset입니다");
                     break;
             }
         }

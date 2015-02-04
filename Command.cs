@@ -24,13 +24,13 @@ namespace OneLevel2D
 
     public class MoveCommand : Command
     {
-        public List<CienComponent> ComponentList { get; set; } 
+        public List<CienBaseComponent> ComponentList { get; set; } 
         public Point StartPoint { get; set; }
         public Point EndPoint { get; set; }
 
-        public MoveCommand(string name, List<CienComponent> list) : base(name)
+        public MoveCommand(string name, List<CienBaseComponent> list) : base(name)
         {
-            ComponentList = new List<CienComponent>(list);
+            ComponentList = new List<CienBaseComponent>(list);
         }
 
         public bool IsMoved()
@@ -42,22 +42,22 @@ namespace OneLevel2D
 
     public class AddCommand : Command
     {
-        public List<CienComponent> ComponentList { get; set; }
+        public List<CienBaseComponent> ComponentList { get; set; }
 
-        public AddCommand(string name, List<CienComponent> list)
+        public AddCommand(string name, List<CienBaseComponent> list)
             : base(name)
         {
-            ComponentList = new List<CienComponent>(list);
+            ComponentList = new List<CienBaseComponent>(list);
         }
     }
 
     public class RemoveCommand : Command
     {
-        public List<CienComponent> ComponentList { get; set; }
+        public List<CienBaseComponent> ComponentList { get; set; }
 
-        public RemoveCommand(string name, List<CienComponent> list) : base(name)
+        public RemoveCommand(string name, List<CienBaseComponent> list) : base(name)
         {
-            ComponentList = new List<CienComponent>(list);
+            ComponentList = new List<CienBaseComponent>(list);
         }
     }
 }

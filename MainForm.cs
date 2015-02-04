@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
+using System.Reflection;
+using System.Runtime.Remoting.Channels;
 using System.Windows.Forms;
 using Newtonsoft.Json;
 using OneLevel2D.Export;
@@ -19,15 +19,17 @@ namespace OneLevel2D
     {
         public const string ProgramName = "OneLevel2D";
 
+        public static string ProjectDirectory;
         public const string AssetDirectory = @"\assets";
-        public const string ImageDirectory = @"\image";
+        public const string ImageDirectory = @"\assets\image";
+        public const string FontDirectory = @"\assets\freetypefonts";
+
+        public const string ProjectExtension = "cien";
+        public const string SceneExtension = "dt";
 
         public const string Overlap2DExtention = "pit";
         public const string Overlap2DImageDataDirectory = @"\assets\orig\images";
         public const string Overlap2DSceneDirectory = @"\scenes";
-
-        public const string ProjectExtension = "cien";
-        public const string SceneExtension = "dt";
 
         private readonly Packer TexturePacker = new Packer();
         private readonly Maker ModelMaker = new Maker();
@@ -35,8 +37,8 @@ namespace OneLevel2D
         public MainForm()
         {
             InitializeComponent();
-
-            FormSetting();
+            
+           // FormSetting();
 
             Init();
         }
@@ -91,6 +93,7 @@ namespace OneLevel2D
 
 
             // TODO 임시로 처리 해둔것. Project save to other directory를 구현하면 수정해야함.
+            ProjectDirectory = Application.StartupPath;
             CienDocument.ProjectDirectory = Application.StartupPath;
 
             AddEvent();
@@ -102,11 +105,26 @@ namespace OneLevel2D
             assetList.DragEnter += assetList_DragEnter;
             assetList.MouseDown += assetList_MouseDown;
 
-            // TODO LayerList 수정
-
             blackboard.DragEnter += blackboard_DragEnter;
             blackboard.DragDrop += blackboard_DragDrop;
             blackboard.KeyDown += blackboard_KeyDown;
+
+            foreach (ToolStripMenuItem item in menuStrip.Items)
+            {
+                item.MouseEnter += (sender, e) =>
+                {
+                    item.ForeColor = Color.Black;
+                };
+                item.MouseLeave += (sender, e) =>
+                {
+                    if (!item.DropDown.Visible)
+                        item.ForeColor = Color.White;
+                };
+                item.DropDownClosed += (sender, e) =>
+                {
+                    item.ForeColor = Color.White;
+                };
+            }
         }
 
         #region Command
@@ -167,7 +185,6 @@ namespace OneLevel2D
             State.Document = new CienDocument();
             State.Document.Init(name, width, height);
 
-            State.Board.SetDocument(State.Document);
             State.Board.Invalidate();
             InitDocument();
         }
@@ -190,13 +207,14 @@ namespace OneLevel2D
 
             State.Board.Invalidate();
 
-            CienComponent.Number = 0;
+            CienBaseComponent.Number = 0;
 
             // TODO 분리해주어야 좋을 Directory 설정. 이 부분을 어디서 사용할지 모르니까 쉽사리 분리를 하지 못하겠다.
             string projectPath = CienDocument.ProjectDirectory ?? Application.StartupPath;
             MakeDirectory(projectPath + @"\" + CienDocument.Name);
             MakeDirectory(projectPath + @"\" + CienDocument.Name + @"\" + AssetDirectory);
-            MakeDirectory(projectPath + @"\" + CienDocument.Name + @"\" + AssetDirectory + ImageDirectory);
+            MakeDirectory(projectPath + @"\" + CienDocument.Name + @"\" + ImageDirectory);
+            MakeDirectory(projectPath + @"\" + CienDocument.Name + @"\" + FontDirectory);
         }
 
         private void SaveDocument(string filename)
@@ -224,17 +242,13 @@ namespace OneLevel2D
             // 1. 이미지들을 실행파일이 있는 프로젝트로 복사한 후,
             foreach (var file in files)
             {
-                string projectDirectory = CienDocument.ProjectDirectory ?? Application.StartupPath;
-
                 try
                 {
-                    File.Copy(file, projectDirectory + @"\" + CienDocument.Name + @"\"
-                                    + AssetDirectory + ImageDirectory + @"\" + file.Split('\\').Last());
-
+                    CopyToProject(file);
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    MessageBox.Show(@"Import 도중 오류가 발생했습니다 " + e);
                 }
 
                 Asset newAsset = MakeAssetFrom(file);
@@ -245,25 +259,51 @@ namespace OneLevel2D
             ReloadAssetList();
         }
 
+        private void CopyToProject(string file)
+        {
+            string projectDirectory = CienDocument.ProjectDirectory ?? Application.StartupPath;
+            var type = AssetTypeChecker(file.Split('.').Last());
+            switch (type)
+            {
+                case AssetType.Image:
+                    File.Copy(file, projectDirectory + @"\" + CienDocument.Name + @"\"
+                            + ImageDirectory + @"\" + file.Split('\\').Last());
+                    break;
+                case AssetType.Font:
+                    File.Copy(file, projectDirectory + @"\" + CienDocument.Name + @"\"
+                            + FontDirectory + @"\" + file.Split('\\').Last());
+                    MessageBox.Show(file + @" 폰트를 가져왔습니다.");
+
+                    break;
+                case AssetType.None:
+                    MessageBox.Show(file + @" 지원하지 않는 파일 형식입니다.");
+                    break;
+            }
+        }
+
         private Asset MakeAssetFrom(string file)
         {
-            AssetType type;
-
-            string extension = file.Split('.')[0];
+            var type = AssetTypeChecker(file.Split('.').Last());
             string name = file.Split('\\').Last();
+
+            return new Asset(type, name);
+        }
+
+        private AssetType AssetTypeChecker(string extension)
+        {
             switch (extension)
             {
                 case "png":
                 case "PNG":
                 case "jpg":
                 case "JPG":
-                    type = AssetType.Image;
-                    break;
+                    return AssetType.Image;
+                case "ttf":
+                case "TTF":
+                    return AssetType.Font;
                 default:
-                    type = AssetType.Image;
-                    break;
+                    return AssetType.None;
             }
-            return new Asset(type, name);
         }
 
         private void Export(string exportDir)
@@ -277,7 +317,27 @@ namespace OneLevel2D
             TexturePacker.MakePackImage(imagePackDir);
             TexturePacker.MakeAtlas(imagePackDir);
 
-            // 2. project.dt, scene.dt를 만든다.
+            // 2. Font 들을 복사한다.
+            string fontDir = exportDir + @"\freetypefonts";
+            DirectoryInfo di = new DirectoryInfo(ProjectDirectory + @"\" + CienDocument.Name + FontDirectory);
+            if (di.Exists)
+            {
+                MakeDirectory(fontDir);
+                foreach (var fileInfo in di.GetFiles())
+                {
+                    try
+                    {
+                        File.Copy(fileInfo.FullName, fontDir + @"\" + fileInfo.Name);
+                    }
+                    catch (Exception e)
+                    {
+                        MessageBox.Show("파일이 이미 있습니다. " + e.Message);
+                    }
+                }
+            }
+            
+
+            // 3. project.dt, scene.dt를 만든다.
             ModelMaker.Initiate();
             ModelMaker.Extract(State.Document);
             ModelMaker.Make();
@@ -287,7 +347,15 @@ namespace OneLevel2D
 
         #region AddComponent, MakeImageFrom, MakeDirectory, CheckExt, GetClickedToolPostion, Sort
 
-        private void AddNewComponent(ListView.SelectedListViewItemCollection items, Point location)
+/*        private void AddNewComponent(string assetName, Point location)
+        {
+            Point transformedLocation = State.Board.PointTransform(location);
+
+            State.Document.MakeNewImage(assetName, transformedLocation);
+            State.ComponentView.AddComponent(State.Document.CurrentScene.Components.Last());
+        }*/
+
+        /*private void AddNewComponent(ListView.SelectedListViewItemCollection items, Point location)
         {
             for (int i = 0; i < items.Count; i++)
             {
@@ -300,9 +368,8 @@ namespace OneLevel2D
             }
 
             State.Document.SortComponentsAscending();
-
             ReloadComponentList();
-        }
+        }*/
 
         private Image MakeImageFrom(string imageName)
         {
@@ -316,16 +383,16 @@ namespace OneLevel2D
             }
 
             return Image.FromFile(projectDirectory + @"\" + CienDocument.Name + @"\"
-                                  + AssetDirectory + ImageDirectory + @"\" + newImagename);
+                                  + ImageDirectory + @"\" + newImagename);
         }
 
-        public void MakeDirectory(string dir)
+        private void MakeDirectory(string dir)
         {
             DirectoryInfo dirInfo = new DirectoryInfo(dir);
             if (!dirInfo.Exists) Directory.CreateDirectory(dir);
         }
 
-        public bool CheckExt(string name)
+        private bool CheckExt(string name)
         {
             return name.Split('.').Length > 1;
         }
@@ -384,8 +451,12 @@ namespace OneLevel2D
                 {
                     ImageIndex = listCounter++
                 };
-                // 2-2. 이미지를 ImageList에 추가한다.
-                assetImageList.Images.Add(MakeImageFrom(asset.GetNameWithExt()));
+
+                // 2-2. 타입이 이미지일 경우 이미지를 ImageList에 추가한다.
+                if (asset.Type == AssetType.Image) 
+                    assetImageList.Images.Add(MakeImageFrom(asset.GetNameWithExt()));
+                else if (asset.Type == AssetType.Font)
+                    assetImageList.Images.Add(Properties.Resources.pen);
 
                 // 2-3. ListView에 추가한다.
                 assetList.Items.Add(lvi);
@@ -422,10 +493,7 @@ namespace OneLevel2D
 
         private void assetList_ItemDrag(object sender, ItemDragEventArgs e)
         {
-            //            assetList.DoDragDrop(e.Item, DragDropEffects.Move); // start dragging
             assetList.DoDragDrop(assetList.SelectedItems, DragDropEffects.Move); // start dragging
-
-            // the code below will run after the end of dragging
         }
 
         private void assetList_DragEnter(object sender, DragEventArgs e)
@@ -439,20 +507,25 @@ namespace OneLevel2D
             {
                 for (int i = assetList.SelectedItems.Count - 1; i >= 0; i--)
                 {
+                    // 1. 리스트에서 지운다.
                     ListViewItem item = assetList.SelectedItems[i];
                     assetList.Items[item.Index].Remove();
 
+                    // 2. 파일의 전체 경로를 가져온다.
+                    var asset = State.Document.Assets.Find(x => x.GetName() == item.Text);
+                    string fileDir = GetAssetFileDirectory(asset);
+
+                    // 3. Document.Assets 에서 지운다.
                     State.Document.RemoveAsset(item.Text);
-                    // TODO 이미지 확장자를 유동적으로 
-                    var imageDir = CienDocument.ProjectDirectory + @"\" + CienDocument.Name + @"\"
-                                   + AssetDirectory + ImageDirectory + @"\" + item.Text + ".png";
-                    if (File.Exists(imageDir))
+
+                    // 4. 실제 파일을 지운다.
+                    if (File.Exists(fileDir))
                     {
                         try
                         {
                             GC.Collect();
                             GC.WaitForPendingFinalizers();
-                            File.Delete(imageDir);
+                            File.Delete(fileDir);
                         }
                         catch (IOException exception)
                         {
@@ -463,6 +536,26 @@ namespace OneLevel2D
             }
             ReloadComponentList();
             State.Board.Invalidate();
+        }
+
+        private string GetAssetFileDirectory(Asset asset)
+        {
+            string dir = null;
+            switch (asset.Type)
+            {
+                case AssetType.Image:
+                    dir += CienDocument.ProjectDirectory + @"\" + CienDocument.Name
+                           + ImageDirectory;
+                    break;
+                case AssetType.Font:
+                    dir += CienDocument.ProjectDirectory + @"\" + CienDocument.Name
+                           + FontDirectory;
+                    break;
+                default:
+                    break;
+            }
+            dir += @"\" + asset.GetNameWithExt();
+            return dir;
         }
 
         void assetList_MouseDown(object sender, MouseEventArgs e)
@@ -501,7 +594,19 @@ namespace OneLevel2D
 
             Point location = PointToClient(new Point(e.X, e.Y) - (Size)State.Board.Location);
 
-            AddNewComponent(items, location);
+            for(int i=0; i<items.Count; i++)
+            {
+                string name = items[i].Text;
+                if (State.Document.Assets.Find(x => x.GetName() == name).Type != AssetType.Image) continue;
+                Size offset = new Size(15 * i, 15 * i);
+
+                Point transformedLocation = State.Board.PointTransform(location + offset);
+                State.Document.MakeNewImage(name, transformedLocation);
+                State.ComponentView.AddComponent(State.Document.CurrentScene.Components.Last());
+            }
+
+            State.Document.SortComponentsAscending();
+            ReloadComponentList();
             State.Board.Invalidate();
         }
 
@@ -572,7 +677,7 @@ namespace OneLevel2D
             switch (imageImportDialog.ShowDialog())
             {
                 case DialogResult.OK:
-                    ImportAsset(imageImportDialog.FileNames); // for debug
+                    ImportAsset(imageImportDialog.FileNames);
                     break;
             }
         }
@@ -682,7 +787,7 @@ namespace OneLevel2D
                 foreach (var exportsImage in sceneModel.composite.sImages)
                 {
                     var image = new CienImage(exportsImage.imageName + ".png",
-                        exportsImage.itemIdentifier ?? "image" + CienComponent.Number,
+                        exportsImage.itemIdentifier ?? "image" + CienBaseComponent.Number,
                         Point.Empty,
                         exportsImage.zIndex,
                         exportsImage.layerName);
@@ -704,13 +809,11 @@ namespace OneLevel2D
                     if (exportsComposite.composite.sImages == null) continue;
 
                     var cienComposite = new CienComposite(
-                        exportsComposite.composite.sImages[0].imageName + ".png",
-                        exportsComposite.itemIdentifier ?? "composite" + CienComponent.Number,
+                        exportsComposite.itemIdentifier ?? "composite" + CienBaseComponent.Number,
                         Point.Empty,
                         exportsComposite.zIndex,
                         exportsComposite.layerName
                         );
-
                     Point convertedLocation =
                         CoordinateConverter.GameToBoard(new Point((int)exportsComposite.x, (int)exportsComposite.y),
                             cienComposite.GetSize().Width, cienComposite.GetSize().Height);
@@ -721,7 +824,8 @@ namespace OneLevel2D
                         var image = exportsComposite.composite.sImages[i];
                         // TODO Image를 로드할때는 composite크기 기준으로 좌상단 원점 좌표계로 바꿔야 한다.
                         //CoordinateConverter.CompositeToBoard(new Point((int) image.x, (int) image.y), exportsComposite);
-                        cienComposite.AddImage(image.imageName, new Point((int)image.x, (int)image.y), image.layerName);
+                        cienComposite.AddImage(image.imageName, image.itemIdentifier);
+                        //cienComposite.AddImage(image.imageName, image.id, image.layerName, new Point(image.x, image.y), image.tint);
                     }
 
                     State.Document.AddComponent(cienComposite);
@@ -774,6 +878,10 @@ namespace OneLevel2D
             }
         }
 
+        private void importSceneToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
         #endregion
 
         /************************************************************************/
@@ -782,8 +890,7 @@ namespace OneLevel2D
 
         private void tESTToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            /*State.SelectComponent(new CienImage("asdf", "sdf", Point.Empty, 0));
-            MessageBox.Show(State.Selected.Component.Id);*/
+            
         }
 
     }

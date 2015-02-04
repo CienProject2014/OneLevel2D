@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Xml;
 using Newtonsoft.Json;
 using OneLevel2D.Model;
 
@@ -61,7 +62,8 @@ namespace OneLevel2D.Export
             {
                 layers = new List<ExportLayer>(),
                 sImages = new List<ExportsImage>(),
-                sComposites = new List<ExportsComposite>()
+                sComposites = new List<ExportsComposite>(),
+                sLabels = new List<ExportsLabel>()
             };
 
             // layers
@@ -97,6 +99,24 @@ namespace OneLevel2D.Export
                     });
 
                 }
+                // sLabels
+                else if (component is CienLabel)
+                {
+                    CienLabel cienLabel = (CienLabel) component;
+                    Point convertedLocation = CoordinateConverter.BoardToGame(cienLabel.Location, cienLabel.GetSize());
+                    scene.composite.sLabels.Add(new ExportsLabel
+                    {
+                        layerName = cienLabel.LayerName,
+                        itemIdentifier = cienLabel.Id,
+                        size = cienLabel.FontSize,
+                        style = cienLabel.Style,
+                        text = cienLabel.Text,
+                        zIndex = cienLabel.ZIndex,
+                        tint = cienLabel.Tint,
+                        x = convertedLocation.X,
+                        y = convertedLocation.Y
+                    });
+                }
                 // sComposites
                 else if (component is CienComposite)
                 {
@@ -108,8 +128,9 @@ namespace OneLevel2D.Export
                         itemIdentifier = cienComposite.Id,
                         composite = new ExportComposite2
                         {
-                            layers = new List<ExportLayer>(cienComposite.composite.Layers.Count),
-                            sImages = new List<ExportsImage2>(cienComposite.composite.Images.Count)
+                            layers = new List<ExportLayer>(cienComposite.Layers.Count),
+                            sImages = new List<ExportsImage2>(),
+                            sLabels = new List<ExportsLabel>()
                         },
                         zIndex = cienComposite.ZIndex,
                         x = convertedLocation.X,
@@ -117,7 +138,7 @@ namespace OneLevel2D.Export
                         tint = cienComposite.Tint
                     });
 
-                    foreach (var layer in cienComposite.composite.Layers)
+                    foreach (var layer in cienComposite.Layers)
                     {
                         scene.composite.sComposites.Last().composite.layers.Add(new ExportLayer
                         {
@@ -127,16 +148,44 @@ namespace OneLevel2D.Export
                         });
                     }
 
-                    foreach (var image in cienComposite.composite.Images)
+                    foreach (var composite in cienComposite.Composites)
                     {
-                        scene.composite.sComposites.Last().composite.sImages.Add(new ExportsImage2
+                        if (composite is CienImage)
                         {
-                            layerName = image.LayerName,
-                            imageName = image.ImageName.Split('.')[0],
-                            tint = image.Tint,
-                            x = image.X,
-                            y = image.Y
-                        });
+                            // image
+                            CienImage image = (CienImage)composite;
+                            var convertedComposite = CoordinateConverter.CompositeBoard(image.Location,
+                                cienComposite.GetSize());
+                            scene.composite.sComposites.Last().composite.sImages.Add(new ExportsImage2
+                            {
+                                layerName = image.LayerName,
+                                itemIdentifier = image.Id,
+                                imageName = image.ImageName.Split('.')[0],
+                                tint = image.Tint,
+                                x = convertedComposite.X,
+                                y = convertedComposite.Y,
+                                zIndex = image.ZIndex,
+                            });
+                        }
+                        // label
+                        else if (composite is CienLabel)
+                        {
+                            CienLabel label = (CienLabel)composite;
+                            var convertedComposite = CoordinateConverter.CompositeBoard(label.Location,
+                                cienComposite.GetSize());
+                            scene.composite.sComposites.Last().composite.sLabels.Add(new ExportsLabel
+                            {
+                                itemIdentifier = label.Id,
+                                layerName = label.LayerName,
+                                size = label.FontSize,
+                                style = label.Style,
+                                text = label.Text,
+                                tint = new List<float>(label.Tint),
+                                x = convertedComposite.X,
+                                y = convertedComposite.Y,
+                                zIndex = label.ZIndex
+                            });
+                        }
                     }
                 }
             }
@@ -151,7 +200,7 @@ namespace OneLevel2D.Export
             scene.sceneName = "MainScene";
         }
 
-        private Point ConvertLocation(CienDocument document, CienComponent component)
+        private Point ConvertLocation(CienDocument document, CienBaseComponent component)
         {
             Point translated = component.Location - Blackboard.LeftTopOffset;
             int newX = translated.X;

@@ -15,6 +15,7 @@ namespace OneLevel2D.CustomList
         private PictureBox minusBox;
         private PictureBox downBox;
         private PictureBox upBox;
+        private PictureBox penBox;
         private const string Title = "Component List";
 
         public ComponentListView()
@@ -24,7 +25,7 @@ namespace OneLevel2D.CustomList
             InitializeComponent();
         }
 
-        public void AddComponent(CienComponent component)
+        public void AddComponent(CienBaseComponent component)
         {
             ComponentItem componentItem = new ComponentItem(component, new Point(0, GetY()))
             {
@@ -55,7 +56,7 @@ namespace OneLevel2D.CustomList
             UpdateListPanel();
         }
 
-        public void RemoveComponent(CienComponent component)
+        public void RemoveComponent(CienBaseComponent component)
         {
             RemoveItem(component.Id);
         }
@@ -69,7 +70,7 @@ namespace OneLevel2D.CustomList
             }
         }
 
-        public void SelectComponent(CienComponent component)
+        public void SelectComponent(CienBaseComponent component)
         {
             foreach (var componentItem in items.Cast<ComponentItem>().Where(componentItem => componentItem.Component.Id == component.Id))
             {
@@ -77,12 +78,24 @@ namespace OneLevel2D.CustomList
             }
         }
 
-        public void UnselectComponent(CienComponent component)
+        public void UnselectComponent(CienBaseComponent component)
         {
             foreach (var componentItem in items.Cast<ComponentItem>().Where(componentItem => componentItem.Component.Id == component.Id))
             {
                 UnselectItem(componentItem);
             }
+        }
+
+        private void penBox_Click(object sender, EventArgs e)
+        {
+            // 창을 프로그램의 중앙에 띄운다.
+            State.LabelForm = new LabelForm
+            {
+                StartPosition = FormStartPosition.Manual,
+                Location = Program.Form.Location + new Size(Program.Form.Width/3, Program.Form.Height/3)
+            };
+
+            State.LabelForm.Show();
         }
 
         private void upBox_Click(object sender, EventArgs e)
@@ -113,71 +126,87 @@ namespace OneLevel2D.CustomList
 
         private void InitializeComponent()
         {
-            ComponentResourceManager resources = new ComponentResourceManager(typeof(ComponentListView));
-            this.statusBar = new TableLayoutPanel();
-            this.upBox = new PictureBox();
-            this.downBox = new PictureBox();
-            this.minusBox = new PictureBox();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ComponentListView));
+            this.statusBar = new System.Windows.Forms.TableLayoutPanel();
+            this.upBox = new System.Windows.Forms.PictureBox();
+            this.downBox = new System.Windows.Forms.PictureBox();
+            this.minusBox = new System.Windows.Forms.PictureBox();
+            this.penBox = new System.Windows.Forms.PictureBox();
             this.statusBar.SuspendLayout();
-            ((ISupportInitialize)(this.upBox)).BeginInit();
-            ((ISupportInitialize)(this.downBox)).BeginInit();
-            ((ISupportInitialize)(this.minusBox)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.upBox)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.downBox)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.minusBox)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.penBox)).BeginInit();
             this.SuspendLayout();
             // 
             // statusBar
             // 
-            this.statusBar.ColumnCount = 4;
-            this.statusBar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
-            this.statusBar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
-            this.statusBar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
-            this.statusBar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
+            this.statusBar.ColumnCount = 5;
+            this.statusBar.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.statusBar.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.statusBar.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.statusBar.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.statusBar.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.statusBar.Controls.Add(this.upBox, 0, 0);
             this.statusBar.Controls.Add(this.downBox, 0, 0);
             this.statusBar.Controls.Add(this.minusBox, 0, 0);
-            this.statusBar.Dock = DockStyle.Bottom;
-            this.statusBar.Location = new Point(0, 278);
+            this.statusBar.Controls.Add(this.penBox, 3, 0);
+            this.statusBar.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.statusBar.Location = new System.Drawing.Point(0, 278);
             this.statusBar.Name = "statusBar";
-            this.statusBar.RightToLeft = RightToLeft.Yes;
+            this.statusBar.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.statusBar.RowCount = 1;
-            this.statusBar.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            this.statusBar.Size = new Size(278, 20);
+            this.statusBar.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.statusBar.Size = new System.Drawing.Size(278, 20);
             this.statusBar.TabIndex = 6;
             // 
             // upBox
             // 
-            this.upBox.BackgroundImage = ((Image)(resources.GetObject("upBox.BackgroundImage")));
-            this.upBox.BackgroundImageLayout = ImageLayout.Stretch;
-            this.upBox.Dock = DockStyle.Fill;
-            this.upBox.Location = new Point(221, 3);
+            this.upBox.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("upBox.BackgroundImage")));
+            this.upBox.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.upBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.upBox.Location = new System.Drawing.Point(221, 3);
             this.upBox.Name = "upBox";
-            this.upBox.Size = new Size(14, 14);
+            this.upBox.Size = new System.Drawing.Size(14, 14);
             this.upBox.TabIndex = 2;
             this.upBox.TabStop = false;
-            this.upBox.Click += new EventHandler(this.upBox_Click);
+            this.upBox.Click += new System.EventHandler(this.upBox_Click);
             // 
             // downBox
             // 
-            this.downBox.BackgroundImage = Resources.downarrow1;
-            this.downBox.BackgroundImageLayout = ImageLayout.Stretch;
-            this.downBox.Dock = DockStyle.Fill;
-            this.downBox.Location = new Point(241, 3);
+            this.downBox.BackgroundImage = global::OneLevel2D.Properties.Resources.downarrow1;
+            this.downBox.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.downBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.downBox.Location = new System.Drawing.Point(241, 3);
             this.downBox.Name = "downBox";
-            this.downBox.Size = new Size(14, 14);
+            this.downBox.Size = new System.Drawing.Size(14, 14);
             this.downBox.TabIndex = 1;
             this.downBox.TabStop = false;
-            this.downBox.Click += new EventHandler(this.downBox_Click);
+            this.downBox.Click += new System.EventHandler(this.downBox_Click);
             // 
             // minusBox
             // 
-            this.minusBox.BackgroundImage = Resources.minus;
-            this.minusBox.BackgroundImageLayout = ImageLayout.Stretch;
-            this.minusBox.Dock = DockStyle.Fill;
-            this.minusBox.Location = new Point(261, 3);
+            this.minusBox.BackgroundImage = global::OneLevel2D.Properties.Resources.minus;
+            this.minusBox.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.minusBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.minusBox.Location = new System.Drawing.Point(261, 3);
             this.minusBox.Name = "minusBox";
-            this.minusBox.Size = new Size(14, 14);
+            this.minusBox.Size = new System.Drawing.Size(14, 14);
             this.minusBox.TabIndex = 0;
             this.minusBox.TabStop = false;
-            this.minusBox.Click += new EventHandler(this.minusBox_Click);
+            this.minusBox.Click += new System.EventHandler(this.minusBox_Click);
+            // 
+            // penBox
+            // 
+            this.penBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.penBox.Image = global::OneLevel2D.Properties.Resources.pen_white;
+            this.penBox.Location = new System.Drawing.Point(201, 3);
+            this.penBox.Name = "penBox";
+            this.penBox.Size = new System.Drawing.Size(14, 14);
+            this.penBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.penBox.TabIndex = 3;
+            this.penBox.TabStop = false;
+            this.penBox.Click += new System.EventHandler(this.penBox_Click);
             // 
             // ComponentListView
             // 
@@ -185,9 +214,10 @@ namespace OneLevel2D.CustomList
             this.Name = "ComponentListView";
             this.Controls.SetChildIndex(this.statusBar, 0);
             this.statusBar.ResumeLayout(false);
-            ((ISupportInitialize)(this.upBox)).EndInit();
-            ((ISupportInitialize)(this.downBox)).EndInit();
-            ((ISupportInitialize)(this.minusBox)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.upBox)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.downBox)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.minusBox)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.penBox)).EndInit();
             this.ResumeLayout(false);
 
         }

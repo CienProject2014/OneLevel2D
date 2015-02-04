@@ -1,41 +1,86 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using OneLevel2D.Model;
+using OneLevel2D.Properties;
 
 namespace OneLevel2D
 {
     public partial class CompositeEditForm : Form
     {
-        public CienComposite Composite { get; private set; }
+        private CompositeBoard Board { get; set; }
+        private CienComposite Composite { get; set; }
 
         public CompositeEditForm()
         {
             InitializeComponent();
+
+            InitBoard();
+
+            AddEvent();
+        }
+
+        private void InitBoard()
+        {
+            Board = new CompositeBoard()
+            {
+                Dock = DockStyle.Fill
+            };
+            Controls.Add(Board);
+            Board.BringToFront();
+        }
+
+        private void AddEvent()
+        {
+            closeBox.MouseEnter += (sender, e) => { closeBox.Image = Resources.xbuttonhover; };
+            closeBox.MouseLeave += (sender, e) => { closeBox.Image = null; };
+            closeBox.MouseClick += (sender, e) => { Close(); };
         }
 
         public void Set(CienComposite composite)
         {
             Composite = composite;
-            //this.BackgroundImage = Composite.GetImage();
-            Composite.AddImage(new CienImage("yongsa_sad", "yongsa", Point.Empty, 2));
-            Size = Composite.GetSize();
+            Size = Composite.GetSize() + new Size(0, titleBar.Size.Height);
+            Board.SetImage(composite.GetImage());
         }
 
         public void AddImage(CienImage image)
         {
-            Composite.AddImage(image);
-        }
-
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            e.Graphics.DrawImage(Composite.GetImage(), new Rectangle(new Point(0, 0), new Size(Composite.GetImage().Width, Composite.GetImage().Height)));
+            Composite.AddComponent(image);
         }
 
         protected override void OnClosing(CancelEventArgs e)
         {
             e.Cancel = true;
             this.Hide();
+        }
+
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            MessageBox.Show("asdf");
+        }
+
+        public class CompositeBoard : UserControl
+        {
+            private Image drawImage;
+
+            public CompositeBoard()
+            {
+
+            }
+
+            public void SetImage(Image image)
+            {
+                drawImage = image;
+                Invalidate();
+            }
+
+            protected override void OnPaint(PaintEventArgs e)
+            {
+                if (drawImage != null)
+                    e.Graphics.DrawImage(drawImage, new Rectangle(new Point(0, 0), drawImage.Size));
+            }
         }
     }
 }

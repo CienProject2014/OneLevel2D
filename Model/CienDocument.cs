@@ -5,6 +5,7 @@ using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using System.Windows.Markup.Localizer;
 using System.Windows.Navigation;
 using Newtonsoft.Json;
 
@@ -34,6 +35,7 @@ namespace OneLevel2D.Model
 
         public CienDocument()
         {
+
         }
 
         public void Init(string name, int width, int height)
@@ -59,18 +61,20 @@ namespace OneLevel2D.Model
         public void AddAsset(Asset asset)
         {
             // TODO assetList에 같은 이름의 asset이 있는지 중복 검사를 해야 한다.
-            Asset newasseAsset = Assets.Find(x => x.GetName() == asset.GetName());
-            if (newasseAsset != null)
+            if (Assets.Find(x => x.GetNameWithExt() == asset.GetNameWithExt()) != null)
             {
                 MessageBox.Show(@"같은 이름의 Asset이 이미 프로젝트내에 존재합니다.");
                 return;
             }
-            Assets.Add(asset);
 
+            Assets.Add(asset);
         }
 
         public void RemoveAsset(string name)
         {
+            // 선택되었으면 버린다.
+            State.SelectedComponentAbandon();
+
             // 관련된 Component부터 다 지운다.
             List<string> removableList = new List<string>();
 
@@ -88,8 +92,8 @@ namespace OneLevel2D.Model
                     else if (component is CienComposite)
                     {
                         CienComposite composite = (CienComposite)component;
-                        if (composite.composite.Images[0].ImageName.Split('.')[0] == name)
-                            removableList.Add(composite.Id);
+                        /*if (composite.composite.Images[0].ImageName.Split('.')[0] == name)
+                            removableList.Add(composite.Id);*/
                     }
                 }
 
@@ -99,6 +103,7 @@ namespace OneLevel2D.Model
                 }
             }
 
+            // Asset을 지운다.
             Assets.Remove(Assets.Find(x => x.GetName() == name));
         }
         #endregion
@@ -106,32 +111,60 @@ namespace OneLevel2D.Model
         #region Component: Add, Remove, Rename
 
         // TODO 무조건 이 함수를 통해서만 Component를 추가한다!
-        public void AddComponent(CienComponent component)
+        public void AddComponent(CienBaseComponent component)
         {
             // TODO Zindex를 정리해줄 필요가 있다.
             component.SetZindex(GetNewZindex());
 
             CurrentScene.Components.Add(component);
 
-            CienComponent.Number++;
+            CienBaseComponent.Number++;
         }
 
         // Asset에서 만들어지는 Component는 무조건 이 함수를 통해서 만들어져야 한다.
-        public void NewComponent(string name, Point location)
+        public void MakeNewImage(string assetName, Point location)
         {
-            Asset asset = Assets.Find(x => x.GetName() == name);
-            string id = "image" + CurrentScene.Components.Count;
+            Asset asset = Assets.Find(x => x.GetName() == assetName);
 
-            for(int i=CurrentScene.Components.Count; CurrentScene.Components.Find(x => x.Id == id) != null; i++)
-            {
-                id = Regex.Replace(id, @"[\d-]", "") + (i);
-            }
+            string id = "image" + CurrentScene.Components.Count;
+            id = GetNewId(id);
 
             if (State.IsLayerSelected())
-                AddComponent(new CienImage(asset.GetNameWithExt(), id, location, CienComponent.Number,
+            {
+                AddComponent(new CienImage(asset.GetNameWithExt(), id, location, CienBaseComponent.Number,
                     State.Selected.Layer.Name));
+            }
             else
+            {
                 MessageBox.Show(@"선택된 layer가 없습니다!");
+            }
+        }
+
+        public void MakeNewLabel(string text, int size, string style, List<float> tint)
+        {
+            string id = "label" + CurrentScene.Components.Count;
+            id = GetNewId(id);
+
+            if (State.IsLayerSelected())
+            {
+                AddComponent(new CienLabel(text, size, style, tint, id, CienBaseComponent.Number, State.Selected.Layer.Name));
+            }
+            else
+            {
+                MessageBox.Show(@"선택된 layer가 없습니다!");
+            }
+        }
+
+        private string GetNewId(string id)
+        {
+            string newId = (string) id.Clone();
+
+            for (int i = CurrentScene.Components.Count; CurrentScene.Components.Find(x => x.Id == id) != null; i++)
+            {
+                 newId = Regex.Replace(id, @"[\d-]", "") + (i);
+            }
+
+            return newId;
         }
 
         public void RemoveComponent(string id)
@@ -139,10 +172,16 @@ namespace OneLevel2D.Model
             CurrentScene.Components.Remove(CurrentScene.Components.Find(x => x.Id == id));
         }
 
-        public void RemoveComponent(CienComponent component)
+        public void RemoveComponent(CienBaseComponent component)
         {
             RemoveComponent(component.Id);
         }
+
+        #endregion
+
+        #region Label
+
+
 
         #endregion
 
