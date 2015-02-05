@@ -185,7 +185,6 @@ namespace OneLevel2D
             State.Document = new CienDocument();
             State.Document.Init(name, width, height);
 
-            State.Board.Invalidate();
             InitDocument();
         }
 
@@ -868,7 +867,9 @@ namespace OneLevel2D
 
         private void jsonExportToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (CienDocument.ExportDirectory == null && exportFolderBrowser.ShowDialog() == DialogResult.OK)
+            // TODO Export 경로에 관한 설정
+            //CienDocument.ExportDirectory == null && 
+            if (exportFolderBrowser.ShowDialog() == DialogResult.OK)
             {
                 CienDocument.ExportDirectory = exportFolderBrowser.SelectedPath;
                 MakeDirectory(CienDocument.ExportDirectory + @"\scenes");

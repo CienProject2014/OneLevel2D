@@ -38,12 +38,6 @@ namespace OneLevel2D.CustomList
             {
                 if (IsSelected)
                 {
-                    if (MultipleSelect)
-                    {
-                    }
-                    else
-                    {
-                    }
                 }
                 else
                 {

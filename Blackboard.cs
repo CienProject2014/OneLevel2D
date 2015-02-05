@@ -179,6 +179,7 @@ namespace OneLevel2D
 
         protected override void OnSizeChanged(EventArgs e)
         {
+            //MessageBox.Show("Changed");
             UpdateRectangle();
         }
 
@@ -213,7 +214,6 @@ namespace OneLevel2D
                     if (MultipleSelect)
                     {
                         State.SelectComponent(candidate);
-                        Debug.Print("multiple");
                     }
                     else
                         State.SelectOneComponent(candidate);
@@ -322,14 +322,20 @@ namespace OneLevel2D
         {
             base.OnKeyDown(e);
 
-            if (e.Control) MultipleSelect = true;
+            if (e.Control)
+            {
+                MultipleSelect = true;
+            }
 
             Invalidate();
         }
 
         protected override void OnKeyUp(KeyEventArgs e)
         {
-            if (MultipleSelect) MultipleSelect = false;
+            if (e.Control && MultipleSelect)
+            {
+                MultipleSelect = false;
+            }
         }
 
         #endregion

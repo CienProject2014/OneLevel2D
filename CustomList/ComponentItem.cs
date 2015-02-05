@@ -23,28 +23,56 @@ namespace OneLevel2D.CustomList
 
         protected override void OnMouseDown(MouseEventArgs e)
         {
-            base.OnMouseDown(e);
+            //base.OnMouseDown(e);
+            var parentList = (ComponentListView) Parent.Parent;
 
             if (e.Button == MouseButtons.Left)
             {
-                if (IsSelected)
+                if (!IsSelected)
                 {
-                    if (MultipleSelect)
+                    if (parentList.MultipleSelect)
                     {
                         State.SelectComponent(Component);
-                        Debug.Print("multiplie component");
-                        
                     }
                     else
+                    {
                         State.SelectOneComponent(Component);
+                    }
+
                     ItemSelect();
+                    State.Board.Focus();
                 }
                 else
                 {
                     State.UnselectComponent(Component);
+
                     ItemUnselect();
                 }
             }
+
+        }
+
+        protected override bool IsInputKey(Keys keyData)
+        {
+            if (keyData == Keys.Control)
+            {
+                return true;
+            }
+            return base.IsInputKey(keyData);
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            var parentList = (ComponentListView)Parent.Parent;
+            if (e.Control)
+                parentList.MultipleSelect = true;
+        }
+
+        protected override void OnKeyUp(KeyEventArgs e)
+        {
+            var parentList = (ComponentListView)Parent.Parent;
+            if (parentList.MultipleSelect)
+                parentList.MultipleSelect = false;
         }
 
         protected override void ChangeItemName(string newId)

@@ -8,7 +8,6 @@ namespace OneLevel2D
     public abstract partial class CustomItem : UserControl, ICloneable
     {
         public bool IsSelected { get; protected set; }
-        protected bool MultipleSelect { get; private set; }
         private static readonly Color SelecteColor = Color.WhiteSmoke;
         private static readonly Color EnterColor = Color.LightGray;
         private static readonly Color LeaveColor = Color.Gray;
@@ -54,7 +53,6 @@ namespace OneLevel2D
         {
             if (!IsSelected)
             {
-                Debug.Print("no enter");
                 BackColor = EnterColor;
             }
         }
@@ -126,36 +124,12 @@ namespace OneLevel2D
             }
         }
 
-        protected override bool IsInputKey(Keys keyData)
-        {
-            if (keyData == Keys.Control)
-            {
-                return true;
-            }
-            return base.IsInputKey(keyData);
-        }
-
-        protected override void OnKeyDown(KeyEventArgs e)
-        {
-            if (e.Control)
-                MultipleSelect = true;
-            Debug.Print(MultipleSelect.ToString());
-        }
-
-        protected override void OnKeyUp(KeyEventArgs e)
-        {
-            if (MultipleSelect)
-                MultipleSelect = false;
-
-            Debug.Print(MultipleSelect.ToString());
-        }
-
         protected override void OnMouseEnter(EventArgs e)
         {
             ShowEnter();
             // TODO Compoennt List View에 문제가 생기면 여기를 확인.
             //Parent.Focus();
-            Focus();
+            //Focus();
         }
 
         protected override void OnMouseLeave(EventArgs e)
