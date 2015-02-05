@@ -26,7 +26,7 @@ namespace OneLevel2D.Model
         public int Height { get; set; }
         public List<string> Resolutions { get; set; }
         public List<Asset> Assets { get; set; }
-        public CienScene CurrentScene { get; set; }
+        //public CienScene CurrentScene { get; set; }
         public List<CienScene> Scenes { get; set; }
 
         public const string DefaultLayerName = "Default";
@@ -92,8 +92,16 @@ namespace OneLevel2D.Model
                     else if (component is CienComposite)
                     {
                         CienComposite composite = (CienComposite)component;
-                        /*if (composite.composite.Images[0].ImageName.Split('.')[0] == name)
-                            removableList.Add(composite.Id);*/
+                        // TODO Composite 안에 Composite이 있을 경우에도 Remove 할수있어야 함.
+                        foreach (var image in composite.Composites.FindAll(x => x is CienImage))
+                        {
+                            var cienImage = (CienImage) image;
+                            if (cienImage.ImageName == name)
+                            {
+                                removableList.Add(composite.Id);
+                                break;
+                            }
+                        }
                     }
                 }
 

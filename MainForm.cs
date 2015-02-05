@@ -193,6 +193,7 @@ namespace OneLevel2D
             string docstring = File.ReadAllText(dir);
 
             ParseDocument(docstring);
+
             InitDocument();
         }
 

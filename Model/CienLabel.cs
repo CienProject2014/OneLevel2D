@@ -102,7 +102,7 @@ namespace OneLevel2D.Model
             var g = (int)(Tint[1] * 255);
             var b = (int)(Tint[2] * 255);
             var a = (int)(Tint[3] * 255);
-            return Color.FromArgb(r, g, b, a);
+            return Color.FromArgb(a, r, g, b);
         }
     }
 }
