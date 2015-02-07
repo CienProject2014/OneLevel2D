@@ -88,7 +88,7 @@ namespace OneLevel2D
             int size = int.Parse(sizeBox.Text);
 
             State.Document.MakeNewLabel(text, size, style, tint);
-            State.ComponentView.AddComponent(State.Document.CurrentScene.Components.Last());
+            State.ComponentView.AddComponent(State.CurrentScene.Components.Last());
 
             Close();
         }

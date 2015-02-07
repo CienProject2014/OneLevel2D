@@ -45,11 +45,16 @@ namespace OneLevel2D.Model
             Height = height;
             Resolutions = new List<string>(1) { "orig" };
             Assets = new List<Asset>();
-
-            CurrentScene = new CienScene();
-            CurrentScene.InitScene();
             Scenes = new List<CienScene>();
-            Scenes.Add(CurrentScene);
+
+            NewScene();
+        }
+
+        public void NewScene()
+        {
+            CienScene newScene = new CienScene();
+            newScene.InitScene(State.Board);
+            Scenes.Add(newScene);
         }
 
         #region Asset: Get, Add, Remove
@@ -124,7 +129,7 @@ namespace OneLevel2D.Model
             // TODO Zindex를 정리해줄 필요가 있다.
             component.SetZindex(GetNewZindex());
 
-            CurrentScene.Components.Add(component);
+            State.CurrentScene.Components.Add(component);
 
             CienBaseComponent.Number++;
         }
@@ -134,7 +139,7 @@ namespace OneLevel2D.Model
         {
             Asset asset = Assets.Find(x => x.GetName() == assetName);
 
-            string id = "image" + CurrentScene.Components.Count;
+            string id = "image" + State.CurrentScene.Components.Count;
             id = GetNewId(id);
 
             if (State.IsLayerSelected())
@@ -150,7 +155,7 @@ namespace OneLevel2D.Model
 
         public void MakeNewLabel(string text, int size, string style, List<float> tint)
         {
-            string id = "label" + CurrentScene.Components.Count;
+            string id = "label" + State.CurrentScene.Components.Count;
             id = GetNewId(id);
 
             if (State.IsLayerSelected())
@@ -167,7 +172,7 @@ namespace OneLevel2D.Model
         {
             string newId = (string) id.Clone();
 
-            for (int i = CurrentScene.Components.Count; CurrentScene.Components.Find(x => x.Id == id) != null; i++)
+            for (int i = State.CurrentScene.Components.Count; State.CurrentScene.Components.Find(x => x.Id == id) != null; i++)
             {
                  newId = Regex.Replace(id, @"[\d-]", "") + (i);
             }
@@ -177,7 +182,7 @@ namespace OneLevel2D.Model
 
         public void RemoveComponent(string id)
         {
-            CurrentScene.Components.Remove(CurrentScene.Components.Find(x => x.Id == id));
+            State.CurrentScene.Components.Remove(State.CurrentScene.Components.Find(x => x.Id == id));
         }
 
         public void RemoveComponent(CienBaseComponent component)
@@ -195,13 +200,13 @@ namespace OneLevel2D.Model
 
         public int GetNewZindex()
         {
-            if (CurrentScene.Components.Count == 0) return 1;
-            return CurrentScene.Components.Max(x => x.ZIndex) + 1;
+            if (State.CurrentScene.Components.Count == 0) return 1;
+            return State.CurrentScene.Components.Max(x => x.ZIndex) + 1;
         }
 
         public void SortComponentsAscending()
         {
-            CurrentScene.Components.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex));
+            State.CurrentScene.Components.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex));
         }
     }
 }

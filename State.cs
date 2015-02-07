@@ -16,10 +16,12 @@ namespace OneLevel2D
     {
         /************************************************************************/
         public static ComponentListView ComponentView;
+        public static LayerListView LayerView;
         public static CienDocument Document;
         public static Blackboard Board;
         public static CompositeEditForm CompositeEditForm = new CompositeEditForm();
         public static LabelForm LabelForm;
+        public static CienScene CurrentScene;
         /************************************************************************/
         
         public static List<CienBaseComponent> CopiedComponentList;
@@ -39,6 +41,11 @@ namespace OneLevel2D
             ComponentView = clv;
         }
 
+        public static void SetLayerListView(LayerListView llv)
+        {
+            LayerView = llv;
+        }
+
         #region Component Control
         // from document and view
         public static void RemoveSelectedComponent()
@@ -56,13 +63,13 @@ namespace OneLevel2D
         public static void ConvertToComposite(string id)
         {
             // TODO sImage to sComposite
-            CienBaseComponent comp = Document.CurrentScene.Components.Find(x => x.Id == id);
+            CienBaseComponent comp = CurrentScene.Components.Find(x => x.Id == id);
             if (comp is CienComposite) return;
 
             CienComposite newComposite;
             string newId = "composite" + CienBaseComponent.Number;
 
-            newComposite = new CienComposite(newId, comp.Location, Document.GetNewZindex());
+            newComposite = new CienComposite(newId, comp.Location, Document.GetNewZindex(), comp.LayerName);
             newComposite.AddComponent(comp);
             RemoveSelectedComponent();
             Document.AddComponent(newComposite);
@@ -99,7 +106,7 @@ namespace OneLevel2D
 
         public static void SelectedComponentAbandon()
         {
-            SelectComponent(CienBaseComponent.Empty);
+            _selected.Component = CienBaseComponent.Empty;
             _selected.ComponentList.Clear();
 
             ComponentView.UnselectAll();
@@ -110,9 +117,11 @@ namespace OneLevel2D
             return _selected.ComponentList.Count != 0;
         }
 
-        public static void SelectLayer(CienLayer layer)
+        public static void SelectOneLayer(CienLayer layer)
         {
             _selected.Layer = layer;
+
+            LayerView.UnselectAll();
         }
 
         public static bool IsLayerSelected()
@@ -314,7 +323,7 @@ namespace OneLevel2D
 
         private void MoveUp()
         {
-            var toDown = State.Document.CurrentScene.Components.Find(x => x.ZIndex == Component.ZIndex + 1);
+            var toDown = State.CurrentScene.Components.Find(x => x.ZIndex == Component.ZIndex + 1);
             if (toDown != null)
             {
                 toDown.SetZindex(Component.ZIndex);
@@ -326,7 +335,7 @@ namespace OneLevel2D
 
         private void MoveDown()
         {
-            var toUp = State.Document.CurrentScene.Components.Find(x => x.ZIndex == Component.ZIndex - 1);
+            var toUp = State.CurrentScene.Components.Find(x => x.ZIndex == Component.ZIndex - 1);
             if (toUp != null)
             {
                 toUp.SetZindex(Component.ZIndex);
@@ -341,7 +350,7 @@ namespace OneLevel2D
             // 내림차순
             ComponentList.Sort((a, b) => b.ZIndex.CompareTo(a.ZIndex));
 
-            var maxZindex = State.Document.CurrentScene.Components.Max(x => x.ZIndex);
+            var maxZindex = State.CurrentScene.Components.Max(x => x.ZIndex);
 
             foreach (var component in ComponentList)
             {
@@ -359,7 +368,7 @@ namespace OneLevel2D
             // 오름차순
             ComponentList.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex));
 
-            var minZindex = State.Document.CurrentScene.Components.Min(x => x.ZIndex);
+            var minZindex = State.CurrentScene.Components.Min(x => x.ZIndex);
 
             foreach (var component in ComponentList)
             {

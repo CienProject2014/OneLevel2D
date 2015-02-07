@@ -41,14 +41,14 @@ namespace OneLevel2D.CustomList
         private void NewLayer()
         {
             CienLayer layer = new CienLayer("layer" + GetNumber(), true, false);
-            State.Document.CurrentScene.Layers.Add(layer);
+            State.CurrentScene.Layers.Add(layer);
             AddLayer(layer);
         }
 
         private void RemoveLayer(CienLayer layer)
         {
             RemoveItem(layer.Name);
-            State.Document.CurrentScene.Components.RemoveAll(x => x.LayerName == layer.Name);
+            State.CurrentScene.Components.RemoveAll(x => x.LayerName == layer.Name);
             State.Board.Invalidate();
         }
 
@@ -57,7 +57,7 @@ namespace OneLevel2D.CustomList
             var removable = items.FindAll(x => x.IsSelected);
             foreach (var item in removable)
             {
-                var layer = State.Document.CurrentScene.Layers.Find(x => x.Name == item.itemName.Text);
+                var layer = State.CurrentScene.Layers.Find(x => x.Name == item.itemName.Text);
                 RemoveLayer(layer);
             }
         }

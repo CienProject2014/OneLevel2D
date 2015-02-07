@@ -23,7 +23,7 @@ namespace OneLevel2D.Model
         /************************************************************************/
 
         public CienComposite(string id, Point position, 
-            int zIndex, string layerName = CienDocument.DefaultLayerName)
+            int zIndex, string layerName)
         {
             Id = id;
             Location = position;

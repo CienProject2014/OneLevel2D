@@ -10,10 +10,15 @@ namespace OneLevel2D.Export
 {
     public class Maker
     {
+        private ProjectModel project;
+        private List<SceneModel> sceneModels;
+        private const string ProjectFileName = "project.dt";
+        private const string SceneFileName = "MainScene.dt";
+
         public void Initiate()
         {
             project = new ProjectModel();
-            scene = new SceneModel();
+            sceneModels = new List<SceneModel>();
         }
 
         public void Extract(CienDocument document)
@@ -25,11 +30,20 @@ namespace OneLevel2D.Export
 
         public void Make()
         {
-            string projectString = JsonConvert.SerializeObject(project);
+            string projectString = JsonConvert.SerializeObject(project, new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore
+            });
             File.WriteAllText(CienDocument.ExportDirectory + @"\" + ProjectFileName, projectString);
 
-            string sceneString = JsonConvert.SerializeObject(scene);
-            File.WriteAllText(CienDocument.ExportDirectory + @"\scenes\" + SceneFileName, sceneString);
+            foreach (var sceneModel in sceneModels)
+            {
+                string sceneString = JsonConvert.SerializeObject(sceneModel, new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore
+            });
+                File.WriteAllText(CienDocument.ExportDirectory + @"\scenes\" + sceneModel.sceneName + ".dt", sceneString);
+            }
         }
 
         public void ExtractProjectModel(CienDocument document)
@@ -57,147 +71,102 @@ namespace OneLevel2D.Export
 
         public void ExtractSceneModel(CienDocument document)
         {
-            // composite
-            scene.composite = new ExportComposite1
+            foreach (var cienScene in document.Scenes)
             {
-                layers = new List<ExportLayer>(),
-                sImages = new List<ExportsImage>(),
-                sComposites = new List<ExportsComposite>(),
-                sLabels = new List<ExportsLabel>()
-            };
-
-            // layers
-            foreach (var layer in document.CurrentScene.Layers)
-            {
-                scene.composite.layers.Add(new ExportLayer
+                SceneModel scene = new SceneModel();
+                // composite
+                scene.composite = new ExportComposite1
                 {
-                    layerName = layer.Name,
-                    isVisible = layer.IsVisible,
-                    isLocked = layer.IsLocked
-                });
-            }
+                    layers = new List<ExportLayer>(),
+                    sImages = new List<ExportsImage>(),
+                    sComposites = new List<ExportsComposite>()
+                };
 
-            foreach (var component in document.CurrentScene.Components)
-            {
-                // sImages
-                if (component is CienImage)
+                // layers
+                foreach (var layer in cienScene.Layers)
                 {
-                    CienImage cienImage = (CienImage)component;
-                    Point convertedLocation = CoordinateConverter.BoardToGame(cienImage.Location, cienImage.GetSize());
-                    //Point convertedLocation = ConvertLocation(document, cienImage);
-                    scene.composite.sImages.Add(new ExportsImage
+                    scene.composite.layers.Add(new ExportLayer
                     {
-                        layerName = cienImage.LayerName,
-                        itemIdentifier = cienImage.Id,
-                        imageName = cienImage.ImageName.Split('.')[0],
-                        zIndex = cienImage.ZIndex,
-                        x = convertedLocation.X,
-                        y = convertedLocation.Y,
-                        /*x = cienImage.Location.X,
-                        y = cienImage.Location.Y,*/
-                        tint = cienImage.Tint
-                    });
-
-                }
-                // sLabels
-                else if (component is CienLabel)
-                {
-                    CienLabel cienLabel = (CienLabel) component;
-                    Point convertedLocation = CoordinateConverter.BoardToGame(cienLabel.Location, cienLabel.GetSize());
-                    scene.composite.sLabels.Add(new ExportsLabel
-                    {
-                        layerName = cienLabel.LayerName,
-                        itemIdentifier = cienLabel.Id,
-                        size = cienLabel.FontSize,
-                        style = cienLabel.Style,
-                        text = cienLabel.Text,
-                        zIndex = cienLabel.ZIndex,
-                        tint = cienLabel.Tint,
-                        x = convertedLocation.X,
-                        y = convertedLocation.Y
+                        layerName = layer.Name,
+                        isVisible = layer.IsVisible,
+                        isLocked = layer.IsLocked
                     });
                 }
-                // sComposites
-                else if (component is CienComposite)
-                {
-                    CienComposite cienComposite = (CienComposite)component;
-                    Point convertedLocation = CoordinateConverter.BoardToGame(cienComposite.Location, cienComposite.GetSize());
-                    scene.composite.sComposites.Add(new ExportsComposite
-                    {
-                        layerName = cienComposite.LayerName,
-                        itemIdentifier = cienComposite.Id,
-                        composite = new ExportComposite2
-                        {
-                            layers = new List<ExportLayer>(cienComposite.Layers.Count),
-                            sImages = new List<ExportsImage2>(),
-                            sLabels = new List<ExportsLabel>()
-                        },
-                        zIndex = cienComposite.ZIndex,
-                        x = convertedLocation.X,
-                        y = convertedLocation.Y,
-                        tint = cienComposite.Tint
-                    });
 
-                    foreach (var layer in cienComposite.Layers)
+                foreach (var component in cienScene.Components)
+                {
+                    // sImages
+                    if (component is CienImage)
                     {
-                        scene.composite.sComposites.Last().composite.layers.Add(new ExportLayer
+                        CienImage cienImage = (CienImage)component;
+                        Point convertedLocation = CoordinateConverter.BoardToGame(cienImage.Location, cienImage.GetSize());
+                        //Point convertedLocation = ConvertLocation(document, cienImage);
+                        scene.composite.sImages.Add(new ExportsImage
                         {
-                            layerName = layer.Name,
-                            isVisible = layer.IsVisible,
-                            isLocked = layer.IsLocked
+                            layerName = cienImage.LayerName,
+                            itemIdentifier = cienImage.Id,
+                            imageName = cienImage.ImageName.Split('.')[0],
+                            zIndex = cienImage.ZIndex,
+                            x = convertedLocation.X,
+                            y = convertedLocation.Y,
+                            /*x = cienImage.Location.X,
+                            y = cienImage.Location.Y,*/
+                            tint = cienImage.Tint
                         });
-                    }
 
-                    foreach (var composite in cienComposite.Composites)
+                    }
+                    // sComposites
+                    else if (component is CienComposite)
                     {
-                        if (composite is CienImage)
+                        CienComposite cienComposite = (CienComposite)component;
+                        Point convertedLocation = CoordinateConverter.BoardToGame(cienComposite.Location, cienComposite.GetSize());
+                        scene.composite.sComposites.Add(new ExportsComposite
                         {
-                            // image
-                            CienImage image = (CienImage)composite;
-                            var convertedComposite = CoordinateConverter.CompositeBoard(image.Location,
-                                cienComposite.GetSize());
+                            layerName = cienComposite.LayerName,
+                            itemIdentifier = cienComposite.Id,
+                            composite = new ExportComposite2
+                            {
+                                layers = new List<ExportLayer>(cienComposite.Layers.Count),
+                                sImages = new List<ExportsImage2>(cienComposite.Composites.Count)
+                            },
+                            zIndex = cienComposite.ZIndex,
+                            x = convertedLocation.X,
+                            y = convertedLocation.Y,
+                            tint = cienComposite.Tint
+                        });
+
+                        foreach (var layer in cienComposite.Layers)
+                        {
+                            scene.composite.sComposites.Last().composite.layers.Add(new ExportLayer
+                            {
+                                layerName = layer.Name,
+                                isVisible = layer.IsVisible,
+                                isLocked = layer.IsLocked
+                            });
+                        }
+
+                        foreach (var image in cienComposite.Composites.FindAll(x => x is CienImage))
+                        {
+                            CienImage cienImage = (CienImage) image;
                             scene.composite.sComposites.Last().composite.sImages.Add(new ExportsImage2
                             {
-                                layerName = image.LayerName,
-                                itemIdentifier = image.Id,
-                                imageName = image.ImageName.Split('.')[0],
-                                tint = image.Tint,
-                                x = convertedComposite.X,
-                                y = convertedComposite.Y,
-                                zIndex = image.ZIndex,
-                            });
-                        }
-                        // label
-                        else if (composite is CienLabel)
-                        {
-                            CienLabel label = (CienLabel)composite;
-                            var convertedComposite = CoordinateConverter.CompositeBoard(label.Location,
-                                cienComposite.GetSize());
-                            scene.composite.sComposites.Last().composite.sLabels.Add(new ExportsLabel
-                            {
-                                itemIdentifier = label.Id,
-                                layerName = label.LayerName,
-                                size = label.FontSize,
-                                style = label.Style,
-                                text = label.Text,
-                                tint = new List<float>(label.Tint),
-                                x = convertedComposite.X,
-                                y = convertedComposite.Y,
-                                zIndex = label.ZIndex
+                                layerName = cienImage.LayerName,
+                                imageName = cienImage.ImageName.Split('.')[0],
+                                tint = cienImage.Tint,
+                                x = cienImage.Location.X,
+                                y = cienImage.Location.Y
                             });
                         }
                     }
                 }
+
+                scene.ambientColor = new List<float> { 0.5f, 0.5f, 0.5f, 1 };
+
+                scene.physicsPropertiesVO = new ExportPhysics();
+
+                scene.sceneName = cienScene.Name;
+                sceneModels.Add(scene);
             }
-
-            scene.ambientColor = new List<float>
-            {
-                0.5f, 0.5f, 0.5f, 1
-            };
-
-            scene.physicsPropertiesVO = new ExportPhysics();
-
-            scene.sceneName = "MainScene";
         }
 
         private Point ConvertLocation(CienDocument document, CienBaseComponent component)
@@ -207,11 +176,6 @@ namespace OneLevel2D.Export
             int newY = document.Height - (translated.Y + component.GetSize().Height);
             return new Point(newX, newY);
         }
-
-        private ProjectModel project;
-        private SceneModel scene;
-        private const string ProjectFileName = "project.dt";
-        private const string SceneFileName = "MainScene.dt";
     }
 }
 

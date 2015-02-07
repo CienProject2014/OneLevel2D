@@ -13,6 +13,8 @@ namespace OneLevel2D
     public partial class Blackboard : UserControl
     {
         /* Variables ************************************************************/
+        private CienScene Scene;
+
         public Point[] RectanglePoints { get; private set; }
 
         public Point CursorPosition { get; private set; }
@@ -56,11 +58,17 @@ namespace OneLevel2D
             AddEvent();
         }
 
+        public void SetScene(CienScene scene)
+        {
+            Scene = scene;
+            UpdateRectangle();
+        }
+
         private void AddEvent()
         {
             blackboardContextMenu.ItemClicked += (object sender, ToolStripItemClickedEventArgs e) =>
             {
-                var selected = State.Document.CurrentScene.Components.Find(x => x.Id == e.ClickedItem.Text);
+                var selected = Scene.Components.Find(x => x.Id == e.ClickedItem.Text);
                 if (selected != null)
                 {
                     State.SelectOneComponent(selected);
@@ -97,7 +105,7 @@ namespace OneLevel2D
 
         private bool IsSelectable(CienBaseComponent component)
         {
-            var layer = State.Document.CurrentScene.Layers.Find(x => x.Name == component.LayerName);
+            var layer = Scene.Layers.Find(x => x.Name == component.LayerName);
             return layer.IsVisible && !layer.IsLocked;
         }
 
@@ -131,11 +139,11 @@ namespace OneLevel2D
         private void DrawComponentList(PaintEventArgs e)
         {
             // TODO 그리기 전에도 한 번 정렬해준다. 속도 이슈가 발생하면 삭제해야할듯.
-            State.Document.CurrentScene.Components.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex));
+            Scene.Components.Sort((a, b) => a.ZIndex.CompareTo(b.ZIndex));
 
-            foreach (var component in State.Document.CurrentScene.Components)
+            foreach (var component in Scene.Components)
             {
-                if (State.Document.CurrentScene.Layers.Find(x => x.Name == component.LayerName).IsVisible)
+                if (Scene.Layers.Find(x => x.Name == component.LayerName).IsVisible)
                     DrawComponent(e, component);
             }
         }
@@ -201,7 +209,7 @@ namespace OneLevel2D
             {
                 case MouseButtons.Left:
                     // 선택된 List중에서 ZIndex가 가장 큰 Component를 선택한다.
-                    var selectables = State.Document.CurrentScene.Components.FindAll(x => IsInside(x, ClickedPoint) && IsSelectable(x));
+                    var selectables = Scene.Components.FindAll(x => IsInside(x, ClickedPoint) && IsSelectable(x));
 
                     if (selectables.Count == 0)
                     {
@@ -222,7 +230,7 @@ namespace OneLevel2D
 
                     break;
                 case MouseButtons.Right:
-                    var componentList = State.Document.CurrentScene.Components.FindAll(x => IsInside(x, ClickedPoint));
+                    var componentList = Scene.Components.FindAll(x => IsInside(x, ClickedPoint));
                     UpdateBlackboardContextMenu(componentList);
                     blackboardContextMenu.Show(PointToScreen(e.Location));
 
@@ -332,7 +340,7 @@ namespace OneLevel2D
 
         protected override void OnKeyUp(KeyEventArgs e)
         {
-            if (e.Control && MultipleSelect)
+            if (e.KeyCode == Keys.ControlKey && MultipleSelect)
             {
                 MultipleSelect = false;
             }

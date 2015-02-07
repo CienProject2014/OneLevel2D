@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.Remoting.Channels;
 using System.Windows.Forms;
 using Newtonsoft.Json;
 using OneLevel2D.Export;
 using OneLevel2D.Model;
+using OneLevel2D.Properties;
 using OneLevel2D.TexturePacker;
 using Layer = OneLevel2D.Model.CienLayer;
 
@@ -45,7 +43,7 @@ namespace OneLevel2D
 
         #region Form Setting
         // TODO 윈도우 크기를 조절하기 위한 설정들. 아직은 적용 안됨.
-        private const int cGrip = 16;      // Grip size
+/*        private const int cGrip = 16;      // Grip size
         private void FormSetting()
         {
             SetStyle(ControlStyles.ResizeRedraw, true);
@@ -75,12 +73,12 @@ namespace OneLevel2D
                     case "b": m.Result = (IntPtr)15; return;
                     case "lb": m.Result = (IntPtr)16; return;
                     case "rb": m.Result = (IntPtr)17; return; // the Mouse on Right_Under Form
-                    case "": m.Result = pos.Y < 32 /*mouse on title Bar*/ ? (IntPtr)2 : (IntPtr)1; return;
+                    case "": m.Result = pos.Y < 32 /*mouse on title Bar#1# ? (IntPtr)2 : (IntPtr)1; return;
 
                 }
             }
             base.WndProc(ref m);
-        }
+        }*/
         #endregion
 
         private void Init()
@@ -88,10 +86,10 @@ namespace OneLevel2D
             // TODO 접근하기 위해 설정. 
             State.SetBoard(blackboard);
             State.SetComponentListView(componentList);
+            State.SetLayerListView(layerList);
 
             NewDocument("noname", 1920, 1080);
-
-
+    
             // TODO 임시로 처리 해둔것. Project save to other directory를 구현하면 수정해야함.
             ProjectDirectory = Application.StartupPath;
             CienDocument.ProjectDirectory = Application.StartupPath;
@@ -200,6 +198,8 @@ namespace OneLevel2D
         private void InitDocument()
         {
             titleBarControl1.SetTitleName(CienDocument.Name + " - " + ProgramName);
+
+            State.CurrentScene = State.Document.Scenes.Last();
 
             ReloadAssetList();
             ReloadComponentList();
@@ -456,7 +456,7 @@ namespace OneLevel2D
                 if (asset.Type == AssetType.Image) 
                     assetImageList.Images.Add(MakeImageFrom(asset.GetNameWithExt()));
                 else if (asset.Type == AssetType.Font)
-                    assetImageList.Images.Add(Properties.Resources.pen);
+                    assetImageList.Images.Add(Resources.pen);
 
                 // 2-3. ListView에 추가한다.
                 assetList.Items.Add(lvi);
@@ -469,9 +469,9 @@ namespace OneLevel2D
             State.ComponentView.Clear();
 
             State.Document.SortComponentsAscending();
-            for (int i = State.Document.CurrentScene.Components.Count - 1; i >= 0; i--)
+            for (int i = State.CurrentScene.Components.Count - 1; i >= 0; i--)
             {
-                var component = State.Document.CurrentScene.Components[i];
+                var component = State.CurrentScene.Components[i];
                 State.ComponentView.AddComponent(component);
             }
 
@@ -481,7 +481,7 @@ namespace OneLevel2D
         private void ReloadLayerList()
         {
             layerList.Clear();
-            foreach (var layer in State.Document.CurrentScene.Layers)
+            foreach (var layer in State.CurrentScene.Layers)
             {
                 layerList.AddLayer(layer);
             }
@@ -598,11 +598,12 @@ namespace OneLevel2D
             {
                 string name = items[i].Text;
                 if (State.Document.Assets.Find(x => x.GetName() == name).Type != AssetType.Image) continue;
+
                 Size offset = new Size(15 * i, 15 * i);
 
                 Point transformedLocation = State.Board.PointTransform(location + offset);
                 State.Document.MakeNewImage(name, transformedLocation);
-                State.ComponentView.AddComponent(State.Document.CurrentScene.Components.Last());
+                State.ComponentView.AddComponent(State.CurrentScene.Components.Last());
             }
 
             State.Document.SortComponentsAscending();
@@ -773,10 +774,10 @@ namespace OneLevel2D
             #endregion
 
             #region Load Layer
-            State.Document.CurrentScene.Layers.Clear();
+            State.CurrentScene.Layers.Clear();
             foreach (var exportLayer in sceneModel.composite.layers)
             {
-                State.Document.CurrentScene.Layers.Add(new CienLayer(exportLayer.layerName, exportLayer.isVisible, exportLayer.isLocked));
+                State.CurrentScene.Layers.Add(new CienLayer(exportLayer.layerName, exportLayer.isVisible, exportLayer.isLocked));
             }
             ReloadLayerList();
             #endregion

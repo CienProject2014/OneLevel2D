@@ -17,7 +17,6 @@ namespace OneLevel2D.CustomList
         private PictureBox downBox;
         private PictureBox upBox;
         private PictureBox penBox;
-        public bool MultipleSelect;
         private const string Title = "Component List";
 
         public ComponentListView()

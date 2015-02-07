@@ -9,16 +9,18 @@ namespace OneLevel2D.Model
 {
     public class CienScene
     {
+        public static int Number = 1;
         [JsonProperty]
-        public static string Name { get; set; }
+        public string Name { get; set; }
         public List<CienBaseComponent> Components { get; set; }
         public List<CienLayer> Layers { get; set; }
 
         public CienScene() { }
 
-        public void InitScene()
+        public void InitScene(Blackboard board)
         {
-            Name = "Scene";
+            Name = "Scene" + Number++;
+            board.SetScene(this);
             Components = new List<CienBaseComponent>();
             Layers = new List<CienLayer>(1) { new CienLayer(CienDocument.DefaultLayerName) };
         }

@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
+using OneLevel2D.CustomList;
 
 namespace OneLevel2D
 {
@@ -130,6 +131,7 @@ namespace OneLevel2D
             // TODO Compoennt List View에 문제가 생기면 여기를 확인.
             //Parent.Focus();
             //Focus();
+            Debug.Print("Item Enter");
         }
 
         protected override void OnMouseLeave(EventArgs e)
@@ -152,7 +154,6 @@ namespace OneLevel2D
         {
             ShowEnter();
         }
-
 
         #region Constant
 

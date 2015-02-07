@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 using OneLevel2D.Model;
@@ -23,19 +24,18 @@ namespace OneLevel2D.CustomList
 
         protected override void OnMouseDown(MouseEventArgs e)
         {
-            //base.OnMouseDown(e);
-            var parentList = (ComponentListView) Parent.Parent;
-
             if (e.Button == MouseButtons.Left)
             {
                 if (!IsSelected)
                 {
-                    if (parentList.MultipleSelect)
+                    if (false) // TODO Component List View에서 여려개를 선택할 때 사용.
                     {
+                        Debug.Print("select with ctrl");
                         State.SelectComponent(Component);
                     }
                     else
                     {
+                        Debug.Print("select without ctrl");
                         State.SelectOneComponent(Component);
                     }
 
@@ -50,29 +50,6 @@ namespace OneLevel2D.CustomList
                 }
             }
 
-        }
-
-        protected override bool IsInputKey(Keys keyData)
-        {
-            if (keyData == Keys.Control)
-            {
-                return true;
-            }
-            return base.IsInputKey(keyData);
-        }
-
-        protected override void OnKeyDown(KeyEventArgs e)
-        {
-            var parentList = (ComponentListView)Parent.Parent;
-            if (e.Control)
-                parentList.MultipleSelect = true;
-        }
-
-        protected override void OnKeyUp(KeyEventArgs e)
-        {
-            var parentList = (ComponentListView)Parent.Parent;
-            if (parentList.MultipleSelect)
-                parentList.MultipleSelect = false;
         }
 
         protected override void ChangeItemName(string newId)

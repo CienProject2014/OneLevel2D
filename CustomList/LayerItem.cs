@@ -47,8 +47,13 @@ namespace OneLevel2D.CustomList
 
         protected override void OnMouseDown(MouseEventArgs e)
         {
-            base.OnMouseDown(e);
-            State.SelectLayer(_layer);
+            //base.OnMouseDown(e);
+            if (e.Button == MouseButtons.Left)
+            {
+                State.SelectOneLayer(_layer);
+                
+                ItemSelect();
+            }
         }
 
         public void UpdateBox()
