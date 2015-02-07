@@ -48,18 +48,22 @@ namespace OneLevel2D.Export
 
         public void ExtractProjectModel(CienDocument document)
         {
-            ProjectModel.ExportScene scene = new ProjectModel.ExportScene
-            {
-                ambientColor = new List<float>
-                {
-                    0.5f, 0.5f, 0.5f, 1
-                },
-                physicsPropertiesVO = new ProjectModel.ExportPhysics(),
-                sceneName = "MainScene"
-            };
-
             project.scenes = new List<ProjectModel.ExportScene>();
-            project.scenes.Add(scene);
+
+            foreach (var cienScene in document.Scenes)
+            {
+                ProjectModel.ExportScene scene = new ProjectModel.ExportScene
+                {
+                    ambientColor = new List<float>
+                    {
+                        0.5f, 0.5f, 0.5f, 1
+                    },
+                    physicsPropertiesVO = new ProjectModel.ExportPhysics(),
+                    sceneName = cienScene.Name
+                };
+
+                project.scenes.Add(scene);
+            }
 
             project.originalResolution = new ProjectModel.ExportResolution
             {

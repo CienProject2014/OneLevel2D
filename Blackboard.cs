@@ -58,15 +58,9 @@ namespace OneLevel2D
             AddEvent();
         }
 
-        public void SetScene(CienScene scene)
-        {
-            Scene = scene;
-            UpdateRectangle();
-        }
-
         private void AddEvent()
         {
-            blackboardContextMenu.ItemClicked += (object sender, ToolStripItemClickedEventArgs e) =>
+            blackboardContextMenu.ItemClicked += (sender, e) =>
             {
                 var selected = Scene.Components.Find(x => x.Id == e.ClickedItem.Text);
                 if (selected != null)
@@ -87,6 +81,12 @@ namespace OneLevel2D
                 }
                 Invalidate();
             };
+        }
+
+        public void SetScene(CienScene scene)
+        {
+            Scene = scene;
+            UpdateRectangle();
         }
 
         private bool IsInside(CienBaseComponent component, Point clicked)
@@ -143,7 +143,9 @@ namespace OneLevel2D
 
             foreach (var component in Scene.Components)
             {
-                if (Scene.Layers.Find(x => x.Name == component.LayerName).IsVisible)
+                var selecteLayer = Scene.Layers.Find(x => x.Name == component.LayerName);
+                if (selecteLayer == null) continue;
+                if (selecteLayer.IsVisible)
                     DrawComponent(e, component);
             }
         }

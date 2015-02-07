@@ -46,8 +46,6 @@ namespace OneLevel2D.Model
             Resolutions = new List<string>(1) { "orig" };
             Assets = new List<Asset>();
             Scenes = new List<CienScene>();
-
-            NewScene();
         }
 
         public void NewScene()
@@ -134,7 +132,7 @@ namespace OneLevel2D.Model
             CienBaseComponent.Number++;
         }
 
-        // Asset에서 만들어지는 Component는 무조건 이 함수를 통해서 만들어져야 한다.
+        // Asset List에서 만들어지는 Image는 무조건 이 함수를 통해서 만들어져야 한다.
         public void MakeNewImage(string assetName, Point location)
         {
             Asset asset = Assets.Find(x => x.GetName() == assetName);
@@ -144,7 +142,7 @@ namespace OneLevel2D.Model
 
             if (State.IsLayerSelected())
             {
-                AddComponent(new CienImage(asset.GetNameWithExt(), id, location, CienBaseComponent.Number,
+                AddComponent(new CienImage(asset.GetNameWithExt(), id, location, State.CurrentScene.Components.Count,
                     State.Selected.Layer.Name));
             }
             else
@@ -160,7 +158,7 @@ namespace OneLevel2D.Model
 
             if (State.IsLayerSelected())
             {
-                AddComponent(new CienLabel(text, size, style, tint, id, CienBaseComponent.Number, State.Selected.Layer.Name));
+                AddComponent(new CienLabel(text, size, style, tint, id, State.CurrentScene.Components.Count, State.Selected.Layer.Name));
             }
             else
             {

@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.Versioning;
 using System.Security.Cryptography.X509Certificates;
@@ -16,13 +17,17 @@ namespace OneLevel2D.CustomList
 
         public LayerListView()
         {
-            Initialize();
-        }
-
-        private void Initialize()
-        {
             titleName.Text = Title;
             InitializeComponent();
+        }
+
+        public void ChangeLayerList(List<CienLayer> layerList)
+        {
+            ItemClear();
+            foreach (var component in layerList)
+            {
+                AddLayer(component);
+            }
         }
 
         public void AddLayer(CienLayer layer)

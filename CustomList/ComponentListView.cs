@@ -26,6 +26,15 @@ namespace OneLevel2D.CustomList
             InitializeComponent();
         }
 
+        public void ChangeComponentList(List<CienBaseComponent> componentList)
+        {
+            ItemClear();
+            foreach (var component in componentList)
+            {
+                AddComponent(component);
+            }
+        }
+
         public void AddComponent(CienBaseComponent component)
         {
             ComponentItem componentItem = new ComponentItem(component, new Point(0, GetY()))

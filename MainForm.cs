@@ -30,56 +30,55 @@ namespace OneLevel2D
         public const string Overlap2DImageDataDirectory = @"\assets\orig\images";
         public const string Overlap2DSceneDirectory = @"\scenes";
 
+        private Blackboard Board;
         private readonly Packer TexturePacker = new Packer();
         private readonly Maker ModelMaker = new Maker();
 
         public MainForm()
         {
             InitializeComponent();
-            
-           // FormSetting();
 
             Init();
         }
 
         #region Form Setting
         // TODO 윈도우 크기를 조절하기 위한 설정들. 아직은 적용 안됨.
-/*        private const int cGrip = 16;      // Grip size
-        private void FormSetting()
-        {
-            SetStyle(ControlStyles.ResizeRedraw, true);
-        }
-        protected override void WndProc(ref Message m)
-        {
-            Point pos = new Point(m.LParam.ToInt32() & 0xffff, m.LParam.ToInt32() >> 16);
-            pos = this.PointToClient(pos);
-            if (m.Msg == 0x84)
-            {  // Trap WM_NCHITTEST
-                if (pos.X >= this.ClientSize.Width - cGrip && pos.Y >= this.ClientSize.Height - cGrip)
+        /*        private const int cGrip = 16;      // Grip size
+                private void FormSetting()
                 {
-                    m.Result = (IntPtr)17; // HT BOTTOMRIGHT
-                    return;
+                    SetStyle(ControlStyles.ResizeRedraw, true);
                 }
-            }
-
-            if (m.Msg == 0x84)
-            {
-                switch ("abs")
+                protected override void WndProc(ref Message m)
                 {
-                    case "l": m.Result = (IntPtr)10; return;  // the Mouse on Left Form
-                    case "r": m.Result = (IntPtr)11; return;  // the Mouse on Right Form
-                    case "t": m.Result = (IntPtr)12; return;
-                    case "lt": m.Result = (IntPtr)13; return;
-                    case "rt": m.Result = (IntPtr)14; return;
-                    case "b": m.Result = (IntPtr)15; return;
-                    case "lb": m.Result = (IntPtr)16; return;
-                    case "rb": m.Result = (IntPtr)17; return; // the Mouse on Right_Under Form
-                    case "": m.Result = pos.Y < 32 /*mouse on title Bar#1# ? (IntPtr)2 : (IntPtr)1; return;
+                    Point pos = new Point(m.LParam.ToInt32() & 0xffff, m.LParam.ToInt32() >> 16);
+                    pos = this.PointToClient(pos);
+                    if (m.Msg == 0x84)
+                    {  // Trap WM_NCHITTEST
+                        if (pos.X >= this.ClientSize.Width - cGrip && pos.Y >= this.ClientSize.Height - cGrip)
+                        {
+                            m.Result = (IntPtr)17; // HT BOTTOMRIGHT
+                            return;
+                        }
+                    }
 
-                }
-            }
-            base.WndProc(ref m);
-        }*/
+                    if (m.Msg == 0x84)
+                    {
+                        switch ("abs")
+                        {
+                            case "l": m.Result = (IntPtr)10; return;  // the Mouse on Left Form
+                            case "r": m.Result = (IntPtr)11; return;  // the Mouse on Right Form
+                            case "t": m.Result = (IntPtr)12; return;
+                            case "lt": m.Result = (IntPtr)13; return;
+                            case "rt": m.Result = (IntPtr)14; return;
+                            case "b": m.Result = (IntPtr)15; return;
+                            case "lb": m.Result = (IntPtr)16; return;
+                            case "rb": m.Result = (IntPtr)17; return; // the Mouse on Right_Under Form
+                            case "": m.Result = pos.Y < 32 /*mouse on title Bar#1# ? (IntPtr)2 : (IntPtr)1; return;
+
+                        }
+                    }
+                    base.WndProc(ref m);
+                }*/
 
         protected override void OnClosing(CancelEventArgs e)
         {
@@ -94,29 +93,159 @@ namespace OneLevel2D
 
         private void Init()
         {
-            // TODO 접근하기 위해 설정. 
-            State.SetBoard(blackboard);
-            State.SetComponentListView(componentList);
-            State.SetLayerListView(layerList);
+            // TODO State를 통해 접근하기 위해 설정. 
+            SetState();
 
             NewDocument("noname", 1920, 1080);
-    
-            // TODO 임시로 처리 해둔것. Project save to other directory를 구현하면 수정해야함.
-            ProjectDirectory = Application.StartupPath;
-            CienDocument.ProjectDirectory = Application.StartupPath;
+
+            SetProjectDirectory();
 
             AddEvent();
         }
 
+        private void SetState()
+        {
+            Board = new Blackboard()
+               {
+                   Dock = DockStyle.Fill,
+                   AllowDrop = true
+               };
+            State.Board = (Board);
+            State.ComponentView = (componentList);
+            State.LayerView = (layerList);
+            State.SceneTab = sceneTab;
+        }
+
+        private void SetProjectDirectory()
+        {
+            // TODO 임시로 처리 해둔것. Project save to other directory를 구현하면 수정해야함.
+            ProjectDirectory = Application.StartupPath;
+            CienDocument.ProjectDirectory = Application.StartupPath;
+        }
+
         private void AddEvent()
         {
-            assetList.ItemDrag += assetList_ItemDrag;
-            assetList.DragEnter += assetList_DragEnter;
-            assetList.MouseDown += assetList_MouseDown;
+            #region Asset Event
+            assetList.ItemDrag += (sender, e) =>
+            {
+                assetList.DoDragDrop(assetList.SelectedItems, DragDropEffects.Move); // start dragging
+            };
+            assetList.DragEnter += (sender, e) =>
+            {
+                e.Effect = e.AllowedEffect;
+            };
+            assetList.MouseDown += (sender, e) =>
+            {
+                switch (e.Button)
+                {
+                    case MouseButtons.Right:
+                        ListViewHitTestInfo hitTestInfo = assetList.HitTest(e.X, e.Y);
+                        if (hitTestInfo.Item == null) return;
+                        assetContextMenu.Show(this, GetClickedToolPosition(assetList, e.Location));
+                        break;
+                }
+            };
+            #endregion
 
-            blackboard.DragEnter += blackboard_DragEnter;
-            blackboard.DragDrop += blackboard_DragDrop;
-            blackboard.KeyDown += blackboard_KeyDown;
+            #region Board Event
+            Board.DragEnter += (sender, e) =>
+            {
+                if (e.Data.GetDataPresent(typeof(ListView.SelectedListViewItemCollection)))
+                {
+                    e.Effect = DragDropEffects.Move;
+                }
+            };
+            Board.DragDrop += (sender, e) =>
+            {
+                if (!e.Data.GetDataPresent(typeof(ListView.SelectedListViewItemCollection))) return;
+
+                var items =
+                    e.Data.GetData(typeof(ListView.SelectedListViewItemCollection)) as
+                        ListView.SelectedListViewItemCollection;
+
+                if (items == null) return;
+
+                Point location = PointToClient(new Point(e.X, e.Y) - (Size)sceneTab.Location -
+                                  (Size)sceneTab.TabPages[0].Location);
+
+                for (int i = 0; i < items.Count; i++)
+                {
+                    string name = items[i].Text;
+                    var asset = State.Document.Assets.Find(x => x.GetName() == name);
+                    if (asset.Type != AssetType.Image) continue;
+
+                    Size offset = new Size(15 * i, 15 * i);
+
+                    Point transformedLocation = State.Board.PointTransform(location + offset);
+                    State.Document.MakeNewImage(name, transformedLocation);
+
+                    var lastComponent = State.CurrentScene.Components.Last();
+                    if (lastComponent != null)
+                        State.ComponentView.AddComponent(lastComponent);
+                }
+
+                State.Document.SortComponentsAscending();
+                ReloadComponentList();
+                State.Board.Invalidate();
+            };
+            Board.KeyDown += (sender, e) =>
+            {
+                int dx = 0, dy = 0;
+                switch (e.KeyCode)
+                {
+                    case Keys.Left:
+                        dx -= 1;
+                        break;
+                    case Keys.Right:
+                        dx += 1;
+                        break;
+                    case Keys.Up:
+                        dy -= 1;
+                        break;
+                    case Keys.Down:
+                        dy += 1;
+                        break;
+                    case Keys.Delete:
+                        if (State.IsComponentSelected())
+                        {
+                            State.Document.RemoveComponent(State.Selected.Component.Id);
+                            State.SelectedComponentAbandon();
+                            ReloadComponentList();
+                        }
+                        break;
+                }
+                if (e.Shift)
+                {
+                    dx *= 10;
+                    dy *= 10;
+                }
+                if (State.IsComponentSelected()) State.Selected.Move(new Point(dx, dy));
+
+
+                if (e.Control)
+                {
+                    switch (e.KeyCode)
+                    {
+                        case Keys.X:
+                            CutComponent();
+                            break;
+                        case Keys.C:
+                            CopyComponent();
+                            break;
+                        case Keys.V:
+                            PasteComponent();
+                            break;
+                        case Keys.Z:
+                            UnDo();
+                            break;
+                        case Keys.Y:
+                            ReDo();
+                            break;
+                    }
+                }
+                State.Board.Invalidate();
+            };
+            #endregion
 
             foreach (ToolStripMenuItem item in menuStrip.Items)
             {
@@ -188,11 +317,11 @@ namespace OneLevel2D
         #endregion
 
         #region New, Load, Save, Import
-
         private void NewDocument(string name, int width, int height)
         {
             State.Document = new CienDocument();
             State.Document.Init(name, width, height);
+            State.NewScene();
 
             InitDocument();
         }
@@ -210,8 +339,7 @@ namespace OneLevel2D
         {
             titleBarControl1.SetTitleName(CienDocument.Name + " - " + ProgramName);
 
-            State.CurrentScene = State.Document.Scenes.Last();
-
+            ReloadSceneTab();
             ReloadAssetList();
             ReloadComponentList();
             ReloadLayerList();
@@ -348,7 +476,7 @@ namespace OneLevel2D
                     }
                 }
             }
-            
+
 
             // 3. project.dt, scene.dt를 만든다.
             ModelMaker.Initiate();
@@ -360,7 +488,7 @@ namespace OneLevel2D
 
         #region AddComponent, MakeImageFrom, MakeDirectory, CheckExt, GetClickedToolPostion, Sort
 
-/*        private void AddNewComponent(string assetName, Point location)
+        /*        private void AddNewComponent(string assetName, Point location)
         {
             Point transformedLocation = State.Board.PointTransform(location);
 
@@ -446,7 +574,22 @@ namespace OneLevel2D
 
         #endregion
 
-        #region Reload Asset, Component, Layer, Blackboard
+        #region Reload
+
+        private void ReloadSceneTab()
+        {
+            sceneTab.TabPages.Clear();
+            foreach (var cienScene in State.Document.Scenes)
+            {
+                TabPage newPage = new TabPage(cienScene.Name);
+                sceneTab.TabPages.Add(newPage);
+            }
+            var selectedTab = State.SceneTab.SelectedTab;
+            selectedTab.Controls.Add(State.Board);
+            var selectedScene = State.Document.Scenes.Find(x => x.Name == selectedTab.Text);
+            State.CurrentScene = selectedScene;
+            State.Board.SetScene(selectedScene);
+        }
 
         private void ReloadAssetList()
         {
@@ -466,7 +609,7 @@ namespace OneLevel2D
                 };
 
                 // 2-2. 타입이 이미지일 경우 이미지를 ImageList에 추가한다.
-                if (asset.Type == AssetType.Image) 
+                if (asset.Type == AssetType.Image)
                     assetImageList.Images.Add(MakeImageFrom(asset.GetNameWithExt()));
                 else if (asset.Type == AssetType.Font)
                     assetImageList.Images.Add(Resources.pen);
@@ -479,7 +622,7 @@ namespace OneLevel2D
 
         private void ReloadComponentList()
         {
-            State.ComponentView.Clear();
+            State.ComponentView.ItemClear();
 
             State.Document.SortComponentsAscending();
             for (int i = State.CurrentScene.Components.Count - 1; i >= 0; i--)
@@ -493,7 +636,7 @@ namespace OneLevel2D
 
         private void ReloadLayerList()
         {
-            layerList.Clear();
+            layerList.ItemClear();
             foreach (var layer in State.CurrentScene.Layers)
             {
                 layerList.AddLayer(layer);
@@ -503,16 +646,6 @@ namespace OneLevel2D
         #endregion
 
         #region Asset List
-
-        private void assetList_ItemDrag(object sender, ItemDragEventArgs e)
-        {
-            assetList.DoDragDrop(assetList.SelectedItems, DragDropEffects.Move); // start dragging
-        }
-
-        private void assetList_DragEnter(object sender, DragEventArgs e)
-        {
-            e.Effect = e.AllowedEffect;
-        }
 
         private void assetRemoveToolStripMenuItem1_Click(object sender, EventArgs e)
         {
@@ -543,7 +676,7 @@ namespace OneLevel2D
                         catch (IOException exception)
                         {
                             MessageBox.Show(exception.Message);
-                        }       
+                        }
                     }
                 }
             }
@@ -571,116 +704,6 @@ namespace OneLevel2D
             return dir;
         }
 
-        void assetList_MouseDown(object sender, MouseEventArgs e)
-        {
-            switch (e.Button)
-            {
-                case MouseButtons.Right:
-                    ListViewHitTestInfo hitTestInfo = assetList.HitTest(e.X, e.Y);
-                    if (hitTestInfo.Item == null) return;
-                    assetContextMenu.Show(this, GetClickedToolPosition(assetList, e.Location));
-                    break;
-            }
-        }
-
-        #endregion
-
-        #region Blackboard
-
-        private void blackboard_DragEnter(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(typeof(ListView.SelectedListViewItemCollection)))
-            {
-                e.Effect = DragDropEffects.Move;
-            }
-        }
-
-        private void blackboard_DragDrop(object sender, DragEventArgs e)
-        {
-            if (!e.Data.GetDataPresent(typeof(ListView.SelectedListViewItemCollection))) return;
-
-            var items =
-                e.Data.GetData(typeof(ListView.SelectedListViewItemCollection)) as
-                    ListView.SelectedListViewItemCollection;
-
-            if (items == null) return;
-
-            Point location = PointToClient(new Point(e.X, e.Y) - (Size)State.Board.Location);
-
-            for(int i=0; i<items.Count; i++)
-            {
-                string name = items[i].Text;
-                if (State.Document.Assets.Find(x => x.GetName() == name).Type != AssetType.Image) continue;
-
-                Size offset = new Size(15 * i, 15 * i);
-
-                Point transformedLocation = State.Board.PointTransform(location + offset);
-                State.Document.MakeNewImage(name, transformedLocation);
-                State.ComponentView.AddComponent(State.CurrentScene.Components.Last());
-            }
-
-            State.Document.SortComponentsAscending();
-            ReloadComponentList();
-            State.Board.Invalidate();
-        }
-
-        private void blackboard_KeyDown(object sender, KeyEventArgs e)
-        {
-            int dx = 0, dy = 0;
-            switch (e.KeyCode)
-            {
-                case Keys.Left:
-                    dx -= 1;
-                    break;
-                case Keys.Right:
-                    dx += 1;
-                    break;
-                case Keys.Up:
-                    dy -= 1;
-                    break;
-                case Keys.Down:
-                    dy += 1;
-                    break;
-                case Keys.Delete:
-                    if (State.IsComponentSelected())
-                    {
-                        State.Document.RemoveComponent(State.Selected.Component.Id);
-                        State.SelectedComponentAbandon();
-                        ReloadComponentList();
-                    }
-                    break;
-            }
-            if (e.Shift)
-            {
-                dx *= 10;
-                dy *= 10;
-            }
-            if (State.IsComponentSelected()) State.Selected.Move(new Point(dx, dy));
-
-
-            if (e.Control)
-            {
-                switch (e.KeyCode)
-                {
-                    case Keys.X:
-                        CutComponent();
-                        break;
-                    case Keys.C:
-                        CopyComponent();
-                        break;
-                    case Keys.V:
-                        PasteComponent();
-                        break;
-                    case Keys.Z:
-                        UnDo();
-                        break;
-                    case Keys.Y:
-                        ReDo();
-                        break;
-                }
-            }
-            State.Board.Invalidate();
-        }
 
         #endregion
 
@@ -774,7 +797,7 @@ namespace OneLevel2D
             #endregion
 
             #region Load Scene
-            var fIs = sceneDi.GetFiles("*."+SceneExtension);
+            var fIs = sceneDi.GetFiles("*." + SceneExtension);
             SceneModel[] sceneModels = new SceneModel[fIs.Length];
             for (int i = 0; i < fIs.Length; i++)
             {
@@ -896,7 +919,23 @@ namespace OneLevel2D
         {
 
         }
+
+        private void newSceneToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            State.NewScene();
+        }
         #endregion
+
+        private void sceneTab_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (sceneTab.SelectedTab == null) return;
+            var selectedScene = State.Document.Scenes.Find(x => x.Name == sceneTab.SelectedTab.Text);
+            sceneTab.SelectedTab.Controls.Add(State.Board);
+            State.Board.SetScene(selectedScene);
+            State.CurrentScene = selectedScene;
+            State.ComponentView.ChangeComponentList(State.CurrentScene.Components);
+            State.LayerView.ChangeLayerList(State.CurrentScene.Layers);
+        }
 
         /************************************************************************/
         /* DEBUG																*/
@@ -904,7 +943,7 @@ namespace OneLevel2D
 
         private void tESTToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            
+
         }
 
     }

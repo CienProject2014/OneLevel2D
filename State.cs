@@ -18,6 +18,7 @@ namespace OneLevel2D
         public static ComponentListView ComponentView;
         public static LayerListView LayerView;
         public static CienDocument Document;
+        public static TabControl SceneTab;
         public static Blackboard Board;
         public static CompositeEditForm CompositeEditForm = new CompositeEditForm();
         public static LabelForm LabelForm;
@@ -31,20 +32,23 @@ namespace OneLevel2D
             get { return _selected; }
         }
 
-        public static void SetBoard(Blackboard board)
+        #region Scene
+
+        public static void NewScene()
         {
-            Board = board;
+            Document.NewScene();
+
+            var lastScene = Document.Scenes.Last();
+            if (lastScene == null) return;
+
+            var newPage = new TabPage(lastScene.Name);
+            newPage.Controls.Add(Board);
+            SceneTab.TabPages.Add(newPage);
+
+            SceneTab.SelectTab(newPage);
         }
 
-        public static void SetComponentListView(ComponentListView clv)
-        {
-            ComponentView = clv;
-        }
-
-        public static void SetLayerListView(LayerListView llv)
-        {
-            LayerView = llv;
-        }
+        #endregion
 
         #region Component Control
         // from document and view
@@ -67,7 +71,7 @@ namespace OneLevel2D
             if (comp is CienComposite) return;
 
             CienComposite newComposite;
-            string newId = "composite" + CienBaseComponent.Number;
+            string newId = "composite" + CurrentScene.Components.Count;
 
             newComposite = new CienComposite(newId, comp.Location, Document.GetNewZindex(), comp.LayerName);
             newComposite.AddComponent(comp);
@@ -127,7 +131,15 @@ namespace OneLevel2D
         public static bool IsLayerSelected()
         {
             if (_selected.Layer == null) _selected.Layer = CienLayer.Empty;
+            
+            if (!CurrentScene.Layers.Contains(_selected.Layer)) _selected.Layer = CienLayer.Empty;
+
             return !_selected.Layer.Equals(CienLayer.Empty);
+        }
+
+        public static void SelectedLayerAbandon()
+        {
+            _selected.Layer = CienLayer.Empty;
         }
         #endregion
 

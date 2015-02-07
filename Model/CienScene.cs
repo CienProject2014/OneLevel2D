@@ -15,14 +15,17 @@ namespace OneLevel2D.Model
         public List<CienBaseComponent> Components { get; set; }
         public List<CienLayer> Layers { get; set; }
 
-        public CienScene() { }
+        public CienScene()
+        {
+            // If we put some code here, then the Json Serializer make object twice
+        }
 
         public void InitScene(Blackboard board)
         {
             Name = "Scene" + Number++;
-            board.SetScene(this);
             Components = new List<CienBaseComponent>();
             Layers = new List<CienLayer>(1) { new CienLayer(CienDocument.DefaultLayerName) };
+            board.SetScene(this);
         }
     }
 }

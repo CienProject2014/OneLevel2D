@@ -77,7 +77,7 @@ namespace OneLevel2D
             var removable = listPanel.Controls.Find(item.Name, false);
             listPanel.Controls.Remove(removable[0]);
         }
-        public void Clear()
+        public void ItemClear()
         {
             items.Clear();
             listPanel.Controls.Clear();
