@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -79,6 +80,16 @@ namespace OneLevel2D
             }
             base.WndProc(ref m);
         }*/
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            DialogResult result = MessageBox.Show(@"종료하기 전에 저장하시겠습니까?", "저장", MessageBoxButtons.YesNo);
+            if (result == DialogResult.Yes)
+            {
+                SaveDocument(CienDocument.Name + "." + ProjectExtension);
+            }
+            base.OnClosing(e);
+        }
         #endregion
 
         private void Init()
@@ -225,6 +236,8 @@ namespace OneLevel2D
             });
 
             File.WriteAllText(CienDocument.ProjectDirectory + @"\" + filename, docjson);
+
+            MessageBox.Show(CienDocument.Name + @" 프로젝트가 저장되었습니다.");
         }
 
         private void ParseDocument(string docstring)
@@ -863,8 +876,6 @@ namespace OneLevel2D
             CienDocument.ProjectDirectory = Application.StartupPath;
             InitDocument();
             SaveDocument(CienDocument.Name + "." + ProjectExtension);
-
-            MessageBox.Show(CienDocument.Name + @" 프로젝트가 저장되었습니다.");
         }
 
         private void jsonExportToolStripMenuItem_Click(object sender, EventArgs e)
