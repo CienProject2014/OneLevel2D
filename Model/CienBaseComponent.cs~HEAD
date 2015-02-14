@@ -36,7 +36,7 @@ namespace OneLevel2D.Model
         public void SetLocation(Point location)
         {
             Location = location;
-            ConvertedLocation = CoordinateConverter.ToOrigin(Location);
+            ConvertedLocation = CoordinateConverter.BoardToGame(Location, GetSize());
         }
 
         public void SetZindex(int zindex)

@@ -27,7 +27,6 @@ namespace OneLevel2D
             };
             Controls.Add(Board);
             Board.BringToFront();
-
             AddEvent();
         }
 
