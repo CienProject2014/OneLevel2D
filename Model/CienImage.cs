@@ -1,25 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
-using System.Runtime.InteropServices;
-using System.Windows.Forms;
-using System.Windows.Navigation;
+using Newtonsoft.Json;
 
 namespace OneLevel2D.Model
 {
-    public class CienImage : CienComponent
+    public class CienImage : CienBaseComponent
     {
         /* Variables ************************************************************/
         public string ImageName { get; private set; } // with extension
+        [JsonIgnore]
         public Image ImageData { get; private set; }
         /************************************************************************/
 
-        public CienImage(string imageName, string id, Point position, int zIndex, string layerName = CienDocument.DefaultLayerName)
+        public CienImage(string imageName, string id, Point location, int zIndex, string layerName = CienDocument.DefaultLayerName)
         {
             ImageName = imageName;
             Id = id;
-            Location = position;
-            Tint = new List<int>(4) {1, 1, 1, 1};
+            Location = location;
+            Tint = new List<float>(4) { 1, 1, 1, 1 };
             ZIndex = zIndex;
             LayerName = layerName;
         }
@@ -53,7 +51,7 @@ namespace OneLevel2D.Model
         {
             if (ImageData == null)
                 ImageData = Image.FromFile(CienDocument.ProjectDirectory + @"\"
-                                  + CienDocument.Name + MainForm.AssetDirectory + MainForm.ImageDirectory + @"\" + ImageName);
+                                  + CienDocument.Name + MainForm.ImageDirectory + @"\" + ImageName);
             return ImageData;
         }
 

@@ -10,9 +10,14 @@ namespace OneLevel2D
             return translated;
         }
 
+        public static Point BoardToGame(Point point, Size size)
+        {
+            return BoardToGame(point, size.Width, size.Height);
+        }
+
         public static Point BoardToGame(Point point, int width, int height)
         {
-            Point translatedPoint = point + Blackboard.LeftTopOffset;
+            Point translatedPoint = point - Blackboard.LeftTopOffset;
             int newX = translatedPoint.X;
             int newY = State.Document.Height - (translatedPoint.Y + height);
             
@@ -31,17 +36,12 @@ namespace OneLevel2D
             return translatedPoint;
         }
 
-        public static Point BoardToComposite(Point compositeLocation, Point imageLocation, int width, int height)
+        // composite에 상대적인 image좌표 <-> Board 좌표
+        public static Point CompositeBoard(Point Location, Size compositeSize)
         {
-            return Point.Empty;
+            Point flipped = new Point(Location.X, compositeSize.Height - Location.Y);
+            return flipped;
         }
 
-        // composite에 상대적인 image좌표를 뒤집는다.
-        public static Point CompositeToBoard(Point compositeLocation, Point imageLocation, int width, int height)
-        {
-            Point flipped = new Point(imageLocation.X, height - imageLocation.Y);
-            Point translated = flipped + (Size) compositeLocation;
-            return translated;
-        }
     }
 }

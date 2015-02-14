@@ -1,8 +1,11 @@
-﻿namespace OneLevel2D.Model
+﻿using Newtonsoft.Json;
+
+namespace OneLevel2D.Model
 {
     public class CienLayer
     {
         public CienLayer(string name) : this(name, true, false) {}
+        [JsonConstructor]
         public CienLayer(string name, bool isVisible, bool isLocked)
         {
             Name = name;

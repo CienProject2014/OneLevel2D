@@ -54,6 +54,24 @@ namespace OneLevel2D.TexturePacker
 {
     public class Packer
     {
+        /************************************************************************/
+        /* Variables															*/
+        /************************************************************************/
+        public List<Asset> drawableAssets { get; private set; }
+        public List<Rect> InputRects { get; private set; }
+        public List<Rect> OutputRects { get; private set; }
+        public int RealMaxWidth { get; private set; }
+        public int RealMaxHeight { get; private set; }
+
+        private const string PackImageName = "pack.png";
+        private const string AtlasName = "pack.atlas";
+        private const string FileFormat = "RGBA8888";
+        private const string Filter = "Linear,Linear";
+
+        //private Canvas canvas;
+        public delegate void AlgorithmDelegate();
+        public AlgorithmDelegate AlgorithmRun { get; private set; }
+
         public Packer()
         {
             AlgorithmRun = MyAlogorithm;
@@ -64,17 +82,19 @@ namespace OneLevel2D.TexturePacker
         /************************************************************************/
         public void LoadAssets(List<Asset> assets)
         {
-            if (assets == null || assets.Count == 0)
+            drawableAssets = assets.FindAll(x => x.Type != AssetType.Font);
+            if (drawableAssets == null || drawableAssets.Count == 0)
             {
-                MessageBox.Show(@"Asset이 비어있습니다.");
+                MessageBox.Show(@"Packing할 asset이 없습니다.");
                 return;
             }
+            
 
-            Assets = assets;
+            // Font가 아닌 모든 타입을 저장한다.
             if(InputRects == null)
-                InputRects = new List<Rect>(assets.Count);
+                InputRects = new List<Rect>(drawableAssets.Count);
 
-            foreach (var asset in assets)
+            foreach (var asset in drawableAssets)
             {
                 InputRects.Add(new Rect
                 {
@@ -116,7 +136,7 @@ namespace OneLevel2D.TexturePacker
             {
                 foreach (var outputRect in OutputRects)
                 {
-                    Asset match = Assets.Find(t => t.GetNameWithExt() == outputRect.Name);
+                    Asset match = drawableAssets.Find(t => t.GetNameWithExt() == outputRect.Name);
                     gfx.DrawImage((Image)match.Data, new Rectangle(outputRect.Position, new Size(outputRect.Width, outputRect.Height)));
                 }
             }
@@ -369,24 +389,6 @@ namespace OneLevel2D.TexturePacker
             public Size offset;
         }*/
         #endregion
-
-        /************************************************************************/
-        /* Variables															*/
-        /************************************************************************/
-        public List<Asset> Assets { get; private set; }
-        public List<Rect> InputRects { get; private set; }
-        public List<Rect> OutputRects { get; private set; }
-        public int RealMaxWidth { get; private set; }
-        public int RealMaxHeight { get; private set; }
-
-        private const string PackImageName = "pack.png";
-        private const string AtlasName = "pack.atlas";
-        private const string FileFormat = "RGBA8888";
-        private const string Filter = "Linear,Linear";
-
-        //private Canvas canvas;
-        public delegate void AlgorithmDelegate();
-        public AlgorithmDelegate AlgorithmRun { get; private set; }
 
 
         // For algorithm1

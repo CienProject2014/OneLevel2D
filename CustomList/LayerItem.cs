@@ -32,12 +32,28 @@ namespace OneLevel2D.CustomList
 
         void LayerItem_MouseDown(object sender, MouseEventArgs e)
         {
+            base.OnMouseDown(e);
+
+            if (e.Button == MouseButtons.Left)
+            {
+                if (IsSelected)
+                {
+                }
+                else
+                {
+                }
+            }
         }
 
         protected override void OnMouseDown(MouseEventArgs e)
         {
-            base.OnMouseDown(e);
-            State.SelectLayer(_layer);
+            //base.OnMouseDown(e);
+            if (e.Button == MouseButtons.Left)
+            {
+                State.SelectOneLayer(_layer);
+                
+                ItemSelect();
+            }
         }
 
         public void UpdateBox()
@@ -67,7 +83,7 @@ namespace OneLevel2D.CustomList
             State.Board.Invalidate();
         }
 
-        protected override void ChangeItem(string newName)
+        protected override void ChangeItemName(string newName)
         {
             if (newName == null) return;
 

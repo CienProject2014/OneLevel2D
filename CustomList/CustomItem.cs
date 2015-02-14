@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
+using OneLevel2D.CustomList;
 
 namespace OneLevel2D
 {
@@ -11,7 +12,6 @@ namespace OneLevel2D
         private static readonly Color SelecteColor = Color.WhiteSmoke;
         private static readonly Color EnterColor = Color.LightGray;
         private static readonly Color LeaveColor = Color.Gray;
-        protected bool MultipleSelect;
 
         protected CustomItem(string name, Point location)
         {
@@ -54,7 +54,6 @@ namespace OneLevel2D
         {
             if (!IsSelected)
             {
-                Debug.Print("no enter");
                 BackColor = EnterColor;
             }
         }
@@ -67,7 +66,7 @@ namespace OneLevel2D
             }
         }
 
-        protected abstract void ChangeItem(string text);
+        protected abstract void ChangeItemName(string text);
 
         protected override void OnPaint(PaintEventArgs e)
         {
@@ -109,7 +108,7 @@ namespace OneLevel2D
 
         private void nameChangeBox_LostFocus(object sender, EventArgs e)
         {
-            ChangeItem(nameChangeBox.Text);
+            ChangeItemName(nameChangeBox.Text);
 
             nameChangeBox.Visible = false;
             itemName.Visible = true;
@@ -119,34 +118,11 @@ namespace OneLevel2D
         {
             if (e.KeyCode == Keys.Enter)
             {
-                ChangeItem(nameChangeBox.Text);
+                ChangeItemName(nameChangeBox.Text);
 
                 nameChangeBox.Visible = false;
                 itemName.Visible = true;
             }
-        }
-
-        protected override bool IsInputKey(Keys keyData)
-        {
-            if (keyData == Keys.Control)
-            {
-                return true;
-            }
-            return base.IsInputKey(keyData);
-        }
-
-        protected override void OnKeyDown(KeyEventArgs e)
-        {
-            if (e.Control)
-            {
-                MultipleSelect = true;
-            }
-        }
-
-        protected override void OnKeyUp(KeyEventArgs e)
-        {
-            if (MultipleSelect)
-                MultipleSelect = false;
         }
 
         protected override void OnMouseEnter(EventArgs e)
@@ -154,7 +130,8 @@ namespace OneLevel2D
             ShowEnter();
             // TODO Compoennt List View에 문제가 생기면 여기를 확인.
             //Parent.Focus();
-            Focus();
+            //Focus();
+            Debug.Print("Item Enter");
         }
 
         protected override void OnMouseLeave(EventArgs e)
@@ -177,7 +154,6 @@ namespace OneLevel2D
         {
             ShowEnter();
         }
-
 
         #region Constant
 

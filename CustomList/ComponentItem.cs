@@ -1,4 +1,6 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Diagnostics;
+using System.Drawing;
 using System.Windows.Forms;
 using OneLevel2D.Model;
 
@@ -6,9 +8,9 @@ namespace OneLevel2D.CustomList
 {
     public class ComponentItem : CustomItem
     {
-        public CienComponent Component { get; private set; }
+        public CienBaseComponent Component { get; private set; }
 
-        public ComponentItem(CienComponent component, Point location)
+        public ComponentItem(CienBaseComponent component, Point location)
             : base(component.Id, location)
         {
 
@@ -22,32 +24,35 @@ namespace OneLevel2D.CustomList
 
         protected override void OnMouseDown(MouseEventArgs e)
         {
-            base.OnMouseDown(e);
-
             if (e.Button == MouseButtons.Left)
             {
-                if (IsSelected)
+                if (!IsSelected)
                 {
-                    if (MultipleSelect)
+                    if (false) // TODO Component List View에서 여려개를 선택할 때 사용.
                     {
-                        ItemSelect();
+                        Debug.Print("select with ctrl");
                         State.SelectComponent(Component);
                     }
                     else
                     {
-                        ItemSelect();
+                        Debug.Print("select without ctrl");
                         State.SelectOneComponent(Component);
                     }
+
+                    ItemSelect();
+                    State.Board.Focus();
                 }
                 else
                 {
-                    ItemUnselect();
                     State.UnselectComponent(Component);
+
+                    ItemUnselect();
                 }
             }
+
         }
 
-        protected override void ChangeItem(string newId)
+        protected override void ChangeItemName(string newId)
         {
             if (newId == null) return;
 

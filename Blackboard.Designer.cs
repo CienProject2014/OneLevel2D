@@ -44,11 +44,10 @@ namespace OneLevel2D
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.SystemColors.Control;
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.Name = "Blackboard";
-            this.Size = new System.Drawing.Size(254, 248);
+            //this.Size = new System.Drawing.Size(254, 248);
             this.ResumeLayout(false);
-
         }
         
         #endregion

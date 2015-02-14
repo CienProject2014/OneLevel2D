@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.Versioning;
 using System.Security.Cryptography.X509Certificates;
@@ -16,13 +17,17 @@ namespace OneLevel2D.CustomList
 
         public LayerListView()
         {
-            Initialize();
-        }
-
-        private void Initialize()
-        {
             titleName.Text = Title;
             InitializeComponent();
+        }
+
+        public void ChangeLayerList(List<CienLayer> layerList)
+        {
+            ItemClear();
+            foreach (var component in layerList)
+            {
+                AddLayer(component);
+            }
         }
 
         public void AddLayer(CienLayer layer)
@@ -41,14 +46,14 @@ namespace OneLevel2D.CustomList
         private void NewLayer()
         {
             CienLayer layer = new CienLayer("layer" + GetNumber(), true, false);
-            State.Document.Layers.Add(layer);
+            State.CurrentScene.Layers.Add(layer);
             AddLayer(layer);
         }
 
         private void RemoveLayer(CienLayer layer)
         {
             RemoveItem(layer.Name);
-            State.Document.Components.RemoveAll(x => x.LayerName == layer.Name);
+            State.CurrentScene.Components.RemoveAll(x => x.LayerName == layer.Name);
             State.Board.Invalidate();
         }
 
@@ -57,7 +62,7 @@ namespace OneLevel2D.CustomList
             var removable = items.FindAll(x => x.IsSelected);
             foreach (var item in removable)
             {
-                var layer = State.Document.Layers.Find(x => x.Name == item.itemName.Text);
+                var layer = State.CurrentScene.Layers.Find(x => x.Name == item.itemName.Text);
                 RemoveLayer(layer);
             }
         }
