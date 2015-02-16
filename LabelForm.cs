@@ -47,7 +47,7 @@ namespace OneLevel2D
         {
             var textBox = (TextBox) sender;
             int ipno = 0;
-            if (textBox.Text != null)
+            if (!string.IsNullOrEmpty(textBox.Text))
                 ipno = Convert.ToInt32(textBox.Text);
 
             if (ipno > 255)
@@ -74,20 +74,24 @@ namespace OneLevel2D
 
         private void okButton_Click(object sender, EventArgs e)
         {
-            // TODO 여기서 공백 체크를 해야 한다.
-            var item = (FontItem) fontComboBox.SelectedItem;
-            var text = textBox.Text;
-            var style = item.Name;
+            var item = fontComboBox.SelectedItem as FontItem;
+            if (item == null)
+            {
+                MessageBox.Show(@"폰트를 선택해주세요.");
+                return;
+            }
+            var fontName = item.Name;
+            var text = textBox.Text ?? "label";
             var tint = new List<float>(4)
             {
-                ToFloat(int.Parse(rBox.Text)),
-                ToFloat(int.Parse(gBox.Text)),
-                ToFloat(int.Parse(bBox.Text)),
-                ToFloat(int.Parse(aBox.Text))
+                (!string.IsNullOrEmpty(rBox.Text)) ? ToFloat(int.Parse(rBox.Text)) : ToFloat(255),
+                (!string.IsNullOrEmpty(gBox.Text)) ? ToFloat(int.Parse(gBox.Text)) : ToFloat(255),
+                (!string.IsNullOrEmpty(bBox.Text)) ? ToFloat(int.Parse(bBox.Text)) : ToFloat(255),
+                (!string.IsNullOrEmpty(aBox.Text)) ? ToFloat(int.Parse(aBox.Text)) : ToFloat(255)
             };
-            int size = int.Parse(sizeBox.Text);
+            int size = (!string.IsNullOrEmpty(sizeBox.Text)) ? int.Parse(sizeBox.Text) : 100;
 
-            State.MakeNewLabel(text, size, style, tint);
+            State.MakeNewLabel(text, size, fontName, tint);
 
             Close();
         }

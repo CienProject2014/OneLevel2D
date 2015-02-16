@@ -337,14 +337,15 @@ namespace OneLevel2D
         {
             titleBarControl1.SetTitleName(CienDocument.Name + " - " + ProgramName);
 
+            CienBaseComponent.Number = 0;
+            CienScene.Number = 0;
+
             ReloadSceneTab();
             ReloadAssetList();
             ReloadComponentList();
             ReloadLayerList();
 
             State.Board.Invalidate();
-
-            CienBaseComponent.Number = 0;
 
             // TODO 분리해주어야 좋을 Directory 설정. 이 부분을 어디서 사용할지 모르니까 쉽사리 분리를 하지 못하겠다.
             string projectPath = CienDocument.ProjectDirectory ?? Application.StartupPath;
@@ -387,7 +388,7 @@ namespace OneLevel2D
                 }
                 catch (Exception e)
                 {
-                    MessageBox.Show(@"Import 도중 오류가 발생했습니다 " + e);
+                    MessageBox.Show(@"파일을 복사하는 도중 오류가 발생했습니다 " + e);
                 }
 
                 Asset newAsset = MakeAssetFrom(file);

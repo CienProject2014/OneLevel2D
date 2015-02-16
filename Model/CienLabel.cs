@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Text;
 using System.IO;
 using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 using Newtonsoft.Json;
 
 namespace OneLevel2D.Model
@@ -13,20 +14,20 @@ namespace OneLevel2D.Model
         /* Variables ************************************************************/
         // should be public for Serialization/Deserialization
         public string Text { get; set; }
-        public string Style { get; set; }
+        public string FontName { get; set; }
         public int FontSize { get; set; }
         public int Align { get; set; }
         [JsonIgnore]
         public Font FontData { get; set; }
         /************************************************************************/
 
-        public CienLabel(string text, int fontSize, string style, List<float> tint, string id, int zIndex,
+        public CienLabel(string text, int fontSize, string fontName, List<float> tint, string id, int zIndex,
             string layerName = CienDocument.DefaultLayerName)
         {
             
             Text = text;
             FontSize = fontSize;
-            Style = style;
+            FontName = fontName;
             Align = 0;
 
             // make FontData
@@ -57,31 +58,55 @@ namespace OneLevel2D.Model
         private void LoadFont()
         {
             var fileName = MainForm.ProjectDirectory + @"\" + CienDocument.Name + MainForm.FontDirectory + @"\" +
-                           Style + ".ttf";
+                           FontName + ".ttf";
             var myFonts = new PrivateFontCollection();
 
-            if (File.Exists(fileName))
-            {
-            }
-            else
+            if (!File.Exists(fileName))
             {
                 MessageBox.Show(@"파일이 없습니다. ");
                 return;
             }
 
-            FontStyle fontStyle;
-            Enum.TryParse(Style, out fontStyle);
+            myFonts.AddFontFile(fileName); //we add the full path of the ttf file
+
+            if (GetFont(myFonts.Families[0], FontStyle.Regular) != null)
+            {
+                FontData = GetFont(myFonts.Families[0], FontStyle.Regular);
+            }
+            else if (GetFont(myFonts.Families[0], FontStyle.Bold) != null)
+            {
+                FontData = GetFont(myFonts.Families[0], FontStyle.Bold);
+            }
+            else if (GetFont(myFonts.Families[0], FontStyle.Italic) != null)
+            {
+                FontData = GetFont(myFonts.Families[0], FontStyle.Italic);
+            }
+            else if (GetFont(myFonts.Families[0], FontStyle.Bold | FontStyle.Italic) != null)
+            {
+                FontData = GetFont(myFonts.Families[0], FontStyle.Bold | FontStyle.Italic);
+            }
+            else
+            {
+                MessageBox.Show(@"Regular, Bold, Italic이 존재하지 않는 폰트입니다.");
+            }
+
+            myFonts.Dispose();
+        }
+
+        private Font GetFont(FontFamily fontFamily, FontStyle fontStyle)
+        {
+            Font font;
+
             try
             {
-                myFonts.AddFontFile(fileName);//we add the full path of the ttf file
-                FontData = new Font(myFonts.Families[0], FontSize, FontStyle.Regular);            // TODO 현재는 Regular 스타일만 쓸 수 있음.
-                myFonts.Dispose();
-
+                font = new Font(fontFamily, FontSize, fontStyle);
             }
-            catch (IOException e)
+            catch
             {
-                MessageBox.Show(@"파일을 읽을 수 없습니다. " + e.Message);
+                font = null;
             }
+
+            return font;
         }
 
         public override Image GetImage()

@@ -72,7 +72,7 @@ namespace OneLevel2D
 
         }
 
-        public static void MakeNewLabel(string text, int size, string style, List<float> tint)
+        public static void MakeNewLabel(string text, int size, string fontName, List<float> tint)
         {
             string id = "label" + CurrentScene.Components.Count;
             id = Document.GetNewId(id);
@@ -83,7 +83,7 @@ namespace OneLevel2D
                 return;
             }
 
-            var newLabel = new CienLabel(text, size, style, tint, id,
+            var newLabel = new CienLabel(text, size, fontName, tint, id,
                 CurrentScene.Components.Count, Selected.Layer.Name);
 
             // 1. Document에 추가하고
