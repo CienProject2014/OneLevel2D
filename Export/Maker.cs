@@ -159,6 +159,23 @@ namespace OneLevel2D.Export
                                 tint = cienImage.Tint,
                                 x = cienImage.Location.X,
                                 y = cienImage.Location.Y
+                                // TODO Is zIndex needed?
+                            });
+                        }
+
+                        foreach (var label in cienComposite.Composites.FindAll(x => x is CienLabel))
+                        {
+                            CienLabel cienLabel = (CienLabel) label;
+                            scene.composite.sComposites.Last().composite.sLabels.Add(new ExportsLabel
+                            {
+                                layerName = cienLabel.LayerName,
+                                size = cienLabel.FontSize,
+                                text = cienLabel.Text,
+                                style = cienLabel.FontName,
+                                tint = cienLabel.Tint,
+                                x = cienLabel.Location.X,
+                                y = cienLabel.Location.Y
+                                // TODO Is zIndex needed?
                             });
                         }
                     }

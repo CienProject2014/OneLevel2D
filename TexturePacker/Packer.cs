@@ -1,48 +1,4 @@
-﻿/************************************************************************/
-/*                              [ALGORITHM]
- * 1.  Sort the rectangles by height, greatest height first.
- * 2.  Start off with an enclosing rectangle that is as high as the highest 
- *     rectangle, and that has unlimited width.
- * 3.  Place the rectangles in the enclosing rectangle one by one, starting 
- *     with the highest rectangle and ending with the lowest rectangle. 
- *     Put each rectangle as far left as possible. If there are several 
- *     left most locations, use the highest one.
- * 4.  Make the width of the enclosing rectangle equal to the total width 
- *     taken by the rectangles. That is, move the right edge of the 
- *     enclosing rectangle to left until it touches the right edge of the 
- *     right most rectangle. That way, the enclosing rectangle is 
- *     no wider than needed.
- * 5.  Did you manage to place all rectangles in the enclosing rectangle? 
- *     In that case:
- *       - If the enclosing rectangle you've got now is the smallest 
- *         "successful" enclosing rectangle so far, store this enclosing 
- *         rectangle as the best enclosing rectangle so far.
- *       - It's time to try a smaller enclosing rectangle - decrease the 
- *         width of the enclosing rectangle by one.
- * 6.  Note that reducing the width and increasing the height means 
- *     in effect that we're testing the range of enclosing rectangles 
- *     from low and wide to high and narrow.
- * 7.  If the total area (width x height) of the enclosing rectangle you
- *     have now is smaller than the total area of all the rectangles 
- *     you're going to try to place inside it, then this is obviously not 
- *     a viable enclosing rectangle. Increase the height by one until you 
- *     get a viable enclosing rectangle. Then go to the next step.
- * 8.  If the enclosing rectangle you've got now is bigger than the best 
- *     enclosing rectangle so far, there is no point in testing this 
- *     enclosing rectangle. Decrease the width by one and go back to 
- *     step 7 to make sure it is now not too small. Otherwise go to 
- *     the next step.
- * 9.  If your new enclosing rectangle is narrower than the widest 
- *     rectangle, you can stop now, and report the best enclosing rectangle 
- *     you found so far. This is because the algorithm never increases the 
- *     width of the enclosing rectangle, and if the widest rectangle won't 
- *     fit, there is obviously no point in testing the enclosing rectangle.
- * 10. Now that your new enclosing rectangle is neither too small nor too 
- *     big, go back to step 3 to see if you can place all rectangles 
- *     inside it.                                                       */
-/************************************************************************/
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -221,27 +177,25 @@ namespace OneLevel2D.TexturePacker
             var rectsLineList = new List<List<Rect>>();
             for (var i = 0; i < InputRects.Count; i++)
             {
-                var rect = InputRects[i];
-
-                if (rect.Width > WidthLimit) continue;
+                if (InputRects[i].Width > WidthLimit) continue;
 
                 if (rectsLineList.Count == 0)
                 {
-                    rect.SetPosition(new Point(0, 0));
+                    InputRects[i].SetPosition(new Point(0, 0));
                 }
                 else
                 {
                     var top = rectsLineList.Last().First();
-                    rect.SetPosition(top.LeftBottom());
+                    InputRects[i].SetPosition(top.LeftBottom());
                 }
 
-                var rectsLine = new List<Rect> {rect};
+                var rectsLine = new List<Rect> {InputRects[i]};
 
                 while (i < InputRects.Count-1)
                 {
                     i++;
-                    rect.SetPosition(InputRects[i-1].TopRight());
-                    rectsLine.Add(rect);
+                    InputRects[i].SetPosition(InputRects[i - 1].TopRight());
+                    rectsLine.Add(InputRects[i]);
 
                     if (rectsLine.Sum(x => x.Width) >= WidthLimit)
                     {
@@ -393,6 +347,36 @@ namespace OneLevel2D.TexturePacker
                 return new Point(Position.X+Width, Position.Y+Height);
             }
 
+        }
+
+        public class RectFloor
+        {
+            private List<Rect> Rects { get; set; }
+
+            public RectFloor()
+            {
+                Rects = new List<Rect>();
+            }
+
+            public RectFloor(List<Rect> rects)
+            {
+                Rects = rects;
+            }
+
+            public void Add(Rect rect)
+            {
+                Rects.Add(rect);
+            }
+
+            public int Count()
+            {
+                return Rects.Count;
+            }
+
+            public Rect First()
+            {
+                return Rects.First();
+            }
         }
         #endregion
 
