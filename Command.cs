@@ -15,6 +15,7 @@ namespace OneLevel2D
         public const string MOVE = "COMMAND_MOVE";
         public const string ADD = "COMMAND_ADD";
         public const string REMOVE = "COMMAND_REMOVE";
+        public const string RESIZE = "COMMAND_RESIZE";
 
         protected Command(string name)
         {
@@ -58,6 +59,30 @@ namespace OneLevel2D
         public RemoveCommand(string name, List<CienBaseComponent> list) : base(name)
         {
             ComponentList = new List<CienBaseComponent>(list);
+        }
+    }
+
+    public class ResizeCommand : Command
+    {
+        public CienBaseComponent Component { get; set; }
+        public Point StartPoint { get; set; }
+        public Point EndPoint { get; set; }
+
+        public ResizeCommand(string name, CienBaseComponent component) : base(name)
+        {
+            Component = component;
+        }
+
+        public bool IsResized()
+        {
+            var offset = EndPoint - (Size)StartPoint;
+            return !offset.IsEmpty;
+        }
+
+        public Size GetSizeOffset()
+        {
+            var offset = (Size)EndPoint - (Size)StartPoint;
+            return Component.GetSize() + offset;
         }
     }
 }

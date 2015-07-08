@@ -234,14 +234,12 @@ namespace OneLevel2D
             var command = (MoveCommand)_lastCommand;
             command.EndPoint = endPoint;
 
-            if (!command.IsMoved())
+            if (command.IsMoved())
             {
-                _lastCommand = null;
-                return;
+                _lastCommand = command;
+                Commands.Push(_lastCommand);
             }
-
-            _lastCommand = command;
-            Commands.Push(_lastCommand);
+            
             _lastCommand = null;
         }
 
@@ -257,6 +255,30 @@ namespace OneLevel2D
             var command = new RemoveCommand(Command.REMOVE, components);
 
             Commands.Push(command);
+        }
+
+        public static void CommandResizeStart(Point startPoint)
+        {
+            var command = new ResizeCommand(Command.RESIZE, _selected.Component);
+
+            command.StartPoint = startPoint;
+            _lastCommand = command;
+        }
+
+        public static void CommandResizeEnd(Point endPoint)
+        {
+            if (_lastCommand == null) return;
+
+            var command = (ResizeCommand)_lastCommand;
+            command.EndPoint = endPoint;
+
+            if (command.IsResized())
+            {
+                _lastCommand = command;
+                Commands.Push(_lastCommand);
+            }
+            
+            _lastCommand = null;
         }
 
         private static void DoCommand(Command command)

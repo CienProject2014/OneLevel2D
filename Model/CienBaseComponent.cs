@@ -13,6 +13,8 @@ namespace OneLevel2D.Model
         public string Id { get; set; }
         public Point Location { get; set; }
         public Point ConvertedLocation { get; set; }
+        public float ScaleX { get; set; }
+        public float ScaleY { get; set; }
         public int ZIndex { get; set; }
         public List<float> Tint { get; set; }
         public string LayerName { get; set; }

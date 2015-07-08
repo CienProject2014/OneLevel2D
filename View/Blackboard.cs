@@ -131,9 +131,10 @@ namespace OneLevel2D
         private void DrawComponent(PaintEventArgs e, CienBaseComponent component)
         {
             Image img = component.GetImage();
-
+            int width = (int)(img.Width);
+            int height = (int)(img.Height);
             e.Graphics.DrawImage(img, new Rectangle(component.Location,
-                new Size(img.Width, img.Height)));
+                new Size(width, height)));
         }
 
         private void DrawComponentList(PaintEventArgs e)
@@ -167,6 +168,15 @@ namespace OneLevel2D
             using (Pen pen = new Pen(Color.FromArgb(62, 62, 66)))
             {
                 e.Graphics.DrawLines(pen, points);
+            }
+
+            using (Pen pen = new Pen(Color.White))
+            {
+                e.Graphics.DrawEllipse(pen,
+                    new Rectangle(new Point(component.Location.X + component.GetSize().Width, 
+                        component.Location.Y + component.GetSize().Height),
+                    new Size(4, 4)
+                    ));
             }
 
         }
@@ -226,7 +236,9 @@ namespace OneLevel2D
                         State.SelectComponent(candidate);
                     }
                     else
+                    {
                         State.SelectOneComponent(candidate);
+                    }
 
                     State.CommandMoveStart(e.Location);
 

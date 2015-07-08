@@ -10,7 +10,7 @@ namespace OneLevel2D
 
         public Log()
         {
-            _filePath = @"C:\Users\HAJIN\Documents\Visual Studio 2013\Projects\OneLevel2D\bin\Debug\Logs\" + "[" + DateTime.Now.ToString("HH-mm-ss") + "]" + ".log";
+            _filePath = @"C:\Users\Hajin\Documents\OneLevel2D\bin\Debug" + "[" + DateTime.Now.ToString("HH-mm-ss") + "]" + ".log";
 
             try
             {
